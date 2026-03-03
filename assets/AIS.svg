@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1037.67 1057.93">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: url(#linear-gradient);
+      }
+
+      .cls-1, .cls-2, .cls-3 {
+        stroke-width: 0px;
+      }
+
+      .cls-2 {
+        fill: url(#linear-gradient-2);
+      }
+
+      .cls-3 {
+        fill: #102448;
+      }
+    </style>
+    <linearGradient id="linear-gradient" x1="137.82" y1="-6192.57" x2="891.1" y2="-6192.57" gradientTransform="translate(0 -5745.93) scale(1 -1)" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffad29"/>
+      <stop offset=".22" stop-color="#ffb221"/>
+      <stop offset=".55" stop-color="#ffc20e"/>
+      <stop offset=".74" stop-color="#ffce00"/>
+    </linearGradient>
+    <linearGradient id="linear-gradient-2" x1="276.45" y1="-6211.42" x2="1037.67" y2="-6211.42" xlink:href="#linear-gradient"/>
+  </defs>
+  <g id="Isolation_Mode" data-name="Isolation Mode">
+    <g>
+      <path class="cls-3" d="m916.76,891.06c-106.13,119.99-300.62,200.4-504.98,153.11C198.01,994.71,34.78,816.18,5.09,599.67-25.27,378.37,84.71,190.45,217.23,98.91c-89.64,108.77-133.66,233.36-126.54,374.1,7.13,141.16,63.4,260.99,164.94,359.22,160.46,155.21,435.67,206.24,661.14,58.81h-.01Z"/>
+      <path class="cls-1" d="m891.09,119.97C675.27-25.57,388.53,48.97,268.44,268.71c-65.82,120.42-73.07,246.35-20.89,373.24,52.01,126.5,147.05,208.14,279.71,251.35-128.24-11.41-306.66-109.58-369.13-310.75-63.13-203.3,24.65-421.94,211.28-525.9C551.15-44.58,765.4-2.01,891.1,119.97h-.01Z"/>
+      <path class="cls-2" d="m1037.67,354.39c-68.55-111.12-163.15-150.68-291.67-163.43-111.23-11.04-188.5,19.42-270.8,94.96-123.96,105.34-186.24,394.78-7.06,544.44-36.74-9.52-114.59-91.16-147.39-154.5-34.34-66.31-48.93-136.94-43.03-211.14,15.47-194.37,167.39-347.65,360.75-362.77,208.02-16.26,353.38,122.31,399.19,252.43h0Z"/>
+    </g>
+  </g>
+</svg>
