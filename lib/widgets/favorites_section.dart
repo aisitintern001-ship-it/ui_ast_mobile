@@ -14,6 +14,7 @@ class FavoritesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final favorites = state.favorites;
+    final headerColor = state.headerColor;
 
     return Container(
       color: Colors.white,
@@ -39,7 +40,7 @@ class FavoritesSection extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.iconBlue,
+                    color: headerColor,
                   ),
                 ),
               ),
@@ -49,7 +50,7 @@ class FavoritesSection extends StatelessWidget {
           if (favorites.isEmpty)
             _EmptyFavorites(onAdd: onViewAll)
           else
-            _FavoritesGrid(favorites: favorites),
+            _FavoritesGrid(favorites: favorites, themeColor: headerColor),
         ],
       ),
     );
@@ -85,8 +86,9 @@ class _EmptyFavorites extends StatelessWidget {
 
 class _FavoritesGrid extends StatelessWidget {
   final List<FavoriteItem> favorites;
+  final Color? themeColor;
 
-  const _FavoritesGrid({required this.favorites});
+  const _FavoritesGrid({required this.favorites, this.themeColor});
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +106,7 @@ class _FavoritesGrid extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              ...rowItems.map((item) => _FavoriteIconItem(item: item)),
+              ...rowItems.map((item) => _FavoriteIconItem(item: item, themeColor: themeColor)),
               // Fill empty slots
               ...List.generate(
                 4 - rowItems.length,
@@ -120,11 +122,13 @@ class _FavoritesGrid extends StatelessWidget {
 
 class _FavoriteIconItem extends StatelessWidget {
   final FavoriteItem item;
+  final Color? themeColor;
 
-  const _FavoriteIconItem({required this.item});
+  const _FavoriteIconItem({required this.item, this.themeColor});
 
   @override
   Widget build(BuildContext context) {
+    final color = themeColor ?? item.color;
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -143,10 +147,10 @@ class _FavoriteIconItem extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: item.color.withValues(alpha: 0.12),
+                color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(item.icon, color: item.color, size: 24),
+              child: Icon(item.icon, color: color, size: 24),
             ),
             const SizedBox(height: 6),
             Text(
@@ -287,7 +291,8 @@ class _EditableFavoritesGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.read<AppState>();
+    final state = context.watch<AppState>();
+    final themeColor = state.headerColor;
     return Wrap(
       spacing: 12,
       runSpacing: 12,
@@ -303,10 +308,10 @@ class _EditableFavoritesGrid extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: item.color.withValues(alpha: 0.12),
+                      color: themeColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(item.icon, color: item.color, size: 24),
+                    child: Icon(item.icon, color: themeColor, size: 24),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -346,6 +351,7 @@ class _AllMenuItemsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final notFavorited = state.allMenuItems.where((item) => !state.isFavorite(item.id)).toList();
+    final themeColor = state.headerColor;
 
     return Wrap(
       spacing: 12,
@@ -361,10 +367,10 @@ class _AllMenuItemsGrid extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: item.color.withValues(alpha: 0.12),
+                    color: themeColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(item.icon, color: item.color, size: 24),
+                  child: Icon(item.icon, color: themeColor, size: 24),
                 ),
                 const SizedBox(height: 4),
                 Text(

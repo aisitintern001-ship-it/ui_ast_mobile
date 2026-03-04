@@ -5,12 +5,15 @@ class UserModel {
   final String email;
   final String initials;
   final String role;
+  /// Company id this user belongs to (e.g. from database). Used to set selected company on login.
+  final String? companyId;
 
   const UserModel({
     required this.name,
     required this.email,
     required this.initials,
     required this.role,
+    this.companyId,
   });
 }
 

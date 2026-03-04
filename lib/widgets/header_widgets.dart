@@ -11,22 +11,29 @@ class DashboardHeader extends StatelessWidget {
 
   const DashboardHeader({super.key, this.onAvatarTap});
 
+  static Color _companyColor(String name) {
+    switch (name) {
+      case 'Pacific Harvest Co.': return const Color(0xFF6366F1);
+      case 'Australia Farm Innovations': return const Color(0xFFF97316);
+      case 'Australia Software Technology': return const Color(0xFF2563EB);
+      case 'Innovative Fibre Industries': return const Color(0xFF10B981);
+      default: return AppColors.headerOrange;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final user = state.currentUser;
     final headerColor = state.headerColor;
-    // Hardcoded companies for the dropdown (with color dots)
-    final companies = [
-      {'name': 'Pacific Harvest Co.', 'color': Color(0xFF6366F1)},
-      {'name': 'Australia Farm Innovations', 'color': Color(0xFFF97316)},
-      {'name': 'Australia Software Technology', 'color': Color(0xFF2563EB)},
-      {'name': 'Innovative Fibre Industries', 'color': Color(0xFF10B981)},
-    ];
-    // Use selected company index in state, fallback to 0
-    int selectedIndex = state.selectedCompany != null
-        ? companies.indexWhere((c) => c['name'] == state.selectedCompany!.name)
+    final companies = state.companies;
+    final selected = state.selectedCompany;
+    final selectedIndex = selected != null && companies.isNotEmpty
+        ? companies.indexWhere((c) => c.id == selected.id)
         : 0;
+    final effectiveIndex = companies.isEmpty
+        ? 0
+        : (selectedIndex >= 0 ? selectedIndex : 0).clamp(0, companies.length - 1);
 
     return Container(
       color: headerColor,
@@ -54,9 +61,19 @@ class DashboardHeader extends StatelessWidget {
                 const SizedBox(height: 0),
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 0),
-                  child: DropdownButtonHideUnderline(
+                  child: companies.isEmpty
+                      ? Text(
+                          'No company',
+                          style: GoogleFonts.inter(
+                            fontSize: 15,
+                            color: Colors.white70,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        )
+                      : DropdownButtonHideUnderline(
                     child: DropdownButton<int>(
-                      value: selectedIndex >= 0 ? selectedIndex : 0,
+                      isExpanded: true,
+                      value: effectiveIndex,
                       icon: const Icon(
                         Icons.keyboard_arrow_down_rounded,
                         color: Colors.white,
@@ -68,63 +85,63 @@ class DashboardHeader extends StatelessWidget {
                       ),
                       borderRadius: BorderRadius.circular(12),
                       onChanged: (int? idx) {
-                        if (idx != null) {
-                          // Set selected company in state
-                          state.selectCompany(
-                            CompanyModel(
-                              id: idx.toString(),
-                              name: companies[idx]['name'] as String,
-                              location: '',
-                              lastUpdated: '',
-                            ),
-                          );
+                        if (idx != null && idx < companies.length) {
+                          state.selectCompany(companies[idx]);
                         }
                       },
                       selectedItemBuilder: (context) => companies.map((c) {
+                        final color = _companyColor(c.name);
                         return Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Container(
                               width: 8,
                               height: 8,
                               margin: const EdgeInsets.only(right: 8),
                               decoration: BoxDecoration(
-                                color: c['color'] as Color,
+                                color: color,
                                 shape: BoxShape.circle,
                               ),
                             ),
                             Text(
-                              c['name'] as String,
+                              c.name,
                               style: GoogleFonts.inter(
                                 fontSize: 15,
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
                               ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
                           ],
                         );
                       }).toList(),
                       items: List.generate(companies.length, (idx) {
                         final c = companies[idx];
+                        final color = _companyColor(c.name);
                         return DropdownMenuItem<int>(
                           value: idx,
                           child: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
                                 width: 10,
                                 height: 10,
                                 margin: const EdgeInsets.only(right: 12),
                                 decoration: BoxDecoration(
-                                  color: c['color'] as Color,
+                                  color: color,
                                   shape: BoxShape.circle,
                                 ),
                               ),
                               Text(
-                                c['name'] as String,
+                                c.name,
                                 style: GoogleFonts.inter(
                                   fontSize: 15,
                                   color: Colors.black,
                                   fontWeight: FontWeight.w500,
                                 ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                             ],
                           ),
@@ -145,7 +162,9 @@ class DashboardHeader extends StatelessWidget {
                 height: 80,
                 child: Center(
                   child: SvgPicture.asset(
-                    'assets/AIS.svg',
+                    'assets/AST.svg',
+                    width: 70,
+                    height:70,
                   ),
                 ),
               ),

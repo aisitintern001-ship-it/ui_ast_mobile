@@ -11,6 +11,7 @@ class DashboardSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
+    final headerColor = state.headerColor;
 
     return Container(
       color: Colors.white,
@@ -36,7 +37,7 @@ class DashboardSection extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.iconBlue,
+                    color: headerColor,
                   ),
                 ),
               ),

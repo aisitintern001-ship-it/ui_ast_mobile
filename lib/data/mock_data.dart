@@ -3,45 +3,40 @@ import '../models/models.dart';
 import '../theme/app_theme.dart';
 
 class MockData {
+  /// Current user (e.g. from database). companyId sets which company is selected on login.
   static const UserModel currentUser = UserModel(
     name: 'John Mel C. Haniba',
     email: 'mac.llanes@company.com',
     initials: 'A',
     role: 'Administrator',
+    companyId: '3', // Australia Software Technology
   );
 
   static const List<CompanyModel> companies = [
     CompanyModel(
       id: '1',
-      name: 'Ace Company Filing a Title',
-      location: 'Pasig City, Metro Manila, Philippines',
+      name: 'Pacific Harvest Co.',
+      location: 'Australia',
       lastUpdated: 'Nov 18',
       hasNew: true,
-      tag: 'NEW',
     ),
     CompanyModel(
       id: '2',
-      name: 'Goldfish Company Filing Ltd.',
-      location: 'Makati City, Metro Manila',
+      name: 'Australia Farm Innovations',
+      location: 'Australia',
       lastUpdated: 'Oct 22',
     ),
     CompanyModel(
       id: '3',
-      name: 'TechForward Solutions Inc.',
-      location: 'Quezon City, Metro Manila',
+      name: 'Australia Software Technology',
+      location: 'Australia',
       lastUpdated: 'Nov 10',
     ),
     CompanyModel(
       id: '4',
-      name: 'Pacific Bridge Corporation',
-      location: 'Taguig City, Metro Manila',
+      name: 'Innovative Fibre Industries',
+      location: 'Australia',
       lastUpdated: 'Nov 15',
-    ),
-    CompanyModel(
-      id: '5',
-      name: 'Horizon Global Partners',
-      location: 'Mandaluyong City, Metro Manila',
-      lastUpdated: 'Sep 30',
     ),
   ];
 

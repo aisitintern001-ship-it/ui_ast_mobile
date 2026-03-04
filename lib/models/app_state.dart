@@ -111,6 +111,16 @@ class AppState extends ChangeNotifier {
 
     _isLoading = false;
     _isAuthenticated = true;
+    // Set selected company from user's account (e.g. from database)
+    final companyId = _currentUser.companyId;
+    if (companyId != null) {
+      for (final c in companies) {
+        if (c.id == companyId) {
+          selectCompany(c);
+          break;
+        }
+      }
+    }
     notifyListeners();
     return true;
   }

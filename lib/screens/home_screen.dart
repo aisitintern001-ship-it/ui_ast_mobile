@@ -165,6 +165,7 @@ class _MainMenuSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final allItems = state.allMenuItems;
+    final headerColor = state.headerColor;
 
     return Container(
       color: Colors.white,
@@ -190,7 +191,7 @@ class _MainMenuSection extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.iconBlue,
+                    color: headerColor,
                   ),
                 ),
               ),
@@ -210,6 +211,7 @@ class _MainMenuSection extends StatelessWidget {
             itemCount: allItems.take(8).length,
             itemBuilder: (context, index) {
               final item = allItems[index];
+              final color = headerColor;
               return GestureDetector(
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -227,10 +229,10 @@ class _MainMenuSection extends StatelessWidget {
                       width: 52,
                       height: 52,
                       decoration: BoxDecoration(
-                        color: item.color.withValues(alpha: 0.12),
+                        color: color.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Icon(item.icon, color: item.color, size: 26),
+                      child: Icon(item.icon, color: color, size: 26),
                     ),
                     const SizedBox(height: 6),
                     Text(
