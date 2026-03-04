@@ -6,7 +6,7 @@ import 'theme/app_theme.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/company_selection_screen.dart';
-import 'screens/dashboard_screen.dart';
+import 'screens/attendance_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,7 +63,7 @@ class MainShell extends StatelessWidget {
 
     switch (state.currentNavIndex) {
       case 0:
-        return const DashboardScreen();
+        return const AttendanceScreen();
       case 1:
         return const HomeScreen();
       case 2:

@@ -39,7 +39,8 @@ class AppState extends ChangeNotifier {
   NewsItem? get activeNews => _activeNews;
 
   // Bottom nav
-  int _currentNavIndex = 0;
+  // Start on Home tab by default after login
+  int _currentNavIndex = 1;
   int get currentNavIndex => _currentNavIndex;
 
   // Is authenticated
@@ -68,7 +69,7 @@ class AppState extends ChangeNotifier {
           _headerColor = const Color(0xFFF97316); // orange
           break;
         case 'Australia Software Technology':
-          _headerColor = const Color(0xFF2563EB); // blue
+          _headerColor = const Color.fromARGB(255, 117, 97, 219); // blue
           break;
         case 'Innovative Fibre Industries':
           _headerColor = const Color(0xFF10B981); // green

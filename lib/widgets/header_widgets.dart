@@ -15,7 +15,7 @@ class DashboardHeader extends StatelessWidget {
     switch (name) {
       case 'Pacific Harvest Co.': return const Color(0xFF6366F1);
       case 'Australia Farm Innovations': return const Color(0xFFF97316);
-      case 'Australia Software Technology': return const Color(0xFF2563EB);
+      case 'Australia Software Technology': return const Color.fromARGB(255, 117, 97, 219);
       case 'Innovative Fibre Industries': return const Color(0xFF10B981);
       default: return AppColors.headerOrange;
     }

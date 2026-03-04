@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -262,7 +263,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 GestureDetector(
                                   onTap: () {
                                     // Put your action here (e.g., navigate to support)
-                                    print('Click Here tapped!');
+                                    if (kDebugMode) {
+                                      print('Click Here tapped!');
+                                    }
                                   },
                                   child: Text(
                                     'Click Here',
