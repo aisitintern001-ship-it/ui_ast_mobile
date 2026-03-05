@@ -11,7 +11,6 @@ class DashboardSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
-    final headerColor = state.headerColor;
 
     return Container(
       color: Colors.white,
@@ -26,26 +25,15 @@ class DashboardSection extends StatelessWidget {
                 'My Dashboard',
                 style: GoogleFonts.inter(
                   fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {},
-                child: Text(
-                  'More Records',
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: headerColor,
-                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
 
-          // Status chips
+          // Wireframe-style tabs: Pending | Approval | Sync Records
           _StatusChipsRow(),
           const SizedBox(height: 12),
 
@@ -82,106 +70,70 @@ class _StatusChipsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
+    final headerColor = state.headerColor;
 
     final filters = [
-      {'label': 'Pending', 'count': state.pendingCount, 'color': AppColors.statusPending},
-      {'label': 'Approved', 'count': state.approvedCount, 'color': AppColors.statusApproved},
-      {'label': 'Sent for Review', 'count': state.sentForReviewCount, 'color': AppColors.statusSentReview},
+      {'label': 'Pending', 'filterKey': 'Pending', 'count': state.pendingCount},
+      {'label': 'Approval', 'filterKey': 'Approved', 'count': state.approvedCount},
+      {'label': 'Sync Records', 'filterKey': 'Sent for Review', 'count': state.sentForReviewCount},
     ];
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          _StatusChip(
-            label: 'All',
-            count: state.dashboardItems.length,
-            color: AppColors.textSecondary,
-            isSelected: state.dashboardFilter == 'All',
-            onTap: () => state.setDashboardFilter('All'),
-          ),
-          const SizedBox(width: 8),
-          ...filters.map(
-            (f) => Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: _StatusChip(
-                label: f['label'] as String,
-                count: f['count'] as int,
-                color: f['color'] as Color,
-                isSelected: state.dashboardFilter == f['label'],
-                onTap: () => state.setDashboardFilter(f['label'] as String),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: filters.map((f) {
+        final isSelected = state.dashboardFilter == (f['filterKey'] as String);
+        return GestureDetector(
+          onTap: () => state.setDashboardFilter(f['filterKey'] as String),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    f['label'] as String,
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected ? headerColor : AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.iconRed,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                    child: Center(
+                      child: Text(
+                        '${f['count']}',
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  final String label;
-  final int count;
-  final Color color;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _StatusChip({
-    required this.label,
-    required this.count,
-    required this.color,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha: 0.12) : const Color(0xFFF3F4F6),
-          borderRadius: BorderRadius.circular(20),
-          border: isSelected ? Border.all(color: color, width: 1) : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isSelected)
-              Container(
-                width: 6,
-                height: 6,
-                margin: const EdgeInsets.only(right: 4),
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-              ),
-            Text(
-              label == 'All' ? 'All' : label,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? color : AppColors.textSecondary,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-              decoration: BoxDecoration(
-                color: isSelected ? color : AppColors.textMuted,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                '$count',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
+              const SizedBox(height: 6),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: 2,
+                width: isSelected ? 50 : 0,
+                decoration: BoxDecoration(
+                  color: headerColor,
+                  borderRadius: BorderRadius.circular(1),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 }
@@ -191,26 +143,35 @@ class _DashboardItemTile extends StatelessWidget {
 
   const _DashboardItemTile({required this.item});
 
+  Color _iconColor(DashboardItem item, Color headerColor) {
+    if (item.iconBgColor == const Color(0xFFE9E6FD)) return const Color(0xFF7C4DFF);
+    if (item.iconBgColor == const Color(0xFFD1FAE5)) return const Color(0xFF10B981);
+    return headerColor;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<AppState>();
+    final headerColor = state.headerColor;
+    final iconColor = _iconColor(item, headerColor);
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: const BoxDecoration(
         border: Border(bottom: BorderSide(color: AppColors.divider, width: 0.5)),
       ),
       child: Row(
         children: [
-          // Status dot
           Container(
-            width: 8,
-            height: 8,
-            margin: const EdgeInsets.only(right: 12, top: 2),
+            width: 40,
+            height: 40,
+            margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
-              color: item.statusColor,
+              color: item.iconBgColor,
               shape: BoxShape.circle,
             ),
+            child: Icon(item.icon, color: iconColor, size: 20),
           ),
-          // Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,7 +180,7 @@ class _DashboardItemTile extends StatelessWidget {
                   item.title,
                   style: GoogleFonts.inter(
                     fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
                 ),
@@ -235,15 +196,19 @@ class _DashboardItemTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // Right side
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
+              Text(
+                item.date,
+                style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
+              ),
+              const SizedBox(height: 4),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: item.statusColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(4),
+                  color: item.statusColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   item.status,
@@ -253,11 +218,6 @@ class _DashboardItemTile extends StatelessWidget {
                     color: item.statusColor,
                   ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                item.date,
-                style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted),
               ),
             ],
           ),

@@ -9,7 +9,7 @@ class MockData {
     email: 'mac.llanes@company.com',
     initials: 'A',
     role: 'Administrator',
-    companyId: '3', // Australia Software Technology
+    companyId: '1', // Pacific Harvest Co. (wireframe)
   );
 
   static const List<CompanyModel> companies = [
@@ -41,45 +41,92 @@ class MockData {
   ];
 
   static final List<FavoriteItem> favorites = [
+    // Max 5 - matches reference
     const FavoriteItem(
-      id: 'employee_hub',
-      title: 'Employee Hub',
-      icon: Icons.people_alt_rounded,
-      color: AppColors.iconBlue,
-      route: '/employee-hub',
+      id: 'attendance',
+      title: 'Attendance',
+      icon: Icons.access_time_rounded,
+      color: Color(0xFF3B82F6),
+      route: '/attendance',
     ),
     const FavoriteItem(
-      id: 'user_reports',
-      title: 'User Reports',
-      icon: Icons.bar_chart_rounded,
-      color: AppColors.iconOrange,
-      route: '/user-reports',
+      id: 'product',
+      title: 'Product',
+      icon: Icons.inventory_2_outlined,
+      color: Color(0xFF3B82F6),
+      route: '/product',
     ),
     const FavoriteItem(
-      id: 'capital_ops',
-      title: 'Capital Ops',
-      icon: Icons.account_balance_rounded,
-      color: AppColors.iconGreen,
-      route: '/capital-ops',
+      id: 'expense_claim',
+      title: 'Expense Claim',
+      icon: Icons.attach_money_rounded,
+      color: Color(0xFF3B82F6),
+      route: '/expense-claim',
     ),
     const FavoriteItem(
-      id: 'tax_management',
-      title: 'Tax Management',
-      icon: Icons.receipt_long_rounded,
-      color: Color.fromARGB(255, 87, 90, 231),
-      route: '/tax-management',
+      id: 'leave_request',
+      title: 'Leave Request',
+      icon: Icons.calendar_month_outlined,
+      color: Color(0xFF3B82F6),
+      route: '/leave-request',
     ),
-    const FavoriteItem(
-      id: 'survey',
-      title: 'Survey',
-      icon: Icons.poll_rounded,
-      color: AppColors.iconTeal,
-      route: '/survey',
-    ),
+  ];
+
+  /// Categories and items for favorites picker (matches reference UI)
+  static const List<Map<String, dynamic>> favoriteCategories = [
+    {
+      'label': 'Attendance',
+      'items': [
+        FavoriteItem(id: 'attendance', title: 'Attendance', icon: Icons.access_time_rounded, color: AppColors.iconOrange, route: '/attendance'),
+        FavoriteItem(id: 'payslip', title: 'Payslip', icon: Icons.attach_money_rounded, color: AppColors.iconOrange, route: '/payslip'),
+        FavoriteItem(id: 'leave_request', title: 'Leave Request', icon: Icons.calendar_month_outlined, color: AppColors.iconOrange, route: '/leave-request'),
+        FavoriteItem(id: 'team_management', title: 'Team Management', icon: Icons.people_alt_outlined, color: AppColors.iconOrange, route: '/team-management'),
+      ],
+    },
+    {
+      'label': 'Product Library',
+      'items': [
+        FavoriteItem(id: 'product', title: 'Product', icon: Icons.inventory_2_outlined, color: AppColors.iconOrange, route: '/product'),
+      ],
+    },
+    {
+      'label': 'Finance',
+      'items': [
+        FavoriteItem(id: 'expense_claim', title: 'Expense Claim', icon: Icons.attach_money_rounded, color: AppColors.iconOrange, route: '/expense-claim'),
+      ],
+    },
   ];
 
   static final List<FavoriteItem> allMenuItems = [
     const FavoriteItem(
+      id: 'attendance',
+      title: 'Attendance',
+      icon: Icons.access_time_rounded,
+      color: AppColors.iconBlue,
+      route: '/attendance',
+    ),
+    const FavoriteItem(
+      id: 'product',
+      title: 'Product',
+      icon: Icons.inventory_2_outlined,
+      color: AppColors.iconBlue,
+      route: '/product',
+    ),
+    const FavoriteItem(
+      id: 'expense_claim',
+      title: 'Expense Claim',
+      icon: Icons.attach_money_rounded,
+      color: AppColors.iconBlue,
+      route: '/expense-claim',
+    ),
+    const FavoriteItem(
+      id: 'leave_request',
+      title: 'Leave Request',
+      icon: Icons.calendar_month_outlined,
+      color: AppColors.iconBlue,
+      route: '/leave-request',
+    ),
+    const FavoriteItem(
       id: 'employee_hub',
       title: 'Employee Hub',
       icon: Icons.people_alt_rounded,
@@ -92,27 +139,6 @@ class MockData {
       icon: Icons.bar_chart_rounded,
       color: AppColors.iconOrange,
       route: '/user-reports',
-    ),
-    const FavoriteItem(
-      id: 'capital_ops',
-      title: 'Capital Ops',
-      icon: Icons.account_balance_rounded,
-      color: AppColors.iconGreen,
-      route: '/capital-ops',
-    ),
-    const FavoriteItem(
-      id: 'tax_management',
-      title: 'Tax Management',
-      icon: Icons.receipt_long_rounded,
-      color: AppColors.iconPurple,
-      route: '/tax-management',
-    ),
-    const FavoriteItem(
-      id: 'survey',
-      title: 'Survey',
-      icon: Icons.poll_rounded,
-      color: AppColors.iconTeal,
-      route: '/survey',
     ),
     const FavoriteItem(
       id: 'payroll',
@@ -168,59 +194,73 @@ class MockData {
   static const List<DashboardItem> dashboardItems = [
     DashboardItem(
       id: '1',
+      title: 'Service Incentive Leave (SIL)',
+      subtitle: 'Family Vacation - Dec 26-28, 2025',
+      status: 'Pending Manager Approval',
+      date: 'Dec 26',
+      statusColor: AppColors.statusPending,
+      icon: Icons.card_giftcard_rounded,
+      iconBgColor: Color(0xFFE9E6FD),
+    ),
+    DashboardItem(
+      id: '2',
+      title: 'Travel Imbursement to Batangas',
+      subtitle: 'App Demo - Dec 22, 2025',
+      status: 'Pending HR Review',
+      date: 'Dec 22',
+      statusColor: AppColors.statusPending,
+      icon: Icons.directions_bus_rounded,
+      iconBgColor: Color(0xFFD1FAE5),
+    ),
+    DashboardItem(
+      id: '3',
+      title: 'Overtime Request',
+      subtitle: '2.5 hours - Nov 26, 2025',
+      status: 'Pending Finance Approval',
+      date: 'Nov 26',
+      statusColor: AppColors.statusPending,
+      icon: Icons.access_time_rounded,
+      iconBgColor: Color(0xFFDBEAFE),
+    ),
+    DashboardItem(
+      id: '4',
       title: 'Fletcher Whitfield Leave',
       subtitle: 'Annual Leave · 3 days',
       status: 'Pending',
       date: 'Nov 18',
       statusColor: AppColors.statusPending,
+      icon: Icons.calendar_month_rounded,
+      iconBgColor: Color(0xFFE9E6FD),
     ),
     DashboardItem(
-      id: '2',
+      id: '5',
       title: 'Contractor Request',
       subtitle: 'IT Department · Software Dev',
       status: 'Approved',
       date: 'Nov 15',
       statusColor: AppColors.statusApproved,
+      icon: Icons.person_add_rounded,
+      iconBgColor: Color(0xFFD1FAE5),
     ),
     DashboardItem(
-      id: '3',
+      id: '6',
       title: 'Employee Reimbursement',
       subtitle: 'Finance · Travel Expense',
       status: 'Sent for Review',
       date: 'Nov 14',
       statusColor: AppColors.statusSentReview,
+      icon: Icons.receipt_long_rounded,
+      iconBgColor: Color(0xFFDBEAFE),
     ),
     DashboardItem(
-      id: '4',
+      id: '7',
       title: 'Team Performance',
       subtitle: 'Q4 Review · Operations',
       status: 'Pending',
       date: 'Nov 12',
       statusColor: AppColors.statusPending,
-    ),
-    DashboardItem(
-      id: '5',
-      title: 'Company Events',
-      subtitle: 'Year-end party planning',
-      status: 'Approved',
-      date: 'Nov 10',
-      statusColor: AppColors.statusApproved,
-    ),
-    DashboardItem(
-      id: '6',
-      title: 'Total Reimbursement',
-      subtitle: 'Nov batch · 12 requests',
-      status: 'Sent for Review',
-      date: 'Nov 8',
-      statusColor: AppColors.statusSentReview,
-    ),
-    DashboardItem(
-      id: '7',
-      title: 'Compliance Filing',
-      subtitle: 'BIR · Q3 Submission',
-      status: 'Pending',
-      date: 'Nov 5',
-      statusColor: AppColors.statusPending,
+      icon: Icons.analytics_rounded,
+      iconBgColor: Color(0xFFE9E6FD),
     ),
     DashboardItem(
       id: '8',
@@ -229,6 +269,8 @@ class MockData {
       status: 'Approved',
       date: 'Nov 3',
       statusColor: AppColors.statusApproved,
+      icon: Icons.poll_rounded,
+      iconBgColor: Color(0xFFD1FAE5),
     ),
   ];
 
@@ -239,18 +281,34 @@ class MockData {
       content: 'We are excited to announce our Annual Company Picnic 2024! Join us for a day full of fun activities, food, and camaraderie. The event will be held at Nuvali Laguna on December 14, 2024. All employees and their families are invited. Please register through the Employee Hub by December 1.',
       date: 'Nov 18, 2024',
       isImportant: true,
+      companyId: '3',
+    ),
+    NewsItem(
+      id: '3',
+      title: 'Annual Company Outing 2026',
+      content: 'Join us for our annual company outing at Batangas Beach Resort on January 16, 2026',
+      date: 'Jan 2, 2026',
+      imageUrl: 'news/outing_2026.jpg',
+      isImportant: true,
+      companyId: '2', // Australia Farm Innovations
+      attachments: [
+        NewsAttachment(name: 'event_schedule.pdf', type: 'pdf', url: 'news/event_schedule.pdf'),
+        NewsAttachment(name: 'resort_photo.jpg', type: 'image', url: 'news/resort_photo.jpg'),
+      ],
     ),
     NewsItem(
       id: '2',
       title: 'New Office Policy Update',
       content: 'Effective December 1, the company will implement a hybrid work arrangement. Employees are required to report to the office at least 3 days per week. Please coordinate with your respective department heads for scheduling.',
       date: 'Nov 15, 2024',
+      companyId: '3',
     ),
     NewsItem(
       id: '3',
       title: 'Year-End Performance Review',
       content: 'The year-end performance review period will begin on December 1 and end on December 20. All managers are required to complete evaluations for their team members. Employees should prepare their self-assessment forms available in the HR portal.',
       date: 'Nov 10, 2024',
+      companyId: '3',
     ),
   ];
 }

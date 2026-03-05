@@ -20,57 +20,48 @@ class NewsDetailModal extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header image placeholder
-            Container(
-              height: 140,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppColors.headerOrange.withValues(alpha: 0.8),
-                    AppColors.headerOrange,
-                  ],
-                ),
-              ),
-              child: Stack(
-                children: [
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.campaign_rounded, size: 48, color: Colors.white),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Company News',
-                          style: GoogleFonts.inter(
-                            fontSize: 13,
-                            color: Colors.white.withValues(alpha: 0.9),
-                            fontWeight: FontWeight.w500,
+            // Header image or fallback
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  child: news.imageUrl != null
+                      ? Image.asset(
+                          news.imageUrl!,
+                          height: 160,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stack) => Container(
+                            height: 160,
+                            width: double.infinity,
+                            color: AppColors.headerOrange,
+                            child: const Icon(Icons.campaign_rounded, size: 48, color: Colors.white),
                           ),
+                        )
+                      : Container(
+                          height: 160,
+                          width: double.infinity,
+                          color: AppColors.headerOrange,
+                          child: const Icon(Icons.campaign_rounded, size: 48, color: Colors.white),
                         ),
-                      ],
-                    ),
-                  ),
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.close_rounded, size: 16, color: Colors.white),
+                ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
                       ),
+                      child: const Icon(Icons.close_rounded, size: 16, color: Colors.white),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             // Content
@@ -85,23 +76,23 @@ class NewsDetailModal extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: AppColors.statusApproved.withValues(alpha: 0.1),
+                            color: Color(0xFFE9E6FD),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text(
-                            'Announcement',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.statusApproved,
+                          child: Text('Event', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF7C4DFF))),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(news.date, style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted)),
+                        const SizedBox(width: 8),
+                        if (news.isImportant)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Color(0xFFFFE3E3),
+                              borderRadius: BorderRadius.circular(4),
                             ),
+                            child: Text('NEW', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFFD32F2F))),
                           ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          news.date,
-                          style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -122,6 +113,18 @@ class NewsDetailModal extends StatelessWidget {
                         height: 1.6,
                       ),
                     ),
+                    if (news.attachments.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Attachments (${news.attachments.length})', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                            const SizedBox(height: 8),
+                            ...news.attachments.map((a) => _AttachmentTile(attachment: a)),
+                          ],
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -161,9 +164,51 @@ class NewsDetailModal extends StatelessWidget {
                 ],
               ),
             ),
+
+// Attachment tile widget
           ],
         ),
       ),
     );
   }
 }
+
+class _AttachmentTile extends StatelessWidget {
+  final NewsAttachment attachment;
+  const _AttachmentTile({required this.attachment});
+
+  @override
+  Widget build(BuildContext context) {
+    IconData icon;
+    Color color;
+    switch (attachment.type) {
+      case 'pdf':
+        icon = Icons.picture_as_pdf_rounded;
+        color = Color(0xFFD32F2F);
+        break;
+      case 'image':
+        icon = Icons.image_rounded;
+        color = Color(0xFF1976D2);
+        break;
+      default:
+        icon = Icons.attach_file_rounded;
+        color = AppColors.textMuted;
+    }
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              attachment.name,
+              style: GoogleFonts.inter(fontSize: 13, color: AppColors.textPrimary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+ 

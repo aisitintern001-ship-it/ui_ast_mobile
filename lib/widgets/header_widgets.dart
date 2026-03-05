@@ -6,18 +6,99 @@ import '../models/app_state.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 
-class DashboardHeader extends StatelessWidget {
+class DashboardHeader extends StatefulWidget {
   final VoidCallback? onAvatarTap;
 
   const DashboardHeader({super.key, this.onAvatarTap});
 
-  static Color _companyColor(String name) {
-    switch (name) {
-      case 'Pacific Harvest Co.': return const Color(0xFF6366F1);
-      case 'Australia Farm Innovations': return const Color(0xFFF97316);
-      case 'Australia Software Technology': return const Color.fromARGB(255, 117, 97, 219);
-      case 'Innovative Fibre Industries': return const Color(0xFF10B981);
-      default: return AppColors.headerOrange;
+  @override
+  State<DashboardHeader> createState() => _DashboardHeaderState();
+}
+
+class _DashboardHeaderState extends State<DashboardHeader>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _chevronController;
+  late Animation<double> _chevronAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _chevronController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _chevronAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _chevronController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _chevronController.dispose();
+    super.dispose();
+  }
+
+  static String _companyAsset(String? name) {
+    if (name == null || name.isEmpty) return 'assets/AST.svg';
+    final n = name.toLowerCase();
+    if (n.contains('pacific')) return 'assets/PHC.svg';
+    if (n.contains('farm') && n.contains('australia')) return 'assets/AFI.svg';
+    if (n.contains('software')) return 'assets/AST.svg';
+    if (n.contains('innovative') && (n.contains('fiber') || n.contains('fibre'))) return 'assets/IFI.svg';
+    return 'assets/AST.svg';
+  }
+
+  Future<void> _showCompanyMenu(BuildContext context, AppState state) async {
+    final companies = state.companies;
+    if (companies.isEmpty) return;
+
+    setState(() {
+      _chevronController.forward();
+    });
+
+    final box = context.findRenderObject() as RenderBox?;
+    final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final position = box != null
+        ? box.localToGlobal(Offset.zero, ancestor: overlay)
+        : Offset.zero;
+    final size = box?.size ?? Size.zero;
+
+    final selected = await showMenu<int>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        position.dx,
+        position.dy + size.height,
+        position.dx + 280,
+        position.dy + size.height + 200,
+      ),
+      items: companies.asMap().entries.map((e) {
+        final c = e.value;
+        return PopupMenuItem<int>(
+          value: e.key,
+          child: Text(
+            c.name,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              color: Colors.black,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+          ),
+        );
+      }).toList(),
+      elevation: 8,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Colors.white,
+    );
+
+    if (mounted) {
+      setState(() {
+        _chevronController.reverse();
+      });
+      if (selected != null && selected < companies.length) {
+        state.selectCompany(companies[selected]);
+      }
     }
   }
 
@@ -28,12 +109,6 @@ class DashboardHeader extends StatelessWidget {
     final headerColor = state.headerColor;
     final companies = state.companies;
     final selected = state.selectedCompany;
-    final selectedIndex = selected != null && companies.isNotEmpty
-        ? companies.indexWhere((c) => c.id == selected.id)
-        : 0;
-    final effectiveIndex = companies.isEmpty
-        ? 0
-        : (selectedIndex >= 0 ? selectedIndex : 0).clamp(0, companies.length - 1);
 
     return Container(
       color: headerColor,
@@ -49,6 +124,7 @@ class DashboardHeader extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   user.name,
@@ -57,115 +133,61 @@ class DashboardHeader extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
+                  textAlign: TextAlign.left,
                 ),
-                const SizedBox(height: 0),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 0),
-                  child: companies.isEmpty
-                      ? Text(
-                          'No company',
-                          style: GoogleFonts.inter(
-                            fontSize: 15,
-                            color: Colors.white70,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        )
-                      : DropdownButtonHideUnderline(
-                    child: DropdownButton<int>(
-                      isExpanded: true,
-                      value: effectiveIndex,
-                      icon: const Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        color: Colors.white,
+                const SizedBox(height: 2),
+                GestureDetector(
+                  onTap: companies.isEmpty
+                      ? null
+                      : () => _showCompanyMenu(context, state),
+                  behavior: HitTestBehavior.opaque,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        companies.isEmpty
+                            ? 'No company'
+                            : (selected?.name ?? companies.first.name),
+                        style: GoogleFonts.inter(
+                          fontSize: 15,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
-                      dropdownColor: Colors.white,
-                      style: GoogleFonts.inter(
-                        fontSize: 15,
-                        color: Colors.black,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      onChanged: (int? idx) {
-                        if (idx != null && idx < companies.length) {
-                          state.selectCompany(companies[idx]);
-                        }
-                      },
-                      selectedItemBuilder: (context) => companies.map((c) {
-                        final color = _companyColor(c.name);
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              margin: const EdgeInsets.only(right: 8),
-                              decoration: BoxDecoration(
-                                color: color,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            Text(
-                              c.name,
-                              style: GoogleFonts.inter(
-                                fontSize: 15,
+                      if (companies.isNotEmpty) ...[
+                        const SizedBox(width: 4),
+                        AnimatedBuilder(
+                          animation: _chevronAnimation,
+                          builder: (context, child) {
+                            return Transform.rotate(
+                              angle: _chevronAnimation.value * 3.14159,
+                              child: Icon(
+                                Icons.keyboard_arrow_down_rounded,
                                 color: Colors.white,
-                                fontWeight: FontWeight.w600,
+                                size: 20,
                               ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                      items: List.generate(companies.length, (idx) {
-                        final c = companies[idx];
-                        final color = _companyColor(c.name);
-                        return DropdownMenuItem<int>(
-                          value: idx,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 10,
-                                height: 10,
-                                margin: const EdgeInsets.only(right: 12),
-                                decoration: BoxDecoration(
-                                  color: color,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              Text(
-                                c.name,
-                                style: GoogleFonts.inter(
-                                  fontSize: 15,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ),
+                            );
+                          },
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ],
             ),
           ),
-          // AIS logo
           Padding(
             padding: const EdgeInsets.only(top: 4.0),
-            child: GestureDetector(
-              child: SizedBox(
-                width: 80,
-                height: 80,
-                child: Center(
-                  child: SvgPicture.asset(
-                    'assets/AST.svg',
-                    width: 70,
-                    height:70,
-                  ),
+            child: SizedBox(
+              width: 80,
+              height: 80,
+              child: Center(
+                child: SvgPicture.asset(
+                  _companyAsset(selected?.name),
+                  width: 70,
+                  height: 70,
                 ),
               ),
             ),

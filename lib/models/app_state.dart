@@ -5,7 +5,7 @@ import '../theme/app_theme.dart';
 
 class AppState extends ChangeNotifier {
   // Theme color for header
-  Color _headerColor = const Color.fromARGB(255, 75, 72, 235);
+  Color _headerColor = const Color(0xFF2563EB);
   Color get headerColor => _headerColor;
 
   // Current user
@@ -26,11 +26,14 @@ class AppState extends ChangeNotifier {
   // All menu items
   List<FavoriteItem> get allMenuItems => MockData.allMenuItems;
 
+  // Favorite categories for picker
+  List<Map<String, dynamic>> get favoriteCategories => MockData.favoriteCategories;
+
   // Dashboard items
   List<DashboardItem> get dashboardItems => MockData.dashboardItems;
 
-  // Dashboard filter
-  String _dashboardFilter = 'All';
+  // Dashboard filter (wireframe: Pending selected by default)
+  String _dashboardFilter = 'Pending';
   String get dashboardFilter => _dashboardFilter;
 
   // News
@@ -63,7 +66,7 @@ class AppState extends ChangeNotifier {
     if (company != null) {
       switch (company.name) {
         case 'Pacific Harvest Co.':
-          _headerColor = const Color(0xFF6366F1); // purple
+          _headerColor = const Color(0xFF2563EB); // blue (wireframe)
           break;
         case 'Australia Farm Innovations':
           _headerColor = const Color(0xFFF97316); // orange
@@ -138,8 +141,10 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  static const int maxFavorites = 5;
+
   void addFavorite(FavoriteItem item) {
-    if (!_favorites.any((f) => f.id == item.id)) {
+    if (!_favorites.any((f) => f.id == item.id) && _favorites.length < maxFavorites) {
       _favorites.add(item);
       notifyListeners();
     }
@@ -147,6 +152,13 @@ class AppState extends ChangeNotifier {
 
   void removeFavorite(String id) {
     _favorites.removeWhere((f) => f.id == id);
+    notifyListeners();
+  }
+
+  void setFavorites(List<FavoriteItem> items) {
+    _favorites
+      ..clear()
+      ..addAll(items.take(maxFavorites));
     notifyListeners();
   }
 

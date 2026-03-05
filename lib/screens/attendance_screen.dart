@@ -184,30 +184,68 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 const SizedBox(height: 4),
                 SizedBox(
                   height: 260,
-                  child: ListView.builder(
-                    itemCount: options.length,
-                    itemBuilder: (_, index) {
-                      final label = options[index];
-                      final selected = tempSelected.contains(label);
-                      return CheckboxListTile(
-                        value: selected,
-                        dense: true,
-                        onChanged: (v) {
-                          setState(() {
-                            if (v == true) {
-                              tempSelected.add(label);
-                            } else {
-                              tempSelected.remove(label);
-                            }
-                            _selectedStatuses
-                              ..clear()
-                              ..addAll(tempSelected);
-                          });
+                  child: StatefulBuilder(
+                    builder: (ctx, localSetState) {
+                      return ListView.builder(
+                        itemCount: options.length,
+                        itemBuilder: (_, index) {
+                          final label = options[index];
+                          final selected = tempSelected.contains(label);
+                          return InkWell(
+                            onTap: () {
+                              localSetState(() {
+                                if (selected) {
+                                  tempSelected.remove(label);
+                                } else {
+                                  tempSelected.add(label);
+                                }
+                              });
+                              setState(() {
+                                _selectedStatuses
+                                  ..clear()
+                                  ..addAll(tempSelected);
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              child: Row(
+                                children: [
+                                  // Round indicator
+                                  Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: selected ? AppColors.headerOrange : AppColors.textMuted,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: selected
+                                        ? Center(
+                                            child: Container(
+                                              width: 10,
+                                              height: 10,
+                                              decoration: const BoxDecoration(
+                                                color: AppColors.headerOrange,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      label,
+                                      style: GoogleFonts.inter(fontSize: 13),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
                         },
-                        title: Text(
-                          label,
-                          style: GoogleFonts.inter(fontSize: 13),
-                        ),
                       );
                     },
                   ),
@@ -239,17 +277,24 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               bottom: 16,
             ),
             child: Row(
-              children: [
-                Text(
-                  'Attendance',
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
+  children: [
+    IconButton(
+      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    ),
+    const SizedBox(width: 4),
+    Text(
+      'Attendance',
+      style: GoogleFonts.inter(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        color: Colors.white,
+      ),
+    ),
+  ],
+),
           ),
           Expanded(
             child: ListView(
@@ -292,48 +337,50 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       Row(
                         children: [
                           Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => _handleFaceAction(context, 'Time In'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: Text(
-                                'Time In',
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
+  child: ElevatedButton.icon(
+    onPressed: () => _handleFaceAction(context, 'Time In'),
+    icon: const Icon(Icons.access_time_rounded, size: 18),
+    label: Text(
+      'Time In',
+      style: GoogleFonts.inter(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.green,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    ),
+  ),
+),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => _handleFaceAction(context, 'Time Out'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: Text(
-                                'Time Out',
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
+  child: ElevatedButton.icon(
+    onPressed: () => _handleFaceAction(context, 'Time Out'),
+    icon: const Icon(Icons.access_time_rounded, size: 18),
+    label: Text(
+      'Time Out',
+      style: GoogleFonts.inter(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.red,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    ),
+  ),
+),
                         ],
                       ),
                       if (_lastAction != null) ...[
@@ -370,40 +417,62 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                               color: _showHistory ? headerColor : Colors.transparent,
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: Text(
-                              'History',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: _showHistory ? Colors.white : AppColors.textSecondary,
-                              ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.history_rounded,
+                                  size: 16,
+                                  color: _showHistory ? Colors.white : AppColors.textMuted,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'History',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: _showHistory ? Colors.white : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 4),
                       Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _showHistory = false),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(
-                              color: !_showHistory ? headerColor : Colors.transparent,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              'Offline',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: !_showHistory ? Colors.white : AppColors.textSecondary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+  child: GestureDetector(
+    onTap: () => setState(() => _showHistory = false),
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: !_showHistory ? headerColor : Colors.transparent, // ✅ FIXED
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.wifi_off_rounded,
+            size: 16,
+            color: !_showHistory ? Colors.white : AppColors.textMuted,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            'Offline',
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: !_showHistory ? Colors.white : AppColors.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+),
                     ],
                   ),
                 ),
@@ -469,6 +538,48 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                         ),
                         const SizedBox(height: 12),
                         // Filter row (date range only for Custom)
+                        // Selected status chips row
+                        if (_selectedStatuses.isNotEmpty) ...[
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: _selectedStatuses.map((s) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE5F2FF),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      s,
+                                      style: GoogleFonts.inter(
+                                        fontSize: 11,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedStatuses.remove(s);
+                                        });
+                                      },
+                                      child: const Icon(
+                                        Icons.close_rounded,
+                                        size: 14,
+                                        color: AppColors.textMuted,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
                         Row(
                           children: [
                             Expanded(
@@ -497,13 +608,18 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                         child: Text(
                                           _selectedStatuses.isEmpty
                                               ? 'Filter Status'
-                                              : '${_selectedStatuses.length} selected',
+                                              : 'Filter Status',
                                           style: GoogleFonts.inter(
                                             fontSize: 12,
                                             color: AppColors.textSecondary,
                                           ),
                                           overflow: TextOverflow.ellipsis,
                                         ),
+                                      ),
+                                      const Icon(
+                                        Icons.keyboard_arrow_down_rounded,
+                                        size: 18,
+                                        color: AppColors.textMuted,
                                       ),
                                     ],
                                   ),

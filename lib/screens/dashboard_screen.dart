@@ -62,14 +62,17 @@ class DashboardScreen extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // Full dashboard section
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.divider),
-                  ),
-                  child: const DashboardSection(),
-                ),
+                SizedBox(
+  height: 260, // fixed height to keep layout stable
+  child: Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: AppColors.divider),
+    ),
+    child: const DashboardSection(),
+  ),
+),
               ],
             ),
           ),
