@@ -420,8 +420,8 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
       },
       {
         'id': 'leave',
-        'title': 'Leave Request',
-        'icon': Icons.access_time_rounded,
+        'title': 'Team Leave Requests',
+        'icon': Icons.calendar_month_rounded,
       },
       {
         'id': 'expense',
@@ -455,36 +455,33 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
                 width: itemWidth,
                 child: GestureDetector(
                   onTap: () {
-  if (id == 'attendance') {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const AttendanceScreen(),
-      ),
-    );
-  } 
-  else if (id == 'leave') {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const TeamLeaveRequestsScreen(),
-      ),
-    );
-  } 
-  else if (id == 'expense') {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ExpenseClaimScreen(),
-      ),
-    );
-  } 
-  else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Opening ${it['title']}...'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-},
+                    if (id == 'attendance') {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const AttendanceScreen(),
+                        ),
+                      );
+                    } else if (id == 'leave') {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const TeamLeaveRequestsScreen(),
+                        ),
+                      );
+                    } else if (id == 'expense') {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ExpenseClaimScreen(),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Opening ${it['title']}...'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [

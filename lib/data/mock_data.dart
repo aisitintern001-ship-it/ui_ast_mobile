@@ -5,7 +5,7 @@ import '../theme/app_theme.dart';
 class MockData {
   /// Current user (e.g. from database). companyId sets which company is selected on login.
   static const UserModel currentUser = UserModel(
-    name: 'John Mel C. Haniba',
+    name: 'Knowell Lucky B. Versoza',
     email: 'mac.llanes@company.com',
     initials: 'A',
     role: 'Administrator',
