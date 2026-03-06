@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../widgets/filter_tabs.dart';
 import '../widgets/leave_request_card.dart';
 import '../modals/create_member_leave_modal.dart';
-import 'personal_leave_screen.dart';
 // Replace with your actual model import
 // import '../models/leave_request.dart';
 
@@ -72,7 +71,7 @@ class _TeamLeaveRequestsScreenState extends State<TeamLeaveRequestsScreen> {
           },
         ),
         // --------------------------------
-        title: const Text("Team Leave Requests", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+        title: const Text("Leave Request", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

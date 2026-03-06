@@ -37,6 +37,7 @@ class _LeaveRequestCardState extends State<LeaveRequestCard> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
+          // ignore: deprecated_member_use
           BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))
         ],
       ),
@@ -165,6 +166,7 @@ class _LeaveRequestCardState extends State<LeaveRequestCard> {
                         // Example mock item inside breakdown
                         Container(
                           padding: const EdgeInsets.all(12),
+                          // ignore: deprecated_member_use
                           decoration: BoxDecoration(color: Colors.amber.withOpacity(0.1), border: Border.all(color: Colors.amber), borderRadius: BorderRadius.circular(8)),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -178,6 +180,7 @@ class _LeaveRequestCardState extends State<LeaveRequestCard> {
                                     children: [
                                       Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)), child: const Text("Full Day", style: TextStyle(fontSize: 9))),
                                       const SizedBox(width: 6),
+                                      // ignore: deprecated_member_use
                                       Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.amber.withOpacity(0.2), borderRadius: BorderRadius.circular(10)), child: const Text("Pending", style: TextStyle(fontSize: 9, color: Colors.amber))),
                                       const SizedBox(width: 6),
                                       const Text("8:00 AM - 5:00 PM", style: TextStyle(fontSize: 9, color: Colors.grey)),
@@ -187,8 +190,10 @@ class _LeaveRequestCardState extends State<LeaveRequestCard> {
                               ),
                               Row(
                                 children: [
+                                  // ignore: deprecated_member_use
                                   Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Colors.teal.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.check, size: 14, color: Colors.teal)),
                                   const SizedBox(width: 8),
+                                  // ignore: deprecated_member_use
                                   Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.close, size: 14, color: Colors.red)),
                                 ],
                               )

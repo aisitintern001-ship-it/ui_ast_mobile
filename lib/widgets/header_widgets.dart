@@ -114,47 +114,55 @@ class _DashboardHeaderState extends State<DashboardHeader>
       color: headerColor,
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 16,
-        left: 16,
-        right: 16,
-        bottom: 16,
+        left: 20,
+        right: 20,
+        bottom: 24, 
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center, // Vertically centers text and logo
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  user.name,
-                  style: GoogleFonts.inter(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    user.name,
+                    style: GoogleFonts.inter(
+                      fontSize: 24, 
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      height: 1.1, 
+                    ),
                   ),
-                  textAlign: TextAlign.left,
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 6),
                 GestureDetector(
                   onTap: companies.isEmpty
                       ? null
                       : () => _showCompanyMenu(context, state),
                   behavior: HitTestBehavior.opaque,
+                  // CHANGED: Removed mainAxisSize: MainAxisSize.min here so Flexible works!
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        companies.isEmpty
-                            ? 'No company'
-                            : (selected?.name ?? companies.first.name),
-                        style: GoogleFonts.inter(
-                          fontSize: 15,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
+                      Flexible(
+                        // FlexFit.loose ensures the text only takes up as much space as it needs
+                        fit: FlexFit.loose, 
+                        child: Text(
+                          companies.isEmpty
+                              ? 'No company'
+                              : (selected?.name ?? companies.first.name),
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: Colors.white.withOpacity(0.95),
+                            fontWeight: FontWeight.w500,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
                       ),
                       if (companies.isNotEmpty) ...[
                         const SizedBox(width: 4),
@@ -163,7 +171,7 @@ class _DashboardHeaderState extends State<DashboardHeader>
                           builder: (context, child) {
                             return Transform.rotate(
                               angle: _chevronAnimation.value * 3.14159,
-                              child: Icon(
+                              child: const Icon(
                                 Icons.keyboard_arrow_down_rounded,
                                 color: Colors.white,
                                 size: 20,
@@ -178,17 +186,15 @@ class _DashboardHeaderState extends State<DashboardHeader>
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 4.0),
-            child: SizedBox(
-              width: 80,
-              height: 80,
-              child: Center(
-                child: SvgPicture.asset(
-                  _companyAsset(selected?.name),
-                  width: 70,
-                  height: 70,
-                ),
+          const SizedBox(width: 16),
+          SizedBox(
+            width: 60,
+            height: 60,
+            child: Center(
+              child: SvgPicture.asset(
+                _companyAsset(selected?.name),
+                width: 60,
+                height: 60,
               ),
             ),
           ),

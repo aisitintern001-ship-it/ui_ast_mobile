@@ -163,14 +163,18 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 8),
 
-                  // My Dashboard
-                  const DashboardSection(),
+                  // My Dashboard (Locked minimum height to prevent layout jumping)
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minHeight: 400, // This locks the empty space just like the wireframe
+                    ),
+                    child: const DashboardSection(),
+                  ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 16),
 
                   // Main Menu section
-                  _MainMenuSection(),
-
+                  const _MainMenuSection(),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -420,8 +424,8 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
       },
       {
         'id': 'leave',
-        'title': 'Team Leave Requests',
-        'icon': Icons.calendar_month_rounded,
+        'title': 'Leave Request',
+        'icon': Icons.access_time_rounded,
       },
       {
         'id': 'expense',

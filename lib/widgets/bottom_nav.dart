@@ -4,6 +4,11 @@ import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
 
+// Import all your main screens here so the Nav Bar can open them:
+import '../screens/attendance_screen.dart';
+import '../screens/home_screen.dart';
+import '../screens/settings_screen.dart';
+
 class AppBottomNavBar extends StatelessWidget {
   const AppBottomNavBar({super.key});
 
@@ -31,7 +36,33 @@ class AppBottomNavBar extends StatelessWidget {
         children: List.generate(items.length, (index) {
           final isSelected = state.currentNavIndex == index;
           return GestureDetector(
-            onTap: () => state.setNavIndex(index),
+            onTap: () {
+              // 1. Do nothing if the user clicks the tab they are already on
+              if (isSelected) return;
+
+              // 2. Update the state so the icon changes color instantly
+              state.setNavIndex(index);
+
+              // 3. Determine which screen to open based on the index
+              Widget nextScreen;
+              if (index == 0) {
+                nextScreen = const AttendanceScreen();
+              } else if (index == 1) {
+                nextScreen = const HomeScreen();
+              } else {
+                nextScreen = const SettingsScreen();
+              }
+
+              // 4. Navigate to the new screen without the "slide" animation so it feels like a tab switch
+              Navigator.pushReplacement(
+                context,
+                PageRouteBuilder(
+                  pageBuilder: (context, animation1, animation2) => nextScreen,
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                ),
+              );
+            },
             behavior: HitTestBehavior.opaque,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
