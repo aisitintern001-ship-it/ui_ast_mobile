@@ -60,6 +60,8 @@ class DashboardItem {
   final Color statusColor;
   final IconData icon;
   final Color iconBgColor;
+  /// Which tab this item belongs to: 'Pending', 'Approved', or 'Sent for Review'
+  final String category;
 
   const DashboardItem({
     required this.id,
@@ -70,6 +72,7 @@ class DashboardItem {
     required this.statusColor,
     this.icon = Icons.circle,
     this.iconBgColor = Colors.grey,
+    this.category = 'Pending',
   });
 }
 

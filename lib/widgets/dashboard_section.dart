@@ -154,6 +154,7 @@ class _DashboardItemTile extends StatelessWidget {
     final state = context.watch<AppState>();
     final headerColor = state.headerColor;
     final iconColor = _iconColor(item, headerColor);
+    final isSyncRecord = item.category == 'Sent for Review';
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -161,6 +162,7 @@ class _DashboardItemTile extends StatelessWidget {
         border: Border(bottom: BorderSide(color: AppColors.divider, width: 0.5)),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 40,
@@ -173,56 +175,119 @@ class _DashboardItemTile extends StatelessWidget {
             child: Icon(item.icon, color: iconColor, size: 20),
           ),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
+            child: isSyncRecord
+                ? _buildSyncRecordContent()
+                : _buildDefaultContent(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDefaultContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                item.title,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  item.subtitle,
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: AppColors.textMuted,
-                  ),
-                ),
-              ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              item.date,
+              style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Text(
+          item.subtitle,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: AppColors.textMuted,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: item.statusColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            item.status,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: item.statusColor,
             ),
           ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSyncRecordContent() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                item.date,
-                style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
-              ),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: item.statusColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(6),
+                item.title,
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
-                child: Text(
-                  item.status,
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: item.statusColor,
-                  ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                item.subtitle,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: AppColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                item.date,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: AppColors.textMuted,
                 ),
               ),
             ],
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: item.statusColor,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Text(
+            item.status,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

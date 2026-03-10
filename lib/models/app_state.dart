@@ -166,10 +166,10 @@ class AppState extends ChangeNotifier {
 
   List<DashboardItem> get filteredDashboardItems {
     if (_dashboardFilter == 'All') return dashboardItems;
-    return dashboardItems.where((item) => item.status == _dashboardFilter).toList();
+    return dashboardItems.where((item) => item.category == _dashboardFilter).toList();
   }
 
-  int get pendingCount => dashboardItems.where((i) => i.status == 'Pending').length;
-  int get approvedCount => dashboardItems.where((i) => i.status == 'Approved').length;
-  int get sentForReviewCount => dashboardItems.where((i) => i.status == 'Sent for Review').length;
+  int get pendingCount => dashboardItems.where((i) => i.category == 'Pending').length;
+  int get approvedCount => dashboardItems.where((i) => i.category == 'Approved').length;
+  int get sentForReviewCount => dashboardItems.where((i) => i.category == 'Sent for Review').length;
 }

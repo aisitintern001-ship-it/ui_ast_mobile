@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../widgets/bottom_nav.dart';
+import '../modals/edit_leave_modal.dart';
+import '../modals/create_leave_modal.dart';
 
 class PersonalLeaveScreen extends StatefulWidget {
   const PersonalLeaveScreen({super.key});
@@ -26,13 +28,17 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
   ];
 
   void _openCreateModal() {
-    // We will build this floating dialog next!
-    // showDialog(context: context, builder: (_) => const CreateLeaveModal());
+    showDialog(
+      context: context,
+      builder: (_) => const CreateLeaveModal(),
+    );
   }
 
   void _openEditModal() {
-    // We will build this floating dialog next!
-    // showDialog(context: context, builder: (_) => const EditLeaveModal());
+    showDialog(
+      context: context,
+      builder: (_) => const EditLeaveModal(),
+    );
   }
 
   @override

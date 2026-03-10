@@ -139,17 +139,23 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
         // Search + Filter + Toggle
         _buildSearchAndFilterBar(),
         // Advance Filter panel
-        if (_showAdvanceFilter) _buildAdvanceFilterPanel(),
+        if (_showAdvanceFilter)
+          Flexible(
+            child: SingleChildScrollView(
+              child: _buildAdvanceFilterPanel(),
+            ),
+          ),
         // Product list
-        Expanded(
-          child: products.isEmpty
-              ? _buildEmptyState()
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  itemCount: products.length,
-                  itemBuilder: (_, i) => _buildProductCard(products[i]),
-                ),
-        ),
+        if (!_showAdvanceFilter)
+          Expanded(
+            child: products.isEmpty
+                ? _buildEmptyState()
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    itemCount: products.length,
+                    itemBuilder: (_, i) => _buildProductCard(products[i]),
+                  ),
+          ),
       ],
     );
   }
@@ -659,8 +665,13 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
     return Column(
       children: [
         _buildSearchAndFilterBar(),
-        if (_showAdvanceFilter) _buildAdvanceFilterPanel(),
-        Expanded(
+        if (_showAdvanceFilter)
+          Flexible(
+            child: SingleChildScrollView(
+              child: _buildAdvanceFilterPanel(),
+            ),
+          ),
+        if (!_showAdvanceFilter) Expanded(
           child: _selectedSubcategory != null
               ? _buildSubcategoryProductsGrid()
               : _selectedCategory != null
@@ -1009,8 +1020,13 @@ class _ProductDetailSheet extends StatefulWidget {
 
 class _ProductDetailSheetState extends State<_ProductDetailSheet> {
   int _activeTab = 0;
+  int _sellPriceSubTab = 0;
 
-  static const _tabLabels = ['Identification', 'Attribute', 'Dimensions & Weight', 'Custom Label'];
+  static const _tabLabels = [
+    'Identification', 'Attribute', 'Dimensions & Weight', 'Custom Label',
+    'Alternative UOM', 'Sell Price', 'Phantom BOM', 'Documentation',
+    'Transaction', 'Where Used', 'Alternative Products', 'Audit',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -1199,6 +1215,22 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
         return _buildDimensionsTab(p);
       case 3:
         return _buildCustomLabelTab();
+      case 4:
+        return _buildAlternativeUOMTab(p);
+      case 5:
+        return _buildSellPriceTab(p);
+      case 6:
+        return _buildPhantomBOMTab(p);
+      case 7:
+        return _buildDocumentationTab();
+      case 8:
+        return _buildTransactionTab();
+      case 9:
+        return _buildWhereUsedTab();
+      case 10:
+        return _buildAlternativeProductsTab();
+      case 11:
+        return _buildAuditTab();
       default:
         return const SizedBox.shrink();
     }
@@ -1316,6 +1348,320 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
           ),
         ],
       ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  ALTERNATIVE UOM TAB
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Widget _buildAlternativeUOMTab(Product p) {
+    return Column(
+      children: [
+        // Table header
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+          ),
+          child: Row(
+            children: [
+              Expanded(flex: 2, child: Text('UOM Option', style: _tableHeaderStyle())),
+              Expanded(flex: 2, child: Text('Select UOM', style: _tableHeaderStyle())),
+              Expanded(flex: 2, child: Text('Code', style: _tableHeaderStyle())),
+              Expanded(flex: 2, child: Text('UOM Conversion Factor', style: _tableHeaderStyle())),
+            ],
+          ),
+        ),
+        // Table row
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+          ),
+          child: Row(
+            children: [
+              Expanded(flex: 2, child: Text('Base UOM', style: _tableCellStyle())),
+              Expanded(flex: 2, child: Text(p.alternativeUOM.isNotEmpty ? p.alternativeUOM : 'Each', style: _tableCellStyle())),
+              Expanded(flex: 2, child: Text(p.code, style: _tableCellStyle())),
+              Expanded(flex: 2, child: Text('1', style: _tableCellStyle())),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  SELL PRICE TAB
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Widget _buildSellPriceTab(Product p) {
+    final headerColor = context.watch<AppState>().headerColor;
+    return Column(
+      children: [
+        // Sub-tabs: Summary | Cost Details
+        Row(
+          children: [
+            _buildSubTab('Summary', 0, headerColor),
+            _buildSubTab('Cost Details', 1, headerColor),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _sellPriceSubTab == 0
+            ? _buildSellPriceSummary(p)
+            : _buildSellPriceCostDetails(p),
+      ],
+    );
+  }
+
+  Widget _buildSubTab(String label, int index, Color activeColor) {
+    final isSelected = _sellPriceSubTab == index;
+    return GestureDetector(
+      onTap: () => setState(() => _sellPriceSubTab = index),
+      child: Container(
+        padding: const EdgeInsets.only(bottom: 8, right: 20),
+        decoration: BoxDecoration(
+          border: isSelected
+              ? Border(bottom: BorderSide(color: activeColor, width: 2))
+              : null,
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            color: isSelected ? activeColor : AppColors.textSecondary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSellPriceSummary(Product p) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+          ),
+          child: Row(
+            children: [
+              Expanded(flex: 2, child: Text('Product Code', style: _tableHeaderStyle())),
+              Expanded(flex: 2, child: Text('UOM', style: _tableHeaderStyle())),
+              Expanded(flex: 1, child: Text('Curr.', style: _tableHeaderStyle())),
+              Expanded(flex: 1, child: Text('Retail', style: _tableHeaderStyle())),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+          ),
+          child: Row(
+            children: [
+              Expanded(flex: 2, child: Text(p.code, style: _tableCellStyle())),
+              Expanded(flex: 2, child: Text(p.baseUOM, style: _tableCellStyle())),
+              Expanded(flex: 1, child: Text('0', style: _tableCellStyle())),
+              Expanded(flex: 1, child: Text('1.00', style: _tableCellStyle())),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSellPriceCostDetails(Product p) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+          ),
+          child: Row(
+            children: [
+              Expanded(flex: 2, child: Text('Product Code', style: _tableHeaderStyle())),
+              Expanded(flex: 2, child: Text('UOM', style: _tableHeaderStyle())),
+              Expanded(flex: 1, child: Text('Curr.', style: _tableHeaderStyle())),
+              Expanded(flex: 1, child: Text('Cost', style: _tableHeaderStyle())),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+          ),
+          child: Row(
+            children: [
+              Expanded(flex: 2, child: Text(p.code, style: _tableCellStyle())),
+              Expanded(flex: 2, child: Text(p.baseUOM, style: _tableCellStyle())),
+              Expanded(flex: 1, child: Text('0', style: _tableCellStyle())),
+              Expanded(flex: 1, child: Text('0.00', style: _tableCellStyle())),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  PHANTOM BOM TAB
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Widget _buildPhantomBOMTab(Product p) {
+    final bomItems = _getMockBOMItems(p);
+    if (bomItems.isEmpty) {
+      return _buildEmptyTabState('No BOM Items', 'There is no data on this tab.');
+    }
+    return Column(
+      children: [
+        // Table header
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+          ),
+          child: Row(
+            children: [
+              SizedBox(width: 30, child: Text('#', style: _tableHeaderStyle())),
+              SizedBox(width: 60, child: Text('Thumbnail', style: _tableHeaderStyle())),
+              Expanded(child: Text('Product', style: _tableHeaderStyle())),
+              SizedBox(width: 60, child: Text('Quantity', style: _tableHeaderStyle(), textAlign: TextAlign.right)),
+            ],
+          ),
+        ),
+        // Table rows
+        ...bomItems.asMap().entries.map((entry) {
+          final idx = entry.key + 1;
+          final item = entry.value;
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+            ),
+            child: Row(
+              children: [
+                SizedBox(width: 30, child: Text('$idx', style: _tableCellStyle())),
+                Container(
+                  width: 50,
+                  height: 40,
+                  margin: const EdgeInsets.only(right: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: Colors.grey.shade200),
+                  ),
+                  child: Icon(Icons.image_outlined, size: 20, color: Colors.grey.shade300),
+                ),
+                Expanded(
+                  child: Text(
+                    '${item['code']} - ${item['name']}',
+                    style: _tableCellStyle(),
+                  ),
+                ),
+                SizedBox(
+                  width: 60,
+                  child: Text(
+                    item['qty'] as String,
+                    style: _tableCellStyle(),
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  List<Map<String, String>> _getMockBOMItems(Product p) {
+    if (p.bomType == 'No BOM') return [];
+    return [
+      {'code': 'AFI-000029', 'name': 'Aluminium Channel 75 x 25 × 1.2 Wall x 6000mm Long', 'qty': '10.00'},
+      {'code': 'AFI-004006', 'name': 'EPS Sandwich Pannel 15kg/cbm 1150 wide x 2000 Long x 75mm Thick - Color White', 'qty': '4.00'},
+      {'code': 'AFI-003988', 'name': 'EPS Sandwich Pannel 15kg/cbm 1150 wide x 2500 Long x 75mm Thick - Color White', 'qty': '4.00'},
+      {'code': 'AFI-004028', 'name': 'EPS Sandwich Pannel 15kg/cbm 1150 wide x 3000 Long x 75mm Thick - Color White', 'qty': '6.00'},
+      {'code': 'AFI-004190', 'name': 'EPS Sandwich Pannel 15kg/cbm 1150 Wide x 3500 Long x 75mm Thick - Color White', 'qty': '1.00'},
+      {'code': 'AFI-003963', 'name': 'EPS Sandwich Pannel 15kg/cbm 1150 wide x 4600 Long x 75mm Thick - Color White', 'qty': '2.00'},
+      {'code': 'AFI-002067', 'name': 'Female Beam - Back - 80mm x 80mm x 8075mm Long', 'qty': '1.00'},
+    ];
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  EMPTY STATE TABS
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Widget _buildDocumentationTab() {
+    return _buildEmptyTabState('No Documentation Found', 'There is no data on this tab.');
+  }
+
+  Widget _buildTransactionTab() {
+    return _buildEmptyTabState('No Transaction Found', 'There is no data on this tab.');
+  }
+
+  Widget _buildWhereUsedTab() {
+    return _buildEmptyTabState('No Where Used Found', 'There is no data on this tab.');
+  }
+
+  Widget _buildAlternativeProductsTab() {
+    return _buildEmptyTabState('No Alternative Products', 'There is no data on this tab.');
+  }
+
+  Widget _buildAuditTab() {
+    return _buildEmptyTabState('No Audit', 'There is no data on this tab.');
+  }
+
+  Widget _buildEmptyTabState(String title, String subtitle) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.cancel_outlined, size: 40, color: Colors.grey.shade400),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  //  TABLE HELPERS
+  // ═══════════════════════════════════════════════════════════════════════
+
+  TextStyle _tableHeaderStyle() {
+    return GoogleFonts.inter(
+      fontSize: 11,
+      fontWeight: FontWeight.w600,
+      color: AppColors.textSecondary,
+    );
+  }
+
+  TextStyle _tableCellStyle() {
+    return GoogleFonts.inter(
+      fontSize: 11,
+      color: AppColors.textPrimary,
     );
   }
 }
