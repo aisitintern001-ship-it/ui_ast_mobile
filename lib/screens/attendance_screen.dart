@@ -6,6 +6,7 @@ import '../models/app_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/bottom_nav.dart';
 import 'face_recognition_screen.dart';
+import 'home_screen.dart';
 
 class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key});
@@ -278,12 +279,20 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             ),
             child: Row(
   children: [
-    IconButton(
-      icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-      onPressed: () {
-        Navigator.pop(context);
-      },
-    ),
+   IconButton(
+  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+  onPressed: () {
+    // 1. Update the bottom navigation bar to highlight Home (index 1)
+    context.read<AppState>().setNavIndex(1);
+
+    // 2. Navigate back to the Home screen and clear the stack
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+      (Route<dynamic> route) => false,
+    );
+  },
+),
     const SizedBox(width: 4),
     Text(
       'Attendance',

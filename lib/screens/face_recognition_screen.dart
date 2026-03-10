@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:provider/provider.dart';
+import '../models/app_state.dart';
 import '../theme/app_theme.dart';
 
 class FaceRecognitionScreen extends StatelessWidget {
@@ -13,7 +14,7 @@ class FaceRecognitionScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: AppColors.headerOrange,
+        backgroundColor: context.watch<AppState>().headerColor,
         foregroundColor: Colors.white,
         title: Text(
           'Face Recognition',

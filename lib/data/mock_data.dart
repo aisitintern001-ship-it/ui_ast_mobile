@@ -9,7 +9,7 @@ class MockData {
     email: 'mac.llanes@company.com',
     initials: 'A',
     role: 'Administrator',
-    companyId: '1', // Pacific Harvest Co. (wireframe)
+    companyId: '2', // Australia Farm Innovations
   );
 
   static const List<CompanyModel> companies = [

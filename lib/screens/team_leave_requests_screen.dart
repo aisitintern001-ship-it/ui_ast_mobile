@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../models/app_state.dart';
 import '../widgets/filter_tabs.dart';
 import '../widgets/leave_request_card.dart';
 import '../modals/create_member_leave_modal.dart';
+import '../widgets/bottom_nav.dart';
 // Replace with your actual model import
 // import '../models/leave_request.dart';
 
@@ -57,10 +60,11 @@ class _TeamLeaveRequestsScreenState extends State<TeamLeaveRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final headerColor = context.watch<AppState>().headerColor;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEF532A),
+        backgroundColor: headerColor,
         foregroundColor: Colors.white,
         elevation: 0,
         // --- UPDATED LEADING PROPERTY ---
@@ -165,16 +169,7 @@ class _TeamLeaveRequestsScreenState extends State<TeamLeaveRequestsScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: const Color(0xFFEF532A),
-        unselectedItemColor: Colors.grey.shade600,
-        currentIndex: 0,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: "Attendance"),
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
-        ],
-      ),
+      bottomNavigationBar: const AppBottomNavBar(),
     );
   }
 }

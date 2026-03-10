@@ -15,7 +15,7 @@ class ProfileInfoScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEF532A), // Matches your header theme
+        backgroundColor: state.headerColor,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18, color: Colors.white),

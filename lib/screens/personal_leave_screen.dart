@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../models/app_state.dart';
+import '../widgets/bottom_nav.dart';
 
 class PersonalLeaveScreen extends StatefulWidget {
   const PersonalLeaveScreen({super.key});
@@ -12,6 +15,15 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
   // 0 = History, 1 = Offline
   int currentTab = 0;
   String selectedFilter = "7";
+  bool isStatusFilterExpanded = false;
+  String? selectedStatus;
+
+  static const List<Map<String, dynamic>> _leaveStatuses = [
+    {'label': 'Pending', 'color': Color(0xFFF59E0B)},
+    {'label': 'Approved', 'color': Color(0xFF10B981)},
+    {'label': 'Denied', 'color': Color(0xFFEF4444)},
+    {'label': 'Cancelled', 'color': Color(0xFF6B7280)},
+  ];
 
   void _openCreateModal() {
     // We will build this floating dialog next!
@@ -25,10 +37,11 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final headerColor = context.watch<AppState>().headerColor;
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFEF532A),
+        backgroundColor: headerColor,
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
@@ -74,16 +87,7 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
           : null,
       
       // Bottom Navigation Bar (Matches Team Leave)
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: const Color(0xFFEF532A),
-        unselectedItemColor: Colors.grey.shade600,
-        currentIndex: 0,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: "Attendance"),
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.settings_outlined), label: "Settings"),
-        ],
-      ),
+      bottomNavigationBar: const AppBottomNavBar(),
     );
   }
 
@@ -110,19 +114,75 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                Container(
-                  height: 40,
-                  decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
-                    children: [
-                      Icon(Icons.filter_alt_outlined, color: Colors.grey.shade500, size: 20),
-                      const SizedBox(width: 8),
-                      Text("Filter Status", style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 13)),
-                      const Spacer(),
-                      Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500)
-                    ],
+                GestureDetector(
+                  onTap: () => setState(() => isStatusFilterExpanded = !isStatusFilterExpanded),
+                  child: Container(
+                    height: 40,
+                    decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      children: [
+                        Icon(Icons.filter_alt_outlined, color: Colors.grey.shade500, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          selectedStatus ?? "Filter Status",
+                          style: GoogleFonts.inter(color: selectedStatus != null ? Colors.black87 : Colors.grey.shade600, fontSize: 13),
+                        ),
+                        const Spacer(),
+                        AnimatedRotation(
+                          turns: isStatusFilterExpanded ? 0.5 : 0,
+                          duration: const Duration(milliseconds: 200),
+                          child: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+                        ),
+                      ],
+                    ),
                   ),
+                ),
+                AnimatedCrossFade(
+                  firstChild: const SizedBox.shrink(),
+                  secondChild: Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey.shade200),
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
+                    ),
+                    child: Column(
+                      children: _leaveStatuses.map((s) {
+                        final bool isSelected = selectedStatus == s['label'];
+                        return InkWell(
+                          onTap: () => setState(() {
+                            selectedStatus = isSelected ? null : s['label'] as String;
+                          }),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 20, height: 20,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: isSelected ? const Color(0xFF2181FF) : Colors.grey.shade400, width: 2),
+                                  ),
+                                  child: isSelected
+                                      ? Center(child: Container(width: 10, height: 10, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF2181FF))))
+                                      : null,
+                                ),
+                                const SizedBox(width: 10),
+                                Container(width: 10, height: 10, decoration: BoxDecoration(shape: BoxShape.circle, color: s['color'] as Color)),
+                                const SizedBox(width: 8),
+                                Text(s['label'] as String, style: GoogleFonts.inter(fontSize: 13, color: Colors.black87)),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  crossFadeState: isStatusFilterExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                  duration: const Duration(milliseconds: 200),
                 ),
                 const SizedBox(height: 12),
                 SizedBox(

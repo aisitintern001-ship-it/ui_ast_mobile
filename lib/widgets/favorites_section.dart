@@ -7,6 +7,7 @@
   import '../theme/app_theme.dart';
   import '../screens/personal_leave_screen.dart';
   import '../screens/attendance_screen.dart';
+  import '../screens/product_library_screen.dart';
 
   class FavoritesSection extends StatelessWidget {
     final VoidCallback? onViewAll;
@@ -155,6 +156,10 @@
   } else if (item.id == 'expense_claim') {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const ExpenseClaimScreen()),
+    );
+  } else if (item.id == 'product') {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const ProductLibraryScreen()),
     );
   } else {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -348,7 +353,12 @@
               ),
               const SizedBox(height: 20),
 
-              // My Favorites section
+              // Scrollable content
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -436,6 +446,11 @@
                   );
                 }),
               ],
+
+                    ],
+                  ),
+                ),
+              ),
 
               const SizedBox(height: 20),
               SizedBox(

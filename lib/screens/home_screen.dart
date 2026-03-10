@@ -10,8 +10,14 @@ import '../widgets/favorites_section.dart';
 import '../widgets/dashboard_section.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/news_modal.dart';
+import '../modals/signature_modal.dart';
 import 'team_leave_requests_screen.dart';
 import 'attendance_screen.dart';
+import 'face_registration_screen.dart';
+import 'supplier_request_screen.dart';
+import 'customer_request_screen.dart';
+import 'team_management_screen.dart';
+import 'product_library_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -477,6 +483,12 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
                           builder: (_) => ExpenseClaimScreen(),
                         ),
                       );
+                    } else if (id == 'team') {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const TeamManagementScreen(),
+                        ),
+                      );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -541,12 +553,39 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
           return Expanded(
             child: GestureDetector(
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Opening ${it['title']}...'),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+                if (it['id'] == 'signature') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SignatureModal()),
+                  );
+                } else if (it['id'] == 'faceReg') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const FaceRegistrationScreen()),
+                  );
+                } else if (it['id'] == 'supplierRequest') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SupplierRequestScreen()),
+                  );
+                } else if (it['id'] == 'customerRequest') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CustomerRequestScreen()),
+                  );
+                } else if (it['id'] == 'product') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProductLibraryScreen()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Opening ${it['title']}...'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -716,15 +755,18 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
             ),
           ),
           if (_expanded['companyForms'] ?? false)
-            Container(
-              height: 80,
-              margin: const EdgeInsets.only(top: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.divider),
-              ),
-            ),
+            _simpleMenuGrid(headerColor, [
+              {
+                'id': 'supplierRequest',
+                'title': 'Supplier Request',
+                'icon': Icons.group_outlined,
+              },
+              {
+                'id': 'customerRequest',
+                'title': 'Customer Request',
+                'icon': Icons.people_alt_outlined,
+              },
+            ]),
 
           const SizedBox(height: 12),
 
