@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
+import '../widgets/advance_filter_widget.dart';
 import '../widgets/bottom_nav.dart';
 import 'create_supplier_request_screen.dart';
 
@@ -16,14 +17,7 @@ class SupplierRequestScreen extends StatefulWidget {
 class _SupplierRequestScreenState extends State<SupplierRequestScreen> {
   int currentTab = 0; // 0 = History, 1 = Offline
   String selectedFilter = "7";
-  bool isAdvanceFilterExpanded = false;
-
-  // Advance filter values
-  String? _filterSupplierType;
-  String? _filterSupplierGroup;
-  String? _filterAccountType;
-  String? _filterCurrency;
-  String? _filterCountryCode;
+  final Map<String, String?> _supplierFilters = {};
 
   // Mock supplier data
   static final List<Map<String, dynamic>> _suppliers = [
@@ -184,127 +178,17 @@ class _SupplierRequestScreenState extends State<SupplierRequestScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                // Advance Filter dropdown
-                GestureDetector(
-                  onTap: () => setState(
-                    () => isAdvanceFilterExpanded = !isAdvanceFilterExpanded,
-                  ),
-                  child: Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.filter_alt_outlined,
-                          color: Colors.grey.shade500,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          "Advance Filter",
-                          style: GoogleFonts.inter(
-                            color: Colors.grey.shade600,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const Spacer(),
-                        AnimatedRotation(
-                          turns: isAdvanceFilterExpanded ? 0.5 : 0,
-                          duration: const Duration(milliseconds: 200),
-                          child: Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Advance Filter expandable section
-                AnimatedCrossFade(
-                  firstChild: const SizedBox.shrink(),
-                  secondChild: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 4),
-                      _advanceFilterLabel("Supplier Type"),
-                      const SizedBox(height: 6),
-                      _advanceFilterDropdown(
-                        hint: "Select Supplier Type",
-                        value: _filterSupplierType,
-                        items: const ["Business", "Individual"],
-                        onChanged: (v) => setState(() => _filterSupplierType = v),
-                      ),
-                      const SizedBox(height: 12),
-                      _advanceFilterLabel("Supplier Group"),
-                      const SizedBox(height: 6),
-                      _advanceFilterDropdown(
-                        hint: "Select Supplier Group",
-                        value: _filterSupplierGroup,
-                        items: const ["Group A", "Group B", "Group C"],
-                        onChanged: (v) => setState(() => _filterSupplierGroup = v),
-                      ),
-                      const SizedBox(height: 12),
-                      _advanceFilterLabel("Account Type"),
-                      const SizedBox(height: 6),
-                      _advanceFilterDropdown(
-                        hint: "Select Account Type",
-                        value: _filterAccountType,
-                        items: const ["Parent Account", "Child Account"],
-                        onChanged: (v) => setState(() => _filterAccountType = v),
-                      ),
-                      const SizedBox(height: 12),
-                      _advanceFilterLabel("Currency"),
-                      const SizedBox(height: 6),
-                      _advanceFilterDropdown(
-                        hint: "Select Currency",
-                        value: _filterCurrency,
-                        items: const ["Peso", "USD", "EUR", "GBP"],
-                        onChanged: (v) => setState(() => _filterCurrency = v),
-                      ),
-                      const SizedBox(height: 12),
-                      _advanceFilterLabel("Country Code"),
-                      const SizedBox(height: 6),
-                      _advanceFilterDropdown(
-                        hint: "Select Country",
-                        value: _filterCountryCode,
-                        items: const ["PH", "US", "AU", "SG", "JP"],
-                        onChanged: (v) => setState(() => _filterCountryCode = v),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                  ),
-                  crossFadeState: isAdvanceFilterExpanded
-                      ? CrossFadeState.showSecond
-                      : CrossFadeState.showFirst,
-                  duration: const Duration(milliseconds: 200),
-                ),
-
-                // Apply Filter Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 40,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2181FF),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 0,
-                    ),
-                    onPressed: () {},
-                    child: Text(
-                      "Apply Filter",
-                      style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                    ),
-                  ),
+                AdvanceFilterWidget(
+                  fields: const [
+                    AdvanceFilterField(key: 'supplierType', label: 'Supplier Type', hint: 'Select Supplier Type', items: ['Business', 'Individual']),
+                    AdvanceFilterField(key: 'supplierGroup', label: 'Supplier Group', hint: 'Select Supplier Group', items: ['Group A', 'Group B', 'Group C']),
+                    AdvanceFilterField(key: 'accountType', label: 'Account Type', hint: 'Select Account Type', items: ['Parent Account', 'Child Account']),
+                    AdvanceFilterField(key: 'currency', label: 'Currency', hint: 'Select Currency', items: ['Peso', 'USD', 'EUR', 'GBP']),
+                    AdvanceFilterField(key: 'countryCode', label: 'Country Code', hint: 'Select Country', items: ['PH', 'US', 'AU', 'SG', 'JP']),
+                  ],
+                  values: _supplierFilters,
+                  onChanged: (v) => setState(() => _supplierFilters.addAll(v)),
+                  onApply: () {},
                 ),
               ],
             ),
@@ -715,46 +599,4 @@ class _SupplierRequestScreenState extends State<SupplierRequestScreen> {
     );
   }
 
-  Widget _advanceFilterLabel(String text) {
-    return Text(
-      text,
-      style: GoogleFonts.inter(
-        fontSize: 13,
-        fontWeight: FontWeight.w600,
-        color: AppColors.textPrimary,
-      ),
-    );
-  }
-
-  Widget _advanceFilterDropdown({
-    required String hint,
-    required String? value,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
-  }) {
-    return Container(
-      height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: value,
-          isExpanded: true,
-          hint: Text(
-            hint,
-            style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade400),
-          ),
-          icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
-          style: GoogleFonts.inter(fontSize: 13, color: AppColors.textPrimary),
-          items: items
-              .map((i) => DropdownMenuItem(value: i, child: Text(i)))
-              .toList(),
-          onChanged: onChanged,
-        ),
-      ),
-    );
-  }
 }

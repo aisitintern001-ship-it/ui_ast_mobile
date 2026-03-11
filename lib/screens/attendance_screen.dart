@@ -4,12 +4,21 @@ import 'package:provider/provider.dart';
 
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_toast.dart';
+import '../widgets/status_pill.dart';
 import '../widgets/bottom_nav.dart';
 import 'face_recognition_screen.dart';
 import 'home_screen.dart';
 
 class AttendanceScreen extends StatefulWidget {
-  const AttendanceScreen({super.key});
+  final bool initialShowHistory;
+  final bool fromDataIntegration;
+
+  const AttendanceScreen({
+    super.key,
+    this.initialShowHistory = true,
+    this.fromDataIntegration = false,
+  });
 
   @override
   State<AttendanceScreen> createState() => _AttendanceScreenState();
@@ -18,7 +27,11 @@ class AttendanceScreen extends StatefulWidget {
 class _AttendanceScreenState extends State<AttendanceScreen> {
   bool _hasCurrentTimeIn = false;
   String? _lastAction; // 'Time In' or 'Time Out'
-  bool _showHistory = true; // true = History, false = Offline
+  bool _showFailed = false; // true when attendance fails
+  String? _failedAction; // which action failed
+  
+  late bool _showHistory; // true = History, false = Offline
+  
   String _range = '7'; // '7', '30', 'custom'
   DateTimeRange? _customRange;
   final List<String> _selectedStatuses = ['Mngr. Approved', 'Processed Payroll'];
@@ -44,6 +57,12 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     ),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _showHistory = widget.initialShowHistory;
+  }
+
   Future<void> _handleFaceAction(BuildContext context, String action) async {
     final result = await Navigator.of(context).push<bool>(
       MaterialPageRoute(
@@ -51,20 +70,33 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       ),
     );
 
-    if (result == true && mounted) {
+    if (!mounted) return;
+
+    if (result == true) {
       setState(() {
         _lastAction = action;
         _hasCurrentTimeIn = action == 'Time In';
+        _showFailed = false;
+        _failedAction = null;
       });
 
-      // ignore: use_build_context_synchronously
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$action recorded via face recognition'),
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-        ),
+      AppToast.show(
+        context,
+        type: ToastType.success,
+        title: '$action Record Successfully',
+        message: '$action was successfully recorded!',
+      );
+    } else {
+      setState(() {
+        _showFailed = true;
+        _failedAction = action;
+      });
+
+      AppToast.show(
+        context,
+        type: ToastType.error,
+        title: '$action Failed',
+        message: 'Face verification failed. Please try again.',
       );
     }
   }
@@ -278,32 +310,33 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               bottom: 16,
             ),
             child: Row(
-  children: [
-   IconButton(
-  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-  onPressed: () {
-    // 1. Update the bottom navigation bar to highlight Home (index 1)
-    context.read<AppState>().setNavIndex(1);
-
-    // 2. Navigate back to the Home screen and clear the stack
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
-      (Route<dynamic> route) => false,
-    );
-  },
-),
-    const SizedBox(width: 4),
-    Text(
-      'Attendance',
-      style: GoogleFonts.inter(
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        color: Colors.white,
-      ),
-    ),
-  ],
-),
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                  onPressed: () {
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    } else {
+                      context.read<AppState>().setNavIndex(1);
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                        (Route<dynamic> route) => false,
+                      );
+                    }
+                  },
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Attendance',
+                  style: GoogleFonts.inter(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: ListView(
@@ -346,52 +379,148 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       Row(
                         children: [
                           Expanded(
-  child: ElevatedButton.icon(
-    onPressed: () => _handleFaceAction(context, 'Time In'),
-    icon: const Icon(Icons.access_time_rounded, size: 18),
-    label: Text(
-      'Time In',
-      style: GoogleFonts.inter(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-      ),
-    ),
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.green,
-      foregroundColor: Colors.white,
-      elevation: 0,
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-    ),
-  ),
-),
+                            child: ElevatedButton.icon(
+                              onPressed: () => _handleFaceAction(context, 'Time In'),
+                              icon: const Icon(Icons.access_time_rounded, size: 18),
+                              label: Text(
+                                'Time In',
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                          ),
                           const SizedBox(width: 12),
                           Expanded(
-  child: ElevatedButton.icon(
-    onPressed: () => _handleFaceAction(context, 'Time Out'),
-    icon: const Icon(Icons.access_time_rounded, size: 18),
-    label: Text(
-      'Time Out',
-      style: GoogleFonts.inter(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-      ),
-    ),
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.red,
-      foregroundColor: Colors.white,
-      elevation: 0,
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-    ),
-  ),
-),
+                            child: ElevatedButton.icon(
+                              onPressed: () => _handleFaceAction(context, 'Time Out'),
+                              icon: const Icon(Icons.access_time_rounded, size: 18),
+                              label: Text(
+                                'Time Out',
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
+                      // ── Attendance Failed Preview Card ──
+                      if (_showFailed) ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEF2F2),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFFECACA)),
+                          ),
+                          child: Column(
+                            children: [
+                              // Red warning icon
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Color(0xFFEF4444),
+                                ),
+                                child: const Icon(
+                                  Icons.close_rounded,
+                                  size: 28,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                '${_failedAction ?? "Attendance"} Failed',
+                                style: GoogleFonts.inter(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: const Color(0xFFEF4444),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Face verification could not be completed.\nPlease try again.',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: const Color(0xFF6B7280),
+                                  height: 1.4,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    if (_failedAction != null) {
+                                      _handleFaceAction(context, _failedAction!);
+                                    }
+                                  },
+                                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                                  label: Text(
+                                    'Try Again',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFEF4444),
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    padding: const EdgeInsets.symmetric(vertical: 10),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _showFailed = false;
+                                    _failedAction = null;
+                                  });
+                                },
+                                child: Text(
+                                  'Dismiss',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: const Color(0xFF6B7280),
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       if (_lastAction != null) ...[
                         const SizedBox(height: 12),
                         Text(
@@ -451,37 +580,37 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       ),
                       const SizedBox(width: 4),
                       Expanded(
-  child: GestureDetector(
-    onTap: () => setState(() => _showHistory = false),
-    child: Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: !_showHistory ? headerColor : Colors.transparent, // ✅ FIXED
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.wifi_off_rounded,
-            size: 16,
-            color: !_showHistory ? Colors.white : AppColors.textMuted,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            'Offline',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: !_showHistory ? Colors.white : AppColors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    ),
-  ),
-),
+                        child: GestureDetector(
+                          onTap: () => setState(() => _showHistory = false),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            decoration: BoxDecoration(
+                              color: !_showHistory ? headerColor : Colors.transparent,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.wifi_off_rounded,
+                                  size: 16,
+                                  color: !_showHistory ? Colors.white : AppColors.textMuted,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Offline',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: !_showHistory ? Colors.white : AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -546,8 +675,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           ],
                         ),
                         const SizedBox(height: 12),
-                        // Filter row (date range only for Custom)
-                        // Selected status chips row
+                        // Filter row
                         if (_selectedStatuses.isNotEmpty) ...[
                           Wrap(
                             spacing: 4,
@@ -690,7 +818,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    // Filtering is reactive; this just triggers a rebuild.
                                     setState(() {});
                                   },
                                   style: ElevatedButton.styleFrom(
@@ -1021,21 +1148,7 @@ class _HistoryRecordCard extends StatelessWidget {
                   color: AppColors.textPrimary,
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  record.status,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-              ),
+              StatusPill(status: record.status),
             ],
           ),
           const SizedBox(height: 8),
@@ -1066,9 +1179,7 @@ class _HistoryRecordCard extends StatelessWidget {
     );
   }
 }
-// ignore: camel_case_types
 
-// ignore: camel_case_types
 class _metricRow extends StatelessWidget {
   final String label;
   final double value;
@@ -1134,4 +1245,3 @@ class _HistoryChip extends StatelessWidget {
     );
   }
 }
-

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
+import '../widgets/advance_filter_widget.dart';
 import '../widgets/bottom_nav.dart';
 import '../data/product_mock_data.dart';
 
@@ -17,17 +18,8 @@ class ProductLibraryScreen extends StatefulWidget {
 class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
   final _searchController = TextEditingController();
   bool _isListView = true;
-  bool _showAdvanceFilter = false;
   String _searchQuery = '';
-
-  // Filter selections
-  String? _filterSegment;
-  String? _filterCategory;
-  String? _filterSubCategory;
-  String? _filterBrand;
-  String? _filterUOM;
-  String? _filterProductType;
-  String? _filterStatus;
+  final Map<String, String?> _productFilters = {};
 
   // Grid view drill-down state
   ProductSegment? _selectedSegment;
@@ -53,24 +45,18 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
         p.name.toLowerCase().contains(q)
       ).toList();
     }
-    if (_filterSegment != null) {
-      products = products.where((p) => p.segment == _filterSegment).toList();
-    }
-    if (_filterCategory != null) {
-      products = products.where((p) => p.category == _filterCategory).toList();
-    }
-    if (_filterSubCategory != null) {
-      products = products.where((p) => p.subcategory == _filterSubCategory).toList();
-    }
-    if (_filterBrand != null) {
-      products = products.where((p) => p.brand == _filterBrand).toList();
-    }
-    if (_filterProductType != null) {
-      products = products.where((p) => p.productType == _filterProductType).toList();
-    }
-    if (_filterStatus != null) {
-      products = products.where((p) => p.status == _filterStatus).toList();
-    }
+    final segment = _productFilters['segment'];
+    final category = _productFilters['category'];
+    final subCategory = _productFilters['subCategory'];
+    final brand = _productFilters['brand'];
+    final productType = _productFilters['productType'];
+    final status = _productFilters['status'];
+    if (segment != null) products = products.where((p) => p.segment == segment).toList();
+    if (category != null) products = products.where((p) => p.category == category).toList();
+    if (subCategory != null) products = products.where((p) => p.subcategory == subCategory).toList();
+    if (brand != null) products = products.where((p) => p.brand == brand).toList();
+    if (productType != null) products = products.where((p) => p.productType == productType).toList();
+    if (status != null) products = products.where((p) => p.status == status).toList();
 
     return products;
   }
@@ -138,24 +124,16 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
       children: [
         // Search + Filter + Toggle
         _buildSearchAndFilterBar(),
-        // Advance Filter panel
-        if (_showAdvanceFilter)
-          Flexible(
-            child: SingleChildScrollView(
-              child: _buildAdvanceFilterPanel(),
-            ),
-          ),
         // Product list
-        if (!_showAdvanceFilter)
-          Expanded(
-            child: products.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    itemCount: products.length,
-                    itemBuilder: (_, i) => _buildProductCard(products[i]),
-                  ),
-          ),
+        Expanded(
+          child: products.isEmpty
+              ? _buildEmptyState()
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  itemCount: products.length,
+                  itemBuilder: (_, i) => _buildProductCard(products[i]),
+                ),
+        ),
       ],
     );
   }
@@ -165,79 +143,66 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildSearchAndFilterBar() {
+    final headerColor = context.watch<AppState>().headerColor;
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       child: Column(
         children: [
-          // Search
-          Container(
-            height: 44,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade300),
-            ),
-            child: Row(
-              children: [
-                const SizedBox(width: 12),
-                Icon(Icons.search, color: Colors.grey.shade400, size: 22),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (v) => setState(() => _searchQuery = v),
-                    style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
-                    decoration: InputDecoration(
-                      hintText: 'Search Records',
-                      hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                      isDense: true,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Advance Filter + Toggle
+          // Search + View Toggle
           Row(
             children: [
-              // Advance Filter button
               Expanded(
-                child: GestureDetector(
-                  onTap: () => setState(() => _showAdvanceFilter = !_showAdvanceFilter),
-                  child: Container(
-                    height: 40,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.filter_list, size: 18, color: Colors.grey.shade500),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Advance Filter',
-                          style: GoogleFonts.inter(fontSize: 13, color: AppColors.textMuted),
+                child: Container(
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 12),
+                      Icon(Icons.search, color: Colors.grey.shade400, size: 22),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          onChanged: (v) => setState(() => _searchQuery = v),
+                          style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
+                          decoration: InputDecoration(
+                            hintText: 'Search Records',
+                            hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                            isDense: true,
+                          ),
                         ),
-                        const Spacer(),
-                        Icon(
-                          _showAdvanceFilter ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                          size: 20,
-                          color: Colors.grey.shade500,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
               const SizedBox(width: 12),
-              // List/Grid toggle
               _buildViewToggle(),
             ],
+          ),
+          const SizedBox(height: 12),
+          // Advance Filter
+          AdvanceFilterWidget(
+            fields: [
+              AdvanceFilterField(key: 'segment', label: 'Segment', hint: 'Select Segment', items: ProductMockData.allSegmentNames),
+              AdvanceFilterField(key: 'category', label: 'Category', hint: 'Select Category', items: ProductMockData.allCategoryNames),
+              AdvanceFilterField(key: 'subCategory', label: 'Sub-Category', hint: 'Select Sub-Category', items: ProductMockData.allSubcategoryNames),
+              AdvanceFilterField(key: 'brand', label: 'Brand', hint: 'Select Brand', items: ProductMockData.allBrands),
+              AdvanceFilterField(key: 'uom', label: 'Unit of Measure', hint: 'Select Unit', items: ProductMockData.allUOMs),
+              AdvanceFilterField(key: 'productType', label: 'Product Type', hint: 'Select Product Type', items: ProductMockData.allProductTypes),
+              AdvanceFilterField(key: 'status', label: 'Status', hint: 'Select Status', items: ProductMockData.allStatuses),
+            ],
+            values: _productFilters,
+            onChanged: (v) => setState(() => _productFilters.addAll(v)),
+            onApply: () {},
+            applyButtonColor: headerColor,
           ),
         ],
       ),
@@ -288,95 +253,6 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
                 Icons.grid_view_rounded,
                 size: 20,
                 color: !_isListView ? Colors.white : Colors.grey.shade500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════
-  //  ADVANCE FILTER PANEL
-  // ═══════════════════════════════════════════════════════════════════════
-
-  Widget _buildAdvanceFilterPanel() {
-    final headerColor = context.watch<AppState>().headerColor;
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _filterDropdown('Segment', 'Select Segment', _filterSegment,
-              ProductMockData.allSegmentNames, (v) => setState(() => _filterSegment = v)),
-          _filterDropdown('Category', 'Select Category', _filterCategory,
-              ProductMockData.allCategoryNames, (v) => setState(() => _filterCategory = v)),
-          _filterDropdown('Sub-Category', 'Select Sub-Category', _filterSubCategory,
-              ProductMockData.allSubcategoryNames, (v) => setState(() => _filterSubCategory = v)),
-          _filterDropdown('Brand', 'Select Brand', _filterBrand,
-              ProductMockData.allBrands, (v) => setState(() => _filterBrand = v)),
-          _filterDropdown('Unit of Measure', 'Select Unit', _filterUOM,
-              ProductMockData.allUOMs, (v) => setState(() => _filterUOM = v)),
-          _filterDropdown('Product Type', 'Select Product Type', _filterProductType,
-              ProductMockData.allProductTypes, (v) => setState(() => _filterProductType = v)),
-          _filterDropdown('Product Type', 'Status', _filterStatus,
-              ProductMockData.allStatuses, (v) => setState(() => _filterStatus = v)),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: () => setState(() => _showAdvanceFilter = false),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: headerColor,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: Text(
-                'Apply Filter',
-                style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _filterDropdown(String label, String hint, String? value,
-      List<String> items, ValueChanged<String?> onChanged) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Container(
-            height: 44,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade300),
-            ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: value,
-                isExpanded: true,
-                hint: Text(hint, style: GoogleFonts.inter(fontSize: 13, color: AppColors.textMuted)),
-                icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
-                style: GoogleFonts.inter(fontSize: 13, color: AppColors.textPrimary),
-                items: items.map((i) => DropdownMenuItem(value: i, child: Text(i))).toList(),
-                onChanged: onChanged,
               ),
             ),
           ),
@@ -665,13 +541,7 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
     return Column(
       children: [
         _buildSearchAndFilterBar(),
-        if (_showAdvanceFilter)
-          Flexible(
-            child: SingleChildScrollView(
-              child: _buildAdvanceFilterPanel(),
-            ),
-          ),
-        if (!_showAdvanceFilter) Expanded(
+        Expanded(
           child: _selectedSubcategory != null
               ? _buildSubcategoryProductsGrid()
               : _selectedCategory != null

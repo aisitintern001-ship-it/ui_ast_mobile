@@ -3,21 +3,28 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../widgets/bottom_nav.dart';
+import '../widgets/expandable_status_filter.dart';
 import '../modals/edit_leave_modal.dart';
 import '../modals/create_leave_modal.dart';
+import 'home_screen.dart'; // Added the import for HomeScreen navigation
 
 class PersonalLeaveScreen extends StatefulWidget {
-  const PersonalLeaveScreen({super.key});
+  final int initialTab;
+  final bool fromDataIntegration;
+
+  const PersonalLeaveScreen({
+    super.key, 
+    this.initialTab = 0,
+    this.fromDataIntegration = false,
+  });
 
   @override
   State<PersonalLeaveScreen> createState() => _PersonalLeaveScreenState();
 }
 
 class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
-  // 0 = History, 1 = Offline
-  int currentTab = 0;
+  late int currentTab;
   String selectedFilter = "7";
-  bool isStatusFilterExpanded = false;
   String? selectedStatus;
 
   static const List<Map<String, dynamic>> _leaveStatuses = [
@@ -26,6 +33,12 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
     {'label': 'Denied', 'color': Color(0xFFEF4444)},
     {'label': 'Cancelled', 'color': Color(0xFF6B7280)},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    currentTab = widget.initialTab;
+  }
 
   void _openCreateModal() {
     showDialog(
@@ -52,7 +65,18 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              context.read<AppState>().setNavIndex(1);
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+                (Route<dynamic> route) => false,
+              );
+            }
+          },
         ),
         title: Text('Leave Records', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold)),
       ),
@@ -120,75 +144,10 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                GestureDetector(
-                  onTap: () => setState(() => isStatusFilterExpanded = !isStatusFilterExpanded),
-                  child: Container(
-                    height: 40,
-                    decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Row(
-                      children: [
-                        Icon(Icons.filter_alt_outlined, color: Colors.grey.shade500, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          selectedStatus ?? "Filter Status",
-                          style: GoogleFonts.inter(color: selectedStatus != null ? Colors.black87 : Colors.grey.shade600, fontSize: 13),
-                        ),
-                        const Spacer(),
-                        AnimatedRotation(
-                          turns: isStatusFilterExpanded ? 0.5 : 0,
-                          duration: const Duration(milliseconds: 200),
-                          child: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                AnimatedCrossFade(
-                  firstChild: const SizedBox.shrink(),
-                  secondChild: Container(
-                    margin: const EdgeInsets.only(top: 8),
-                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey.shade200),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
-                    ),
-                    child: Column(
-                      children: _leaveStatuses.map((s) {
-                        final bool isSelected = selectedStatus == s['label'];
-                        return InkWell(
-                          onTap: () => setState(() {
-                            selectedStatus = isSelected ? null : s['label'] as String;
-                          }),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 20, height: 20,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: isSelected ? const Color(0xFF2181FF) : Colors.grey.shade400, width: 2),
-                                  ),
-                                  child: isSelected
-                                      ? Center(child: Container(width: 10, height: 10, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF2181FF))))
-                                      : null,
-                                ),
-                                const SizedBox(width: 10),
-                                Container(width: 10, height: 10, decoration: BoxDecoration(shape: BoxShape.circle, color: s['color'] as Color)),
-                                const SizedBox(width: 8),
-                                Text(s['label'] as String, style: GoogleFonts.inter(fontSize: 13, color: Colors.black87)),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  crossFadeState: isStatusFilterExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                  duration: const Duration(milliseconds: 200),
+                ExpandableStatusFilter(
+                  statuses: _leaveStatuses,
+                  selectedStatus: selectedStatus,
+                  onChanged: (v) => setState(() => selectedStatus = v),
                 ),
                 const SizedBox(height: 12),
                 SizedBox(

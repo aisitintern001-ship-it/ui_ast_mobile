@@ -11,7 +11,8 @@ import 'profile_info_screen.dart';
 import '../modals/shift_schedule_modal.dart';
 import '../modals/data_retention_modal.dart';
 import '../modals/available_leave_modal.dart';
-
+import '../widgets/favorites_section.dart';
+import '../screens/data_integration_screen.dart';
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -63,17 +64,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _buildSectionHeader('APP'),
             _buildSettingsCard(
               children: [
-                _buildSettingsTile(
-                  icon: Icons.grid_view_rounded,
-                  iconColor: const Color(0xFF14B8A6),
-                  title: 'Edit Categories',
-                ),
-                _buildDivider(),
-                _buildSettingsTile(
-                  icon: Icons.sync_rounded,
-                  iconColor: const Color(0xFFF97316),
-                  title: 'Data Integration',
-                ),
+                GestureDetector(
+  behavior: HitTestBehavior.opaque,
+  onTap: () => _showModal(const FavoritesManagementSheet()),
+  child: _buildSettingsTile(
+    icon: Icons.grid_view_rounded,
+    iconColor: const Color(0xFF14B8A6),
+    title: 'Edit Categories',
+  ),
+),
+
+_buildDivider(),
+                GestureDetector(
+  behavior: HitTestBehavior.opaque,
+  onTap: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const DataIntegrationScreen(),
+      ),
+    );
+  },
+  child: _buildSettingsTile(
+    icon: Icons.sync_rounded,
+    iconColor: const Color(0xFFF97316),
+    title: 'Data Integration',
+  ),
+),
                 _buildDivider(),
                 // View Entitlement Trigger: Opens AvailableLeaveModal
                 GestureDetector(

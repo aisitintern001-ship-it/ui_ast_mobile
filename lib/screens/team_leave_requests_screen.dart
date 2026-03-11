@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../widgets/filter_tabs.dart';
 import '../widgets/leave_request_card.dart';
+import '../widgets/expandable_status_filter.dart';
 import '../modals/create_member_leave_modal.dart';
 import '../widgets/bottom_nav.dart';
 // Replace with your actual model import
@@ -18,6 +19,14 @@ class TeamLeaveRequestsScreen extends StatefulWidget {
 
 class _TeamLeaveRequestsScreenState extends State<TeamLeaveRequestsScreen> {
   String selectedFilter = "7";
+  String? selectedStatus;
+
+  static const List<Map<String, dynamic>> _leaveStatuses = [
+    {'label': 'Manager Pending', 'color': Color(0xFFF59E0B)},
+    {'label': 'Manager Approved', 'color': Color(0xFF10B981)},
+    {'label': 'Manager Declined', 'color': Color(0xFFEF4444)},
+    {'label': 'Cancelled', 'color': Color(0xFF6B7280)},
+  ];
 
   // Mocking the request to match the UI
   final List<Map<String, dynamic>> requests = [
@@ -114,22 +123,10 @@ class _TeamLeaveRequestsScreenState extends State<TeamLeaveRequestsScreen> {
                 // FILTER DROPDOWN
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Row(
-                      children: [
-                        Icon(Icons.filter_alt_outlined, color: Colors.grey.shade500, size: 20),
-                        const SizedBox(width: 8),
-                        Text("Filter Status", style: TextStyle(color: Colors.grey.shade600)),
-                        const Spacer(),
-                        Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500)
-                      ],
-                    ),
+                  child: ExpandableStatusFilter(
+                    statuses: _leaveStatuses,
+                    selectedStatus: selectedStatus,
+                    onChanged: (v) => setState(() => selectedStatus = v),
                   ),
                 ),
                 const SizedBox(height: 12),

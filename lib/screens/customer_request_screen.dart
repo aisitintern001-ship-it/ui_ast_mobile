@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
-import '../theme/app_theme.dart';
 import '../widgets/bottom_nav.dart';
+import '../widgets/advance_filter_widget.dart';
+import '../widgets/expandable_status_filter.dart';
 import '../widgets/request_form_widgets.dart';
 import 'create_customer_request_screen.dart';
 
@@ -18,16 +19,14 @@ class _CustomerRequestScreenState extends State<CustomerRequestScreen> {
   int currentTab = 0; // 0 = History, 1 = Offline
   String selectedFilter = "7";
   String selectedStatus = "Active";
-  bool isAdvanceFilterExpanded = false;
+  final Map<String, String?> _customerFilters = {};
 
-  // Advance filter values
-  String? _filterCustomerType;
-  String? _filterBusinessAccountType;
-  String? _filterCustomerGroup;
-  String? _filterSalesRep;
-  String? _filterCurrency;
-  String? _filterIndustry;
-  String? _filterCountryCode;
+  static const List<Map<String, dynamic>> _customerStatuses = [
+    {'label': 'All', 'color': Color(0xFF3B82F6)},
+    {'label': 'Active', 'color': Color(0xFF10B981)},
+    {'label': 'Draft', 'color': Color(0xFF6B7280)},
+    {'label': 'Archive', 'color': Color(0xFF3B82F6)},
+  ];
 
   // Mock customer data
   static final List<Map<String, dynamic>> _customers = [
@@ -184,163 +183,26 @@ class _CustomerRequestScreenState extends State<CustomerRequestScreen> {
                 const SizedBox(height: 12),
 
                 // Status filter dropdown
-                StatusFilterDropdown(
+                ExpandableStatusFilter(
+                  statuses: _customerStatuses,
                   selectedStatus: selectedStatus,
-                  onChanged: (v) => setState(() => selectedStatus = v),
+                  onChanged: (v) => setState(() => selectedStatus = v ?? 'All'),
                 ),
                 const SizedBox(height: 12),
 
-                // Advance Filter dropdown
-                GestureDetector(
-                  onTap: () => setState(
-                    () => isAdvanceFilterExpanded = !isAdvanceFilterExpanded,
-                  ),
-                  child: Container(
-                    height: 40,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.filter_alt_outlined,
-                          color: Colors.grey.shade500,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          "Advance Filter",
-                          style: GoogleFonts.inter(
-                            color: Colors.grey.shade600,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const Spacer(),
-                        AnimatedRotation(
-                          turns: isAdvanceFilterExpanded ? 0.5 : 0,
-                          duration: const Duration(milliseconds: 200),
-                          child: Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Advance Filter expandable section
-                AnimatedCrossFade(
-                  firstChild: const SizedBox.shrink(),
-                  secondChild: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 4),
-                      const AdvanceFilterLabel("Customer Type"),
-                      const SizedBox(height: 6),
-                      AdvanceFilterDropdown(
-                        hint: "Choose Customer Type",
-                        value: _filterCustomerType,
-                        items: const ["Business", "Individual"],
-                        onChanged: (v) =>
-                            setState(() => _filterCustomerType = v),
-                      ),
-                      const SizedBox(height: 12),
-                      const AdvanceFilterLabel("Business Account Type"),
-                      const SizedBox(height: 6),
-                      AdvanceFilterDropdown(
-                        hint: "Choose Business Account",
-                        value: _filterBusinessAccountType,
-                        items: const ["Parent Account", "Child Account"],
-                        onChanged: (v) =>
-                            setState(() => _filterBusinessAccountType = v),
-                      ),
-                      const SizedBox(height: 12),
-                      const AdvanceFilterLabel("Customer Group"),
-                      const SizedBox(height: 6),
-                      AdvanceFilterDropdown(
-                        hint: "Choose Customer Group",
-                        value: _filterCustomerGroup,
-                        items: const ["Group A", "Group B", "Group C"],
-                        onChanged: (v) =>
-                            setState(() => _filterCustomerGroup = v),
-                      ),
-                      const SizedBox(height: 12),
-                      const AdvanceFilterLabel("Sales Rep"),
-                      const SizedBox(height: 6),
-                      AdvanceFilterDropdown(
-                        hint: "Choose Representative",
-                        value: _filterSalesRep,
-                        items: const ["Rep A", "Rep B", "Rep C"],
-                        onChanged: (v) =>
-                            setState(() => _filterSalesRep = v),
-                      ),
-                      const SizedBox(height: 12),
-                      const AdvanceFilterLabel("Select Currency"),
-                      const SizedBox(height: 6),
-                      AdvanceFilterDropdown(
-                        hint: "Choose Currency",
-                        value: _filterCurrency,
-                        items: const ["Peso", "USD", "EUR", "GBP"],
-                        onChanged: (v) =>
-                            setState(() => _filterCurrency = v),
-                      ),
-                      const SizedBox(height: 12),
-                      const AdvanceFilterLabel("Select Industry"),
-                      const SizedBox(height: 6),
-                      AdvanceFilterDropdown(
-                        hint: "Choose Industry",
-                        value: _filterIndustry,
-                        items: const [
-                          "Agriculture",
-                          "Manufacturing",
-                          "Retail",
-                          "Technology",
-                        ],
-                        onChanged: (v) =>
-                            setState(() => _filterIndustry = v),
-                      ),
-                      const SizedBox(height: 12),
-                      const AdvanceFilterLabel("Country Code"),
-                      const SizedBox(height: 6),
-                      AdvanceFilterDropdown(
-                        hint: "Choose Country",
-                        value: _filterCountryCode,
-                        items: const ["PH", "US", "AU", "SG", "JP"],
-                        onChanged: (v) =>
-                            setState(() => _filterCountryCode = v),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                  ),
-                  crossFadeState: isAdvanceFilterExpanded
-                      ? CrossFadeState.showSecond
-                      : CrossFadeState.showFirst,
-                  duration: const Duration(milliseconds: 200),
-                ),
-
-                // Apply Filter Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 40,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2181FF),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 0,
-                    ),
-                    onPressed: () {},
-                    child: Text(
-                      "Apply Filter",
-                      style: GoogleFonts.inter(fontWeight: FontWeight.bold),
-                    ),
-                  ),
+                AdvanceFilterWidget(
+                  fields: const [
+                    AdvanceFilterField(key: 'customerType', label: 'Customer Type', hint: 'Choose Customer Type', items: ['Business', 'Individual']),
+                    AdvanceFilterField(key: 'businessAccountType', label: 'Business Account Type', hint: 'Choose Business Account', items: ['Parent Account', 'Child Account']),
+                    AdvanceFilterField(key: 'customerGroup', label: 'Customer Group', hint: 'Choose Customer Group', items: ['Group A', 'Group B', 'Group C']),
+                    AdvanceFilterField(key: 'salesRep', label: 'Sales Rep', hint: 'Choose Representative', items: ['Rep A', 'Rep B', 'Rep C']),
+                    AdvanceFilterField(key: 'currency', label: 'Currency', hint: 'Choose Currency', items: ['Peso', 'USD', 'EUR', 'GBP']),
+                    AdvanceFilterField(key: 'industry', label: 'Industry', hint: 'Choose Industry', items: ['Agriculture', 'Manufacturing', 'Retail', 'Technology']),
+                    AdvanceFilterField(key: 'countryCode', label: 'Country Code', hint: 'Choose Country', items: ['PH', 'US', 'AU', 'SG', 'JP']),
+                  ],
+                  values: _customerFilters,
+                  onChanged: (v) => setState(() => _customerFilters.addAll(v)),
+                  onApply: () {},
                 ),
               ],
             ),

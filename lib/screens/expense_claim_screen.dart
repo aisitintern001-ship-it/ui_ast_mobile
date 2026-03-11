@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../modals/create_expense_modal.dart';
 import '../widgets/bottom_nav.dart';
+import '../widgets/expandable_status_filter.dart';
 
 // Assuming you saved the reusable widgets from the previous step:
 // import '../widgets/custom_tab_button.dart';
@@ -20,7 +21,6 @@ class ExpenseClaimScreen extends StatefulWidget {
 class _ExpenseClaimScreenState extends State<ExpenseClaimScreen> {
   int currentTab = 0; // 0 = History, 1 = Offline
   String selectedFilter = "7";
-  bool isStatusFilterExpanded = false;
   String? selectedStatus;
 
   static const List<Map<String, dynamic>> _expenseStatuses = [
@@ -128,75 +128,11 @@ class _ExpenseClaimScreenState extends State<ExpenseClaimScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                GestureDetector(
-                  onTap: () => setState(() => isStatusFilterExpanded = !isStatusFilterExpanded),
-                  child: Container(
-                    height: 40,
-                    decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Row(
-                      children: [
-                        Icon(Icons.filter_alt_outlined, color: Colors.grey.shade500, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          selectedStatus ?? "Filter by Status",
-                          style: GoogleFonts.inter(color: selectedStatus != null ? Colors.black87 : Colors.grey.shade600, fontSize: 13),
-                        ),
-                        const Spacer(),
-                        AnimatedRotation(
-                          turns: isStatusFilterExpanded ? 0.5 : 0,
-                          duration: const Duration(milliseconds: 200),
-                          child: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                AnimatedCrossFade(
-                  firstChild: const SizedBox.shrink(),
-                  secondChild: Container(
-                    margin: const EdgeInsets.only(top: 8),
-                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey.shade200),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 2))],
-                    ),
-                    child: Column(
-                      children: _expenseStatuses.map((s) {
-                        final bool isSelected = selectedStatus == s['label'];
-                        return InkWell(
-                          onTap: () => setState(() {
-                            selectedStatus = isSelected ? null : s['label'] as String;
-                          }),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 20, height: 20,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: isSelected ? const Color(0xFF2181FF) : Colors.grey.shade400, width: 2),
-                                  ),
-                                  child: isSelected
-                                      ? Center(child: Container(width: 10, height: 10, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF2181FF))))
-                                      : null,
-                                ),
-                                const SizedBox(width: 10),
-                                Container(width: 10, height: 10, decoration: BoxDecoration(shape: BoxShape.circle, color: s['color'] as Color)),
-                                const SizedBox(width: 8),
-                                Text(s['label'] as String, style: GoogleFonts.inter(fontSize: 13, color: Colors.black87)),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  crossFadeState: isStatusFilterExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                  duration: const Duration(milliseconds: 200),
+                ExpandableStatusFilter(
+                  statuses: _expenseStatuses,
+                  selectedStatus: selectedStatus,
+                  onChanged: (v) => setState(() => selectedStatus = v),
+                  placeholder: 'Filter by Status',
                 ),
                 const SizedBox(height: 12),
                 SizedBox(

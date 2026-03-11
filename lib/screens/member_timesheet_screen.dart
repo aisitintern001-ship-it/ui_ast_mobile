@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/bottom_nav.dart';
+import '../widgets/expandable_status_filter.dart';
 import '../widgets/filter_tabs.dart';
 
 // ─── Models ──────────────────────────────────────────────────────────────────
@@ -242,10 +243,16 @@ class MemberTimesheetScreen extends StatefulWidget {
 
 class _MemberTimesheetScreenState extends State<MemberTimesheetScreen> {
   String _selectedEmployee = 'All';
-  String _selectedStatus = 'All';
+  String? _selectedStatus;
   String _selectedDateFilter = '7';
   int? _expandedCard;
   final Map<String, bool> _expandedDays = {};
+
+  static const List<Map<String, dynamic>> _timesheetStatuses = [
+    {'label': 'Mngr. Approved', 'color': Color(0xFF10B981)},
+    {'label': 'Mngr. Pending', 'color': Color(0xFFF59E0B)},
+    {'label': 'No Attendance', 'color': Color(0xFFEF4444)},
+  ];
 
   List<_EmployeeTimesheet> get _filtered {
     var list = _mockTimesheets;
@@ -299,16 +306,10 @@ class _MemberTimesheetScreenState extends State<MemberTimesheetScreen> {
                   (v) => setState(() => _selectedEmployee = v ?? 'All'),
                 ),
                 const SizedBox(height: 8),
-                _buildDropdown(
-                  'Filter Status',
-                  _selectedStatus,
-                  const [
-                    'All',
-                    'Mngr. Approved',
-                    'Mngr. Pending',
-                    'No Attendance',
-                  ],
-                  (v) => setState(() => _selectedStatus = v ?? 'All'),
+                ExpandableStatusFilter(
+                  statuses: _timesheetStatuses,
+                  selectedStatus: _selectedStatus,
+                  onChanged: (v) => setState(() => _selectedStatus = v),
                 ),
                 const SizedBox(height: 10),
                 SizedBox(
