@@ -442,12 +442,15 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
             ),
           ),
           const SizedBox(width: 6),
-          Text(
-            value,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-              color: AppColors.textPrimary,
+          Flexible(
+            child: Text(
+              value,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+                color: AppColors.textPrimary,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

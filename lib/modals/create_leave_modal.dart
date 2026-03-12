@@ -135,14 +135,14 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
       {'label': 'Service Incentive Leave', 'balance': '0.0000/hr'},
     ];
 
-    return Row(
+    return Wrap(
+      spacing: 10,
+      runSpacing: 8,
       children: leaveTypes.asMap().entries.map((entry) {
         final index = entry.key;
         final item = entry.value;
         final isSelected = _selectedLeaveType == index;
-        return Padding(
-          padding: EdgeInsets.only(right: index < leaveTypes.length - 1 ? 10 : 0),
-          child: GestureDetector(
+        return GestureDetector(
             onTap: () => setState(() => _selectedLeaveType = index),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -178,7 +178,6 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
                 ],
               ),
             ),
-          ),
         );
       }).toList(),
     );
@@ -223,9 +222,12 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
         children: [
           Icon(Icons.calendar_today_outlined, size: 18, color: Colors.grey.shade600),
           const SizedBox(width: 5),
-          Text(
-            'Select Dates (tap to select multiple dates)',
-            style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade500),
+          Expanded(
+            child: Text(
+              'Select Dates (tap to select multiple dates)',
+              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade500),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),

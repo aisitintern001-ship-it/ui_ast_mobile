@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../widgets/bottom_nav.dart';
 import '../screens/attendance_screen.dart';
-import '../screens/personal_leave_screen.dart'; // Adjust this import to your actual leave screen file
+import '../screens/personal_leave_screen.dart';
 
 class DataIntegrationScreen extends StatelessWidget {
   const DataIntegrationScreen({super.key});
@@ -71,11 +71,13 @@ class DataIntegrationScreen extends StatelessWidget {
               actionIcon: Icons.sync_rounded,
               pendingCount: '5 Pending',
               onTap: () {
-                // Navigates and tells the screen to open the Offline tab
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const AttendanceScreen(initialShowHistory: false),
+                    builder: (context) => const AttendanceScreen(
+                      initialShowHistory: false,
+                      fromDataIntegration: true, // 👈 Added this flag
+                    ),
                   ),
                 );
               },
@@ -92,11 +94,13 @@ class DataIntegrationScreen extends StatelessWidget {
               actionIcon: Icons.sync_rounded,
               pendingCount: '5 Pending',
               onTap: () {
-                // Passes initialTab: 1 so it opens straight to the Offline view
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const PersonalLeaveScreen(initialTab: 1),
+                    builder: (context) => const PersonalLeaveScreen(
+                      initialTab: 1,
+                      fromDataIntegration: true, // 👈 Added this flag
+                    ),
                   ),
                 );
               },
@@ -114,11 +118,13 @@ class DataIntegrationScreen extends StatelessWidget {
                 children: [
                   const Icon(Icons.info_outline_rounded, size: 16, color: Colors.grey),
                   const SizedBox(width: 8),
-                  Text(
-                    'All data is synced on the server.',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
+                  Expanded(
+                    child: Text(
+                      'All data is synced on the server.',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                   ),
                 ],
@@ -131,7 +137,7 @@ class DataIntegrationScreen extends StatelessWidget {
     );
   }
 
-  // Updated reusable widget that accepts onTap and dynamic brand colors
+  // Reusable widget that accepts onTap and dynamic brand colors
   Widget _buildIntegrationCard({
     required IconData icon,
     required Color iconColor,

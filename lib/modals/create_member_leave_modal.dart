@@ -62,7 +62,9 @@ class CreateMemberLeaveModal extends StatelessWidget {
                   children: [
                     Icon(Icons.calendar_today_outlined, size: 18, color: Colors.grey.shade600),
                     const SizedBox(width: 12),
-                    Text("Select Dates", style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+                    Expanded(
+                      child: Text("Select Dates", style: TextStyle(color: Colors.grey.shade500, fontSize: 13), overflow: TextOverflow.ellipsis),
+                    ),
                   ],
                 ),
               ),

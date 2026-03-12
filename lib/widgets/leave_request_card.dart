@@ -56,7 +56,10 @@ class _LeaveRequestCardState extends State<LeaveRequestCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(r['employeeName'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Flexible(
+                      child: Text(r['employeeName'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), overflow: TextOverflow.ellipsis),
+                    ),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
@@ -77,7 +80,9 @@ class _LeaveRequestCardState extends State<LeaveRequestCard> {
                     const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
                     const SizedBox(width: 8),
                     Text("Date Submitted: ", style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                    Text(r['dateSubmitted'], style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                    Flexible(
+                      child: Text(r['dateSubmitted'], style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12), overflow: TextOverflow.ellipsis),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
@@ -86,7 +91,9 @@ class _LeaveRequestCardState extends State<LeaveRequestCard> {
                     const Icon(Icons.calendar_month, size: 14, color: Colors.grey),
                     const SizedBox(width: 8),
                     Text("Period: ", style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
-                    Text(r['dateRange'], style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                    Flexible(
+                      child: Text(r['dateRange'], style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12), overflow: TextOverflow.ellipsis),
+                    ),
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -98,12 +105,12 @@ class _LeaveRequestCardState extends State<LeaveRequestCard> {
                 const SizedBox(height: 12),
 
                 // Stat Pills
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     _buildStatPill("Pending", r['pendingCount'], Colors.amber.shade700),
-                    const SizedBox(width: 8),
                     _buildStatPill("Approved", r['approvedCount'], Colors.teal),
-                    const SizedBox(width: 8),
                     _buildStatPill("Declined", r['declinedCount'], Colors.redAccent),
                   ],
                 ),
@@ -139,12 +146,17 @@ class _LeaveRequestCardState extends State<LeaveRequestCard> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade700),
-                            const SizedBox(width: 8),
-                            Text("View Per Day Leave (${r['duration']})", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey.shade800)),
-                          ],
+                        Flexible(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade700),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text("View Per Day Leave (${r['duration']})", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey.shade800), overflow: TextOverflow.ellipsis),
+                              ),
+                            ],
+                          ),
                         ),
                         Icon(expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: Colors.grey.shade600)
                       ],

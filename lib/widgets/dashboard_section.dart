@@ -82,7 +82,8 @@ class _StatusChipsRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: filters.map((f) {
         final isSelected = state.dashboardFilter == (f['filterKey'] as String);
-        return GestureDetector(
+        return Flexible(
+          child: GestureDetector(
           onTap: () => state.setDashboardFilter(f['filterKey'] as String),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -91,12 +92,16 @@ class _StatusChipsRow extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    f['label'] as String,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected ? headerColor : AppColors.textSecondary,
+                  Flexible(
+                    child: Text(
+                      f['label'] as String,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        color: isSelected ? headerColor : AppColors.textSecondary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
                   ),
                   const SizedBox(width: 4),
@@ -132,6 +137,7 @@ class _StatusChipsRow extends StatelessWidget {
               ),
             ],
           ),
+        ),
         );
       }).toList(),
     );

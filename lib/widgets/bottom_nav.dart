@@ -82,6 +82,7 @@ class AppBottomNavBar extends StatelessWidget {
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                       color: isSelected ? headerColor : AppColors.textMuted,
                     ),
+                    textScaler: TextScaler.noScaling,
                   ),
                   const SizedBox(height: 2),
                   AnimatedContainer(

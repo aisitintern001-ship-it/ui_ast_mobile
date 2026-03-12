@@ -251,7 +251,9 @@ class _NewsBanner extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -271,7 +273,6 @@ class _NewsBanner extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 6),
                       Text(
                         news.date,
                         style: GoogleFonts.inter(
@@ -279,7 +280,6 @@ class _NewsBanner extends StatelessWidget {
                           color: AppColors.textMuted,
                         ),
                       ),
-                      const SizedBox(width: 6),
                       if (news.isImportant)
                         Container(
                           padding: const EdgeInsets.symmetric(

@@ -66,10 +66,13 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
           onPressed: () {
-            if (Navigator.canPop(context)) {
+            // --- ROUTING LOGIC UPDATE ---
+            if (widget.fromDataIntegration) {
+              // If we came from Settings -> Data Integration, just pop back to it
               Navigator.pop(context);
             } else {
-              context.read<AppState>().setNavIndex(1);
+              // If we came from Favorites / Home, force navigation back to Home tab
+              context.read<AppState>().setNavIndex(1); // Set to Home Tab
               Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -152,9 +155,8 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
-                  height: 40,
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2181FF), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2181FF), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0, padding: const EdgeInsets.symmetric(vertical: 10)),
                     onPressed: () {},
                     child: Text("Apply Filter", style: GoogleFonts.inter(fontWeight: FontWeight.bold)),
                   ),
@@ -211,7 +213,9 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
                   children: [
                     const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
                     const SizedBox(width: 8),
-                    Text("Delete Synced Records", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
+                    Expanded(
+                      child: Text("Delete Synced Records", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -225,10 +229,9 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
                 const SizedBox(height: 12),
                 SizedBox(
                   width: double.infinity,
-                  height: 40,
                   child: ElevatedButton.icon(
                     // ignore: deprecated_member_use
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent.withOpacity(0.8), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent.withOpacity(0.8), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0, padding: const EdgeInsets.symmetric(vertical: 10)),
                     onPressed: () {},
                     icon: const Icon(Icons.delete_outline, size: 16),
                     label: Text("Delete Synced Range", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13)),
@@ -264,9 +267,8 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
           color: Colors.white,
           child: SizedBox(
             width: double.infinity,
-            height: 48,
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00C48C), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00C48C), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0, padding: const EdgeInsets.symmetric(vertical: 14)),
               onPressed: () {},
               child: Text("Sync All Records", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15)),
             ),
@@ -313,6 +315,7 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
         onTap: () => setState(() => selectedFilter = value),
         child: Container(
           height: 36,
+          constraints: const BoxConstraints(minHeight: 36),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: isSelected ? const Color(0xFF2181FF) : Colors.white,
@@ -349,7 +352,9 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
                     Expanded(
                       child: Row(
                         children: [
-                          Text(type, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
+                          Flexible(
+                            child: Text(type, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
+                          ),
                           const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -402,12 +407,12 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     _buildStatPill("Pending", pending, Colors.amber.shade700),
-                    const SizedBox(width: 8),
                     _buildStatPill("Approved", approved, Colors.teal),
-                    const SizedBox(width: 8),
                     _buildStatPill("Declined", declined, Colors.redAccent),
                   ],
                 ),
@@ -452,21 +457,26 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13)),
-              const SizedBox(height: 6),
-              Row(
-                children: [
-                  Icon(Icons.calendar_today, size: 12, color: Colors.grey.shade500),
-                  const SizedBox(width: 6),
-                  Text("Period: ", style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade500)),
-                  Text(period, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87)),
-                ],
-              )
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13)),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(Icons.calendar_today, size: 12, color: Colors.grey.shade500),
+                    const SizedBox(width: 6),
+                    Text("Period: ", style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade500)),
+                    Flexible(
+                      child: Text(period, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87), overflow: TextOverflow.ellipsis),
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(color: status == "Sync Failed" ? statusColor : Colors.white, border: status == "Pending Sync" ? Border.all(color: statusColor) : null, borderRadius: BorderRadius.circular(12)),
@@ -479,8 +489,8 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
 
   Widget _buildDatePicker(String hint) {
     return Container(
-      height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      constraints: const BoxConstraints(minHeight: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
       child: Row(
         children: [
@@ -498,7 +508,9 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
         Icon(icon, size: 14, color: Colors.grey.shade500),
         const SizedBox(width: 8),
         Text(label, style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 12)),
-        Text(value, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12)),
+        Flexible(
+          child: Text(value, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12), overflow: TextOverflow.ellipsis),
+        ),
       ],
     );
   }

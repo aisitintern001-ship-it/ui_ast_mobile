@@ -156,14 +156,14 @@ class _EditLeaveModalState extends State<EditLeaveModal> {
       {'label': 'Service Incentive Leave', 'balance': '0.0000/hr'},
     ];
 
-    return Row(
+    return Wrap(
+      spacing: 10,
+      runSpacing: 8,
       children: leaveTypes.asMap().entries.map((entry) {
         final index = entry.key;
         final item = entry.value;
         final isSelected = _selectedLeaveType == index;
-        return Padding(
-          padding: EdgeInsets.only(right: index < leaveTypes.length - 1 ? 10 : 0),
-          child: GestureDetector(
+        return GestureDetector(
             onTap: () => setState(() => _selectedLeaveType = index),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -199,7 +199,6 @@ class _EditLeaveModalState extends State<EditLeaveModal> {
                 ],
               ),
             ),
-          ),
         );
       }).toList(),
     );
@@ -239,19 +238,14 @@ class _EditLeaveModalState extends State<EditLeaveModal> {
       child: Row(
         children: [
           Icon(Icons.calendar_today_outlined, size: 18, color: Colors.grey.shade600),
-          const SizedBox(width: 5),
-          
-          // 👇 Wrap the Text widget in an Expanded widget
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
-              // If you are using a variable here (like in your previous code), just keep your variable.
-              // I'm using the placeholder text from your screenshot as an example.
-              'Select Dates (tap to select multiple dates)', 
+              '${_dateEntries.length} date(s) selected',
               style: GoogleFonts.inter(fontSize: 13, color: const Color(0xFF4A5568)),
-              overflow: TextOverflow.ellipsis, // Adds "..." if the text is too long for smaller screens
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          
         ],
       ),
     );

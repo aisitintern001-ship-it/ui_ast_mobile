@@ -16,7 +16,7 @@ class FilterTabs extends StatelessWidget {
       child: GestureDetector(
         onTap: () => onChanged(value),
         child: Container(
-          height: 36,
+          constraints: const BoxConstraints(minHeight: 36),
           decoration: BoxDecoration(
             color: active ? const Color(0xFF2181FF) : Colors.white,
             border: active ? null : Border.all(color: Colors.grey.shade300),

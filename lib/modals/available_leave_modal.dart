@@ -18,12 +18,14 @@ class AvailableLeaveModal extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  "Available Leave",
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF334155),
+                Expanded(
+                  child: Text(
+                    "Available Leave",
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF334155),
+                    ),
                   ),
                 ),
                 IconButton(

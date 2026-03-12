@@ -71,7 +71,9 @@ class NewsDetailModal extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -81,9 +83,7 @@ class NewsDetailModal extends StatelessWidget {
                           ),
                           child: Text('Event', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF7C4DFF))),
                         ),
-                        const SizedBox(width: 8),
                         Text(news.date, style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted)),
-                        const SizedBox(width: 8),
                         if (news.isImportant)
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

@@ -78,12 +78,12 @@ class _AdvanceFilterWidgetState extends State<AdvanceFilterWidget> {
         GestureDetector(
           onTap: _toggle,
           child: Container(
-            height: 40,
+            constraints: const BoxConstraints(minHeight: 40),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade300),
               borderRadius: BorderRadius.circular(8),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
               children: [
                 Icon(Icons.filter_alt_outlined, color: Colors.grey.shade500, size: 20),
@@ -123,7 +123,6 @@ class _AdvanceFilterWidgetState extends State<AdvanceFilterWidget> {
         const SizedBox(height: 4),
         SizedBox(
           width: double.infinity,
-          height: 40,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: widget.applyButtonColor,
@@ -158,7 +157,7 @@ class _AdvanceFilterWidgetState extends State<AdvanceFilterWidget> {
           ),
           const SizedBox(height: 6),
           Container(
-            height: 44,
+            constraints: const BoxConstraints(minHeight: 44),
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),

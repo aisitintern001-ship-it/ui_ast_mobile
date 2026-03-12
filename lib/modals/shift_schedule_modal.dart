@@ -73,15 +73,18 @@ class ShiftScheduleModal extends StatelessWidget {
             color: isWorkDay ? const Color(0xFF0284C7) : Colors.grey.shade400,
           ),
           const SizedBox(width: 12),
-          Text(
-            day,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: isWorkDay ? const Color(0xFF0369A1) : Colors.grey.shade600,
+          Expanded(
+            child: Text(
+              day,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isWorkDay ? const Color(0xFF0369A1) : Colors.grey.shade600,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 8),
           Text(
             time,
             style: GoogleFonts.inter(

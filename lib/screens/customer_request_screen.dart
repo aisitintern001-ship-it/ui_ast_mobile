@@ -297,24 +297,26 @@ class _CustomerRequestScreenState extends State<CustomerRequestScreen> {
                     const Icon(Icons.wifi_off,
                         color: Colors.black87, size: 20),
                     const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Offline Records",
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Offline Records",
+                            style: GoogleFonts.inter(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
-                        ),
-                        Text(
-                          "Records saved while offline, pending sync",
-                          style: GoogleFonts.inter(
-                            color: Colors.grey.shade600,
-                            fontSize: 11,
+                          Text(
+                            "Records saved while offline, pending sync",
+                            style: GoogleFonts.inter(
+                              color: Colors.grey.shade600,
+                              fontSize: 11,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -373,7 +375,7 @@ class _CustomerRequestScreenState extends State<CustomerRequestScreen> {
       child: GestureDetector(
         onTap: () => setState(() => selectedFilter = value),
         child: Container(
-          height: 36,
+          constraints: const BoxConstraints(minHeight: 36),
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: isSelected ? const Color(0xFF2181FF) : Colors.white,
@@ -396,7 +398,7 @@ class _CustomerRequestScreenState extends State<CustomerRequestScreen> {
 
   Widget _buildDatePicker(String hint) {
     return Container(
-      height: 40,
+      constraints: const BoxConstraints(minHeight: 40),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
@@ -406,10 +408,12 @@ class _CustomerRequestScreenState extends State<CustomerRequestScreen> {
         children: [
           Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade500),
           const SizedBox(width: 8),
-          Text(
+          Expanded(
+            child: Text(
             hint,
             style: GoogleFonts.inter(
                 fontSize: 12, color: Colors.grey.shade500),
+          ),
           ),
         ],
       ),
@@ -433,22 +437,25 @@ class _CustomerRequestScreenState extends State<CustomerRequestScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.inter(
-                    fontWeight: FontWeight.bold, fontSize: 13),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                subtitle,
-                style: GoogleFonts.inter(
-                    fontSize: 11, color: Colors.grey.shade500),
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.inter(
+                      fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.inter(
+                      fontSize: 11, color: Colors.grey.shade500),
+                ),
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
           Container(
             padding:
                 const EdgeInsets.symmetric(horizontal: 10, vertical: 4),

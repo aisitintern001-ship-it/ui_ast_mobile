@@ -42,7 +42,7 @@ class _ExpandableStatusFilterState extends State<ExpandableStatusFilter> {
         GestureDetector(
           onTap: () => setState(() => _isExpanded = !_isExpanded),
           child: Container(
-            height: 40,
+            constraints: const BoxConstraints(minHeight: 40),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade300),
               borderRadius: BorderRadius.circular(8),

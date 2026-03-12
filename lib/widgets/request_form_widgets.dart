@@ -238,7 +238,7 @@ class FormDateField extends StatelessWidget {
         if (picked != null) onChanged(picked);
       },
       child: Container(
-        height: 48,
+        constraints: const BoxConstraints(minHeight: 48),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
@@ -334,7 +334,7 @@ class FormAddButton extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         width: double.infinity,
-        height: 44,
+        constraints: const BoxConstraints(minHeight: 44),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
@@ -443,47 +443,65 @@ class FormTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-        child: Row(
-          children: List.generate(labels.length, (index) {
-            final isSelected = controller.index == index;
-            return Expanded(
-              child: GestureDetector(
-                onTap: () => controller.animateTo(index),
-                child: Container(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  decoration: BoxDecoration(
-                    border: isSelected
-                        ? const Border(
-                            bottom: BorderSide(
-                                color: Color(0xFF2181FF), width: 2),
-                          )
-                        : null,
-                  ),
-                  child: Text(
-                    labels[index],
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
-                      fontSize: 9,
-                      fontWeight:
-                          isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: isSelected
-                          ? const Color(0xFF2181FF)
-                          : AppColors.textSecondary,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      height: 48, // Fixed height for the pill container
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: AnimatedBuilder(
+        animation: controller,
+        builder: (context, child) {
+          return Row(
+            // Row without SingleChildScrollView forces all items to fit on screen
+            children: labels.asMap().entries.map((entry) {
+              int index = entry.key;
+              String label = entry.value;
+              bool isSelected = controller.index == index;
+              
+              // Expanded forces each tab to take exactly equal width (1/7th of the screen)
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    controller.animateTo(index);
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 2), // Tiny padding
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: isSelected
+                              ? const Color(0xFF2181FF)
+                              : Colors.transparent,
+                          width: 3, // Thickness of the underline
+                        ),
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    // FittedBox scales the text down instead of wrapping to a second line
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        label,
+                        maxLines: 1, // Strictly forbids stacking
+                        style: GoogleFonts.inter(
+                          fontSize: 12, // Slightly smaller base font to help it fit
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          color: isSelected
+                              ? const Color(0xFF2181FF)
+                              : Colors.grey.shade500,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          }),
-        ),
+              );
+            }).toList(),
+          );
+        },
       ),
     );
   }
@@ -593,7 +611,7 @@ class StatusFilterDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 40,
+      constraints: const BoxConstraints(minHeight: 40),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
@@ -711,7 +729,7 @@ class AdvanceFilterDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 44,
+      constraints: const BoxConstraints(minHeight: 44),
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
@@ -789,6 +807,7 @@ class RequestRecordCard extends StatelessWidget {
                           color: AppColors.textPrimary,
                         ),
                         overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -863,12 +882,17 @@ class RequestRecordCard extends StatelessWidget {
                       style: GoogleFonts.inter(
                           fontSize: 12, color: AppColors.textSecondary),
                     ),
-                    Text(
-                      e.value,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.textPrimary,
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        e.value,
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textPrimary,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
                       ),
                     ),
                   ],

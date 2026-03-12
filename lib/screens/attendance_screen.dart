@@ -312,20 +312,23 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                  onPressed: () {
-                    if (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    } else {
-                      context.read<AppState>().setNavIndex(1);
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => const HomeScreen()),
-                        (Route<dynamic> route) => false,
-                      );
-                    }
-                  },
-                ),
+                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                onPressed: () {
+                  // --- ROUTING LOGIC UPDATE ---
+                  if (widget.fromDataIntegration) {
+                    // If we came from Settings -> Data Integration, just pop back to it
+                    Navigator.pop(context);
+                  } else {
+                    // If we came from Bottom Nav / Home, force navigation back to Home tab
+                    context.read<AppState>().setNavIndex(1); // Set to Home Tab
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomeScreen()),
+                      (Route<dynamic> route) => false,
+                    );
+                  }
+                },
+              ),
                 const SizedBox(width: 4),
                 Text(
                   'Attendance',
@@ -638,7 +641,9 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        Row(
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
                           children: [
                             GestureDetector(
                               onTap: () => setState(() {
@@ -651,7 +656,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                 color: headerColor,
                               ),
                             ),
-                            const SizedBox(width: 8),
                             GestureDetector(
                               onTap: () => setState(() {
                                 _range = '30';
@@ -663,7 +667,6 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                 color: headerColor,
                               ),
                             ),
-                            const SizedBox(width: 8),
                             GestureDetector(
                               onTap: () => setState(() => _range = 'custom'),
                               child: _HistoryChip(
@@ -887,12 +890,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                               children: [
                                 const Icon(Icons.delete_rounded, size: 16, color: AppColors.textMuted),
                                 const SizedBox(width: 6),
-                                Text(
-                                  'Delete Synced Records',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary,
+                                Expanded(
+                                  child: Text(
+                                    'Delete Synced Records',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -950,12 +955,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                               children: [
                                 Icon(Icons.wifi_off_rounded, size: 16, color: AppColors.textMuted),
                                 const SizedBox(width: 6),
-                                Text(
-                                  'Offline Records (Time-In)',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary,
+                                Expanded(
+                                  child: Text(
+                                    'Offline Records (Time-In)',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -1032,11 +1039,14 @@ class _DateFieldPlaceholder extends StatelessWidget {
           children: [
             const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.textMuted),
             const SizedBox(width: 6),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                color: AppColors.textMuted,
+            Expanded(
+              child: Text(
+                label,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  color: AppColors.textMuted,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -1138,16 +1148,19 @@ class _HistoryRecordCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                dateStr,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+              Flexible(
+                child: Text(
+                  dateStr,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
+              const SizedBox(width: 8),
               StatusPill(status: record.status),
             ],
           ),
@@ -1193,11 +1206,13 @@ class _metricRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              color: AppColors.textSecondary,
+          Flexible(
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
           Text(

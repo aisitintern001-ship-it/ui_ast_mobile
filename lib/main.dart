@@ -37,6 +37,20 @@ class ASTDashboardApp extends StatelessWidget {
       title: 'AST Dashboard',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        // Respect the system font size from device settings,
+        // clamped to safe bounds to prevent layout overflow.
+        final mediaQuery = MediaQuery.of(context);
+        return MediaQuery(
+          data: mediaQuery.copyWith(
+            textScaler: mediaQuery.textScaler.clamp(
+              minScaleFactor: 0.8,
+              maxScaleFactor: 1.4,
+            ),
+          ),
+          child: child!,
+        );
+      },
       initialRoute: '/login',
       onGenerateRoute: (settings) {
         switch (settings.name) {
@@ -173,6 +187,7 @@ class _SettingsBottomNav extends StatelessWidget {
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                       color: isSelected ? headerColor : AppColors.textMuted,
                     ),
+                    textScaler: TextScaler.noScaling,
                   ),
                 ],
               ),

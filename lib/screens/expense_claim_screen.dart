@@ -216,12 +216,14 @@ class _ExpenseClaimScreenState extends State<ExpenseClaimScreen> {
                   children: [
                     const Icon(Icons.wifi_off, color: Colors.black87, size: 20),
                     const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Offline Records", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
-                        Text("Records saved while offline, pending sync", style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 11)),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Offline Records", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text("Records saved while offline, pending sync", style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 11)),
+                        ],
+                      ),
                     )
                   ],
                 ),
@@ -270,7 +272,9 @@ class _ExpenseClaimScreenState extends State<ExpenseClaimScreen> {
                 // TOP ROW: Employee Name, Status Pill & 3-Dot Menu
                 Row(
                   children: [
-                    Text(employeeName, style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87)),
+                    Flexible(
+                      child: Text(employeeName, style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black87), overflow: TextOverflow.ellipsis),
+                    ),
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -335,10 +339,12 @@ class _ExpenseClaimScreenState extends State<ExpenseClaimScreen> {
                 const SizedBox(height: 12),
                 
                 // PENDING / APPROVED / DECLINED PILLS
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    _buildStatPill("Pending", pending, Colors.amber.shade700), const SizedBox(width: 8),
-                    _buildStatPill("Approved", approved, Colors.teal), const SizedBox(width: 8),
+                    _buildStatPill("Pending", pending, Colors.amber.shade700),
+                    _buildStatPill("Approved", approved, Colors.teal),
                     _buildStatPill("Declined", declined, Colors.redAccent),
                   ],
                 ),
@@ -400,7 +406,7 @@ class _ExpenseClaimScreenState extends State<ExpenseClaimScreen> {
       child: GestureDetector(
         onTap: () => setState(() => selectedFilter = value),
         child: Container(
-          height: 36, alignment: Alignment.center,
+          constraints: const BoxConstraints(minHeight: 36), alignment: Alignment.center,
           decoration: BoxDecoration(color: isSelected ? const Color(0xFF2181FF) : Colors.white, border: isSelected ? null : Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
           child: Text(label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: isSelected ? Colors.white : Colors.grey.shade700)),
         ),
@@ -410,9 +416,9 @@ class _ExpenseClaimScreenState extends State<ExpenseClaimScreen> {
 
   Widget _buildDatePicker(String hint) {
     return Container(
-      height: 40, padding: const EdgeInsets.symmetric(horizontal: 12),
+      constraints: const BoxConstraints(minHeight: 40), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
-      child: Row(children: [Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade500), const SizedBox(width: 8), Text(hint, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500))]),
+      child: Row(children: [Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade500), const SizedBox(width: 8), Expanded(child: Text(hint, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500)))]),
     );
   }
 
@@ -424,14 +430,17 @@ class _ExpenseClaimScreenState extends State<ExpenseClaimScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13)),
-              const SizedBox(height: 6),
-              Text(subtitle, style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade500)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13)),
+                const SizedBox(height: 6),
+                Text(subtitle, style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade500)),
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(color: status == "Sync Failed" ? statusColor : Colors.white, border: status == "Pending Sync" ? Border.all(color: statusColor) : null, borderRadius: BorderRadius.circular(12)),

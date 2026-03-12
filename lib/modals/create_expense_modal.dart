@@ -116,7 +116,7 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("Including Tax", style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 12)),
+                        Expanded(child: Text("Including Tax", style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 12))),
                         Switch(
                           value: widget.isEdit ? true : includingTaxItem, 
                           onChanged: (val) => setState(() => includingTaxItem = val),
@@ -150,7 +150,7 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Including Tax", style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.bold)),
+                  Expanded(child: Text("Including Tax", style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.bold))),
                   Switch(
                     value: includingTaxOverall, 
                     onChanged: (val) => setState(() => includingTaxOverall = val),
