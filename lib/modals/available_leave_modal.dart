@@ -69,6 +69,7 @@ class AvailableLeaveModal extends StatelessWidget {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(10),
+        // ignore: deprecated_member_use
         border: Border.all(color: textColor.withOpacity(0.1)),
       ),
       child: Row(
@@ -107,6 +108,7 @@ class AvailableLeaveModal extends StatelessWidget {
                 "days",
                 style: GoogleFonts.inter(
                   fontSize: 10,
+                  // ignore: deprecated_member_use
                   color: textColor.withOpacity(0.7),
                 ),
               ),

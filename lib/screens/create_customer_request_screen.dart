@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
+import '../widgets/text_input.dart';
 import '../widgets/request_form_widgets.dart';
 
 class CreateCustomerRequestScreen extends StatefulWidget {
@@ -218,8 +219,7 @@ class _CreateCustomerRequestScreenState
           const SizedBox(height: 8),
           FormDateField(
             date: _dateAccountOpened,
-            onChanged: (picked) =>
-                setState(() => _dateAccountOpened = picked),
+            onChanged: (picked) => setState(() => _dateAccountOpened = picked),
           ),
           const SizedBox(height: 20),
 
@@ -232,12 +232,14 @@ class _CreateCustomerRequestScreenState
               Text(
                 "Active",
                 style: GoogleFonts.inter(
-                    fontSize: 14, color: AppColors.textPrimary),
+                  fontSize: 14,
+                  color: AppColors.textPrimary,
+                ),
               ),
               Switch(
                 value: _accountActive,
                 onChanged: (v) => setState(() => _accountActive = v),
-                activeColor: const Color(0xFF2181FF),
+                activeThumbColor: const Color(0xFF2181FF),
               ),
             ],
           ),
@@ -252,16 +254,14 @@ class _CreateCustomerRequestScreenState
                 label: "Parent Account",
                 value: 0,
                 groupValue: _businessAccountType,
-                onChanged: (v) =>
-                    setState(() => _businessAccountType = v),
+                onChanged: (v) => setState(() => _businessAccountType = v),
               ),
               const SizedBox(width: 20),
               FormRadioOption(
                 label: "Child Account",
                 value: 1,
                 groupValue: _businessAccountType,
-                onChanged: (v) =>
-                    setState(() => _businessAccountType = v),
+                onChanged: (v) => setState(() => _businessAccountType = v),
               ),
             ],
           ),
@@ -390,8 +390,7 @@ class _CreateCustomerRequestScreenState
           FormSwitchRow(
             label: "Allow Multiple Picking Slips per Invoice",
             value: _allowMultiplePickingSlips,
-            onChanged: (v) =>
-                setState(() => _allowMultiplePickingSlips = v),
+            onChanged: (v) => setState(() => _allowMultiplePickingSlips = v),
           ),
           const SizedBox(height: 20),
         ],
@@ -436,20 +435,28 @@ class _CreateCustomerRequestScreenState
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.person_outline,
-                        color: Colors.grey.shade500, size: 20),
+                    Icon(
+                      Icons.person_outline,
+                      color: Colors.grey.shade500,
+                      size: 20,
+                    ),
                     const SizedBox(width: 10),
                     Text(
                       "Contact ${entry.key + 1}",
                       style: GoogleFonts.inter(
-                          fontSize: 13, color: AppColors.textPrimary),
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                     const Spacer(),
                     GestureDetector(
                       onTap: () =>
                           setState(() => _contacts.removeAt(entry.key)),
-                      child: Icon(Icons.close,
-                          size: 18, color: Colors.grey.shade400),
+                      child: Icon(
+                        Icons.close,
+                        size: 18,
+                        color: Colors.grey.shade400,
+                      ),
                     ),
                   ],
                 ),
@@ -499,20 +506,28 @@ class _CreateCustomerRequestScreenState
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.location_on_outlined,
-                        color: Colors.grey.shade500, size: 20),
+                    Icon(
+                      Icons.location_on_outlined,
+                      color: Colors.grey.shade500,
+                      size: 20,
+                    ),
                     const SizedBox(width: 10),
                     Text(
                       "Address ${entry.key + 1}",
                       style: GoogleFonts.inter(
-                          fontSize: 13, color: AppColors.textPrimary),
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                     const Spacer(),
                     GestureDetector(
                       onTap: () =>
                           setState(() => _addresses.removeAt(entry.key)),
-                      child: Icon(Icons.close,
-                          size: 18, color: Colors.grey.shade400),
+                      child: Icon(
+                        Icons.close,
+                        size: 18,
+                        color: Colors.grey.shade400,
+                      ),
                     ),
                   ],
                 ),
@@ -596,8 +611,7 @@ class _CreateCustomerRequestScreenState
             hint: "Default Revenue Account",
             value: _defaultRevenueAccount,
             items: const ["Account A", "Account B", "Account C"],
-            onChanged: (v) =>
-                setState(() => _defaultRevenueAccount = v),
+            onChanged: (v) => setState(() => _defaultRevenueAccount = v),
           ),
           const SizedBox(height: 12),
           FormTextField(
@@ -667,31 +681,32 @@ class _CreateCustomerRequestScreenState
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: TextField(
+                    child: AppTextInput(
                       controller: entry.value,
                       style: GoogleFonts.inter(
-                          fontSize: 13, color: AppColors.textPrimary),
-                      decoration: InputDecoration(
-                        hintText: "Enter Pre-Attendance Checklist",
-                        hintStyle: GoogleFonts.inter(
-                            fontSize: 13, color: AppColors.textMuted),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              BorderSide(color: Colors.grey.shade300),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              BorderSide(color: Colors.grey.shade300),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                              color: Color(0xFF2181FF)),
-                        ),
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
+                      hintText: 'Enter Pre-Attendance Checklist',
+                      hintStyle: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: AppColors.textMuted,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Color(0xFF2181FF)),
                       ),
                     ),
                   ),
@@ -751,31 +766,32 @@ class _CreateCustomerRequestScreenState
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: TextField(
+                    child: AppTextInput(
                       controller: entry.value,
                       style: GoogleFonts.inter(
-                          fontSize: 13, color: AppColors.textPrimary),
-                      decoration: InputDecoration(
-                        hintText: "Enter On Site Checklist",
-                        hintStyle: GoogleFonts.inter(
-                            fontSize: 13, color: AppColors.textMuted),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 12),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              BorderSide(color: Colors.grey.shade300),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide:
-                              BorderSide(color: Colors.grey.shade300),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                              color: Color(0xFF2181FF)),
-                        ),
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
+                      hintText: 'Enter On Site Checklist',
+                      hintStyle: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: AppColors.textMuted,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Color(0xFF2181FF)),
                       ),
                     ),
                   ),
@@ -859,20 +875,28 @@ class _CreateCustomerRequestScreenState
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.description_outlined,
-                        color: Colors.grey.shade500, size: 20),
+                    Icon(
+                      Icons.description_outlined,
+                      color: Colors.grey.shade500,
+                      size: 20,
+                    ),
                     const SizedBox(width: 10),
                     Text(
                       "Document ${entry.key + 1}",
                       style: GoogleFonts.inter(
-                          fontSize: 13, color: AppColors.textPrimary),
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                     const Spacer(),
                     GestureDetector(
                       onTap: () =>
                           setState(() => _documents.removeAt(entry.key)),
-                      child: Icon(Icons.close,
-                          size: 18, color: Colors.grey.shade400),
+                      child: Icon(
+                        Icons.close,
+                        size: 18,
+                        color: Colors.grey.shade400,
+                      ),
                     ),
                   ],
                 ),

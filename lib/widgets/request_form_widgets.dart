@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'text_input.dart';
 import '../theme/app_theme.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -89,7 +90,9 @@ class FormRadioOption extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: isSelected ? AppColors.headerOrange : Colors.grey.shade400,
+                color: isSelected
+                    ? AppColors.headerOrange
+                    : Colors.grey.shade400,
                 width: 2,
               ),
             ),
@@ -109,7 +112,10 @@ class FormRadioOption extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             label,
-            style: GoogleFonts.inter(fontSize: 13, color: AppColors.textPrimary),
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              color: AppColors.textPrimary,
+            ),
           ),
         ],
       ),
@@ -130,26 +136,23 @@ class FormTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return AppTextInput(
       controller: controller,
       style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF2181FF)),
-        ),
+      hintText: hint,
+      hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xFF2181FF)),
       ),
     );
   }
@@ -187,8 +190,10 @@ class FormDropdownField extends StatelessWidget {
           hint: RichText(
             text: TextSpan(
               text: hint,
-              style:
-                  GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: AppColors.textMuted,
+              ),
               children: isRequired
                   ? [
                       TextSpan(
@@ -219,11 +224,7 @@ class FormDateField extends StatelessWidget {
   final DateTime date;
   final ValueChanged<DateTime> onChanged;
 
-  const FormDateField({
-    super.key,
-    required this.date,
-    required this.onChanged,
-  });
+  const FormDateField({super.key, required this.date, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -251,7 +252,9 @@ class FormDateField extends StatelessWidget {
             Text(
               _formatDate(date),
               style: GoogleFonts.inter(
-                  fontSize: 14, color: AppColors.textPrimary),
+                fontSize: 14,
+                color: AppColors.textPrimary,
+              ),
             ),
           ],
         ),
@@ -261,8 +264,18 @@ class FormDateField extends StatelessWidget {
 
   static String _formatDate(DateTime date) {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     final suffix = _daySuffix(date.day);
     return '${months[date.month - 1]} ${date.day}$suffix, ${date.year}';
@@ -271,10 +284,14 @@ class FormDateField extends StatelessWidget {
   static String _daySuffix(int day) {
     if (day >= 11 && day <= 13) return 'th';
     switch (day % 10) {
-      case 1: return 'st';
-      case 2: return 'nd';
-      case 3: return 'rd';
-      default: return 'th';
+      case 1:
+        return 'st';
+      case 2:
+        return 'nd';
+      case 3:
+        return 'rd';
+      default:
+        return 'th';
     }
   }
 }
@@ -303,7 +320,9 @@ class FormSwitchRow extends StatelessWidget {
             child: Text(
               label,
               style: GoogleFonts.inter(
-                  fontSize: 13, color: AppColors.textPrimary),
+                fontSize: 13,
+                color: AppColors.textPrimary,
+              ),
             ),
           ),
           Switch(
@@ -396,7 +415,9 @@ class FormBottomActions extends StatelessWidget {
                 child: Text(
                   'Save As Draft',
                   style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w600, fontSize: 14),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ),
@@ -418,7 +439,9 @@ class FormBottomActions extends StatelessWidget {
                 child: Text(
                   'Submit',
                   style: GoogleFonts.inter(
-                      fontWeight: FontWeight.w600, fontSize: 14),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ),
@@ -434,11 +457,7 @@ class FormTabBar extends StatelessWidget {
   final TabController controller;
   final List<String> labels;
 
-  const FormTabBar({
-    super.key,
-    required this.controller,
-    required this.labels,
-  });
+  const FormTabBar({super.key, required this.controller, required this.labels});
 
   @override
   Widget build(BuildContext context) {
@@ -460,7 +479,7 @@ class FormTabBar extends StatelessWidget {
               int index = entry.key;
               String label = entry.value;
               bool isSelected = controller.index == index;
-              
+
               // Expanded forces each tab to take exactly equal width (1/7th of the screen)
               return Expanded(
                 child: GestureDetector(
@@ -469,7 +488,9 @@ class FormTabBar extends StatelessWidget {
                   },
                   behavior: HitTestBehavior.opaque,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 2), // Tiny padding
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 2,
+                    ), // Tiny padding
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
@@ -488,8 +509,11 @@ class FormTabBar extends StatelessWidget {
                         label,
                         maxLines: 1, // Strictly forbids stacking
                         style: GoogleFonts.inter(
-                          fontSize: 12, // Slightly smaller base font to help it fit
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                          fontSize:
+                              12, // Slightly smaller base font to help it fit
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
                           color: isSelected
                               ? const Color(0xFF2181FF)
                               : Colors.grey.shade500,
@@ -562,9 +586,11 @@ class RequestTabToggle extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon,
-                  size: 16,
-                  color: isSelected ? Colors.black87 : Colors.grey.shade500),
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected ? Colors.black87 : Colors.grey.shade500,
+              ),
               const SizedBox(width: 6),
               Text(
                 title,
@@ -619,13 +645,15 @@ class StatusFilterDropdown extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.filter_alt_outlined,
-              color: Colors.grey.shade500, size: 20),
+          Icon(
+            Icons.filter_alt_outlined,
+            color: Colors.grey.shade500,
+            size: 20,
+          ),
           const SizedBox(width: 8),
           if (selectedStatus != 'All') ...[
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
               decoration: BoxDecoration(
                 color: _dotColor(selectedStatus).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
@@ -644,8 +672,11 @@ class StatusFilterDropdown extends StatelessWidget {
                   const SizedBox(width: 4),
                   GestureDetector(
                     onTap: () => onChanged('All'),
-                    child: Icon(Icons.close,
-                        size: 14, color: _dotColor(selectedStatus)),
+                    child: Icon(
+                      Icons.close,
+                      size: 14,
+                      color: _dotColor(selectedStatus),
+                    ),
                   ),
                 ],
               ),
@@ -654,13 +685,14 @@ class StatusFilterDropdown extends StatelessWidget {
             Text(
               "Status",
               style: GoogleFonts.inter(
-                  fontSize: 13, color: Colors.grey.shade600),
+                fontSize: 13,
+                color: Colors.grey.shade600,
+              ),
             ),
           const Spacer(),
           PopupMenuButton<String>(
             padding: EdgeInsets.zero,
-            icon: Icon(Icons.keyboard_arrow_down,
-                color: Colors.grey.shade500),
+            icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
             onSelected: onChanged,
             itemBuilder: (_) => statuses.map((s) {
               final isSelected = s == selectedStatus;
@@ -669,8 +701,7 @@ class StatusFilterDropdown extends StatelessWidget {
                 child: Row(
                   children: [
                     if (isSelected)
-                      Icon(Icons.check_circle,
-                          size: 18, color: _dotColor(s))
+                      Icon(Icons.check_circle, size: 18, color: _dotColor(s))
                     else
                       Container(
                         width: 18,
@@ -739,13 +770,12 @@ class AdvanceFilterDropdown extends StatelessWidget {
         child: DropdownButton<String>(
           value: value,
           isExpanded: true,
-          hint: Text(hint,
-              style: GoogleFonts.inter(
-                  fontSize: 13, color: Colors.grey.shade400)),
-          icon:
-              Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
-          style:
-              GoogleFonts.inter(fontSize: 13, color: AppColors.textPrimary),
+          hint: Text(
+            hint,
+            style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade400),
+          ),
+          icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+          style: GoogleFonts.inter(fontSize: 13, color: AppColors.textPrimary),
           items: items
               .map((i) => DropdownMenuItem(value: i, child: Text(i)))
               .toList(),
@@ -776,8 +806,9 @@ class RequestRecordCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isActive = status == 'Active';
-    final Color statusColor =
-        isActive ? const Color(0xFF10B981) : Colors.grey.shade500;
+    final Color statusColor = isActive
+        ? const Color(0xFF10B981)
+        : Colors.grey.shade500;
     final Color statusBg = isActive
         ? const Color(0xFF10B981).withValues(alpha: 0.1)
         : Colors.grey.shade200;
@@ -813,7 +844,9 @@ class RequestRecordCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 3),
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: statusBg,
                         borderRadius: BorderRadius.circular(20),
@@ -835,18 +868,23 @@ class RequestRecordCard extends StatelessWidget {
                 width: 24,
                 child: PopupMenuButton<String>(
                   padding: EdgeInsets.zero,
-                  icon: const Icon(Icons.more_vert,
-                      size: 20, color: Colors.black54),
+                  icon: const Icon(
+                    Icons.more_vert,
+                    size: 20,
+                    color: Colors.black54,
+                  ),
                   itemBuilder: (_) => [
                     PopupMenuItem(
                       value: 'edit',
                       child: Row(
                         children: [
-                          const Icon(Icons.edit_outlined,
-                              color: Colors.amber, size: 18),
+                          const Icon(
+                            Icons.edit_outlined,
+                            color: Colors.amber,
+                            size: 18,
+                          ),
                           const SizedBox(width: 8),
-                          Text("Edit",
-                              style: GoogleFonts.inter(fontSize: 13)),
+                          Text("Edit", style: GoogleFonts.inter(fontSize: 13)),
                         ],
                       ),
                     ),
@@ -854,11 +892,13 @@ class RequestRecordCard extends StatelessWidget {
                       value: 'view',
                       child: Row(
                         children: [
-                          const Icon(Icons.visibility_outlined,
-                              color: Colors.blue, size: 18),
+                          const Icon(
+                            Icons.visibility_outlined,
+                            color: Colors.blue,
+                            size: 18,
+                          ),
                           const SizedBox(width: 8),
-                          Text("View",
-                              style: GoogleFonts.inter(fontSize: 13)),
+                          Text("View", style: GoogleFonts.inter(fontSize: 13)),
                         ],
                       ),
                     ),
@@ -872,32 +912,36 @@ class RequestRecordCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          ...details.entries.map((e) => Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      e.key,
+          ...details.entries.map(
+            (e) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    e.key,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      e.value,
                       style: GoogleFonts.inter(
-                          fontSize: 12, color: AppColors.textSecondary),
-                    ),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        e.value,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textPrimary,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.end,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textPrimary,
                       ),
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
                     ),
-                  ],
-                ),
-              )),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

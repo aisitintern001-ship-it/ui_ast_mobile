@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
+import '../widgets/text_input.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,11 +15,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController(text: 'mac.llanes@company.com');
+  final _emailController = TextEditingController(
+    text: 'mac.llanes@company.com',
+  );
   final _passwordController = TextEditingController(text: 'password123');
-  final _orgIdController = TextEditingController(text: '3'); // <-- new controller for org ID
+  final _orgIdController = TextEditingController(
+    text: '3',
+  ); // <-- new controller for org ID
   bool _obscurePassword = true;
-  
 
   @override
   void dispose() {
@@ -29,7 +33,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleLogin() async {
     final state = context.read<AppState>();
-    final success = await state.login(_emailController.text, _passwordController.text);
+    final success = await state.login(
+      _emailController.text,
+      _passwordController.text,
+    );
     if (success && mounted) {
       Navigator.of(context).pushReplacementNamed('/home');
     }
@@ -48,23 +55,22 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 50),
-               SvgPicture.asset(
-                            'assets/AST2.svg',
-                            // colorFilter: const ColorFilter.mode(Color.fromARGB(255, 67, 81, 143), BlendMode.srcIn),
-                            width: 80,
-                            height: 80,
-                            
-                          ), 
-                        
-                          const Text(
-                            'AUSTRALIA SOFTWARE TECHNOLOGY',
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 75, 106, 139),
-                            ),
-                          ),
-                            const SizedBox(height: 50),
+              SvgPicture.asset(
+                'assets/AST2.svg',
+                // colorFilter: const ColorFilter.mode(Color.fromARGB(255, 67, 81, 143), BlendMode.srcIn),
+                width: 80,
+                height: 80,
+              ),
+
+              const Text(
+                'AUSTRALIA SOFTWARE TECHNOLOGY',
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 75, 106, 139),
+                ),
+              ),
+              const SizedBox(height: 50),
               // Welcome card
               Container(
                 width: size.width > 480 ? 400 : size.width * 0.9,
@@ -85,12 +91,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     // Top section with logo area
                     Container(
-                      padding: const EdgeInsets.only(left: 32, top: 32, right: 32, bottom: 8),
+                      padding: const EdgeInsets.only(
+                        left: 32,
+                        top: 32,
+                        right: 32,
+                        bottom: 8,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Logo placeholder
-                            
                           const SizedBox(height: 24),
                           Text(
                             'Login your Account',
@@ -119,101 +129,156 @@ class _LoginScreenState extends State<LoginScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           // Email field
-                         
                           const SizedBox(height: 8),
-  TextFormField(
-      controller: _orgIdController,
-      keyboardType: TextInputType.text,
-      style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
-      decoration: InputDecoration(
-        hintText: 'Enter your Organization ID',
-        hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
-        prefixIcon: const Icon(Icons.apartment_outlined, size: 18, color: Color.fromARGB(255, 134, 163, 215)),
-        filled: true,
-        fillColor: const Color(0xFFF9FAFB),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.divider),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.divider),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.headerOrange, width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      ),
-    ),
+                          AppTextInput(
+                            controller: _orgIdController,
+                            keyboardType: TextInputType.text,
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: AppColors.textPrimary,
+                            ),
+                            hintText: 'Enter your Organization ID',
+                            hintStyle: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: AppColors.textMuted,
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.apartment_outlined,
+                              size: 18,
+                              color: Color.fromARGB(255, 134, 163, 215),
+                            ),
+                            filled: true,
+                            fillColor: const Color(0xFFF9FAFB),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: AppColors.divider,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: AppColors.divider,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: AppColors.headerOrange,
+                                width: 1.5,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                          ),
 
                           const SizedBox(height: 20),
-                          TextFormField(
+                          AppTextInput(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
-                            style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
-                            decoration: InputDecoration(
-                              hintText: 'Enter your email',
-                              hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
-                              prefixIcon: const Icon(Icons.email_outlined, size: 18, color: Color.fromARGB(255, 134, 163, 215)),
-                              filled: true,
-                              fillColor: const Color(0xFFF9FAFB),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(color: AppColors.divider),
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: AppColors.textPrimary,
+                            ),
+                            hintText: 'Enter your email',
+                            hintStyle: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: AppColors.textMuted,
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.email_outlined,
+                              size: 18,
+                              color: Color.fromARGB(255, 134, 163, 215),
+                            ),
+                            filled: true,
+                            fillColor: const Color(0xFFF9FAFB),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: AppColors.divider,
                               ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(color: AppColors.divider),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: AppColors.divider,
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(color: AppColors.headerOrange, width: 1.5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: AppColors.headerOrange,
+                                width: 1.5,
                               ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
                             ),
                           ),
                           const SizedBox(height: 16),
 
                           // Password field
-                 
                           const SizedBox(height: 8),
-                          TextFormField(
+                          AppTextInput(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
-                            style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
-                            decoration: InputDecoration(
-                              hintText: 'Enter your password',
-                              hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
-                              prefixIcon: const Icon(Icons.lock_outline_rounded, size: 18, color: Color.fromARGB(255, 134, 163, 215)),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                                  size: 18,
-                                  color: Color.fromARGB(255, 134, 163, 215),
-                                ),
-                                onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: AppColors.textPrimary,
+                            ),
+                            hintText: 'Enter your password',
+                            hintStyle: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: AppColors.textMuted,
+                            ),
+                            prefixIcon: const Icon(
+                              Icons.lock_outline_rounded,
+                              size: 18,
+                              color: Color.fromARGB(255, 134, 163, 215),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                                size: 18,
+                                color: const Color.fromARGB(255, 134, 163, 215),
                               ),
-                              filled: true,
-                              fillColor: const Color(0xFFF9FAFB),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(color: AppColors.divider),
+                              onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword,
                               ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(color: AppColors.divider),
+                            ),
+                            filled: true,
+                            fillColor: const Color(0xFFF9FAFB),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: AppColors.divider,
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(color: AppColors.headerOrange, width: 1.5),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: AppColors.divider,
                               ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: AppColors.headerOrange,
+                                width: 1.5,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
                             ),
                           ),
                           const SizedBox(height: 12),
 
-                        
                           const SizedBox(height: 24),
 
                           // Sign in button
@@ -222,10 +287,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: ElevatedButton(
                               onPressed: state.isLoading ? null : _handleLogin,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromARGB(255, 117, 97, 219),
+                                backgroundColor: const Color.fromARGB(
+                                  255,
+                                  117,
+                                  97,
+                                  219,
+                                ),
                                 foregroundColor: Colors.white,
                                 elevation: 0,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
                               child: state.isLoading
                                   ? const SizedBox(
@@ -233,7 +305,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                       height: 20,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
                                       ),
                                     )
                                   : Text(
@@ -271,26 +346,27 @@ class _LoginScreenState extends State<LoginScreen> {
                                     'Click Here',
                                     style: GoogleFonts.inter(
                                       fontSize: 13,
-                                      color: const Color.fromARGB(255, 120, 148, 238),
+                                      color: const Color.fromARGB(
+                                        255,
+                                        120,
+                                        148,
+                                        238,
+                                      ),
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
-                            
-
-                            
                           ),
                           Center(
                             child: Text(
                               '1.0.0',
                               style: GoogleFonts.inter(
-                                fontSize: 12, 
+                                fontSize: 12,
                                 color: AppColors.textMuted,
                               ),
                             ),
-                            
                           ),
                         ],
                       ),
@@ -298,8 +374,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-
-             
             ],
           ),
         ),

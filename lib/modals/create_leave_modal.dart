@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
+import '../widgets/text_input.dart';
 
 class CreateLeaveModal extends StatefulWidget {
   const CreateLeaveModal({super.key});
@@ -76,13 +77,18 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2181FF),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     elevation: 0,
                   ),
                   onPressed: () => Navigator.pop(context),
                   child: Text(
                     'Submit',
-                    style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15),
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                   ),
                 ),
               ),
@@ -113,7 +119,10 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
               const SizedBox(height: 4),
               Text(
                 'Sub-description will be here',
-                style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade500),
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: Colors.grey.shade500,
+                ),
               ),
             ],
           ),
@@ -143,41 +152,45 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
         final item = entry.value;
         final isSelected = _selectedLeaveType == index;
         return GestureDetector(
-            onTap: () => setState(() => _selectedLeaveType = index),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isSelected ? const Color(0xFFEF4444) : Colors.grey.shade300,
-                  width: isSelected ? 1.5 : 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item['label']!,
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: isSelected ? const Color(0xFF4A5568) : Colors.grey.shade500,
-                    ),
-                  ),
-                  if (item['balance']!.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      item['balance']!,
-                      style: GoogleFonts.inter(
-                        fontSize: 11,
-                        color: Colors.grey.shade400,
-                      ),
-                    ),
-                  ],
-                ],
+          onTap: () => setState(() => _selectedLeaveType = index),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: isSelected
+                    ? const Color(0xFFEF4444)
+                    : Colors.grey.shade300,
+                width: isSelected ? 1.5 : 1,
               ),
             ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item['label']!,
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected
+                        ? const Color(0xFF4A5568)
+                        : Colors.grey.shade500,
+                  ),
+                ),
+                if (item['balance']!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    item['balance']!,
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: Colors.grey.shade400,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         );
       }).toList(),
     );
@@ -199,10 +212,14 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
             style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade500),
           ),
           icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
-          style: GoogleFonts.inter(fontSize: 13, color: const Color(0xFF4A5568)),
-          items: ['Service Incentive Leave', 'Leave Without Pay']
-              .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-              .toList(),
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            color: const Color(0xFF4A5568),
+          ),
+          items: [
+            'Service Incentive Leave',
+            'Leave Without Pay',
+          ].map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
           onChanged: (v) {
             if (v != null) setState(() => _selectedDropdown = v);
           },
@@ -220,12 +237,19 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
       ),
       child: Row(
         children: [
-          Icon(Icons.calendar_today_outlined, size: 18, color: Colors.grey.shade600),
+          Icon(
+            Icons.calendar_today_outlined,
+            size: 18,
+            color: Colors.grey.shade600,
+          ),
           const SizedBox(width: 5),
           Expanded(
             child: Text(
               'Select Dates (tap to select multiple dates)',
-              style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade500),
+              style: GoogleFonts.inter(
+                fontSize: 13,
+                color: Colors.grey.shade500,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -235,25 +259,23 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
   }
 
   Widget _buildReasonField() {
-    return TextFormField(
+    return AppTextInput(
       controller: _reasonController,
       maxLines: 4,
       style: GoogleFonts.inter(fontSize: 13, color: const Color(0xFF4A5568)),
-      decoration: InputDecoration(
-        hintText: 'Enter a Reason',
-        hintStyle: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 13),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF2181FF)),
-        ),
+      hintText: 'Enter a Reason',
+      hintStyle: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 13),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xFF2181FF)),
       ),
     );
   }
@@ -271,11 +293,18 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
         padding: const EdgeInsets.symmetric(vertical: 24),
         child: Column(
           children: [
-            Icon(Icons.file_upload_outlined, size: 28, color: Colors.grey.shade600),
+            Icon(
+              Icons.file_upload_outlined,
+              size: 28,
+              color: Colors.grey.shade600,
+            ),
             const SizedBox(height: 8),
             Text(
               'Click or drag files to upload',
-              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade600),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+              ),
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -284,7 +313,9 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
                 onPressed: () {},
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
                   side: const BorderSide(color: Colors.black87),
                 ),
                 child: Text(

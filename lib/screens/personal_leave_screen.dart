@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/expandable_status_filter.dart';
+import '../widgets/offline_tab_widget.dart';
+import '../widgets/add_button_widget.dart'; // <-- IMPORT REUSABLE BUTTON
 import '../modals/edit_leave_modal.dart';
 import '../modals/create_leave_modal.dart';
-import 'home_screen.dart'; // Added the import for HomeScreen navigation
+import 'home_screen.dart'; 
 
 class PersonalLeaveScreen extends StatefulWidget {
   final int initialTab;
@@ -41,17 +43,11 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
   }
 
   void _openCreateModal() {
-    showDialog(
-      context: context,
-      builder: (_) => const CreateLeaveModal(),
-    );
+    showDialog(context: context, builder: (_) => const CreateLeaveModal());
   }
 
   void _openEditModal() {
-    showDialog(
-      context: context,
-      builder: (_) => const EditLeaveModal(),
-    );
+    showDialog(context: context, builder: (_) => const EditLeaveModal());
   }
 
   @override
@@ -66,18 +62,11 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
           onPressed: () {
-            // --- ROUTING LOGIC UPDATE ---
             if (widget.fromDataIntegration) {
-              // If we came from Settings -> Data Integration, just pop back to it
               Navigator.pop(context);
             } else {
-              // If we came from Favorites / Home, force navigation back to Home tab
-              context.read<AppState>().setNavIndex(1); // Set to Home Tab
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
-                (Route<dynamic> route) => false,
-              );
+              context.read<AppState>().setNavIndex(1); 
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen()), (Route<dynamic> route) => false);
             }
           },
         ),
@@ -85,7 +74,6 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
       ),
       body: Column(
         children: [
-          // 1. ANIMATED TAB TOGGLE (History / Offline)
           Container(
             margin: const EdgeInsets.all(16),
             padding: const EdgeInsets.all(4),
@@ -97,8 +85,6 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
               ],
             ),
           ),
-
-          // 2. TAB CONTENT
           Expanded(
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
@@ -107,31 +93,22 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
           )
         ],
       ),
-      
-      // Floating Action Button (Only visible on History Tab)
+      // --- USE REUSABLE BUTTON HERE ---
       floatingActionButton: currentTab == 0 
-          ? FloatingActionButton.extended(
+          ? AddButtonWidget(
+              label: "Add Leave",
               onPressed: _openCreateModal,
-              backgroundColor: const Color(0xFF2181FF),
-              elevation: 4,
-              icon: const Icon(Icons.add, color: Colors.white, size: 18),
-              label: Text("Add Leave", style: GoogleFonts.inter(color: Colors.white, fontWeight: FontWeight.w600)),
-            ) 
+            )
           : null,
-      
-      // Bottom Navigation Bar (Matches Team Leave)
       bottomNavigationBar: const AppBottomNavBar(),
     );
   }
-
-  // --- TAB CONTENT BUILDERS ---
 
   Widget _buildHistoryTab() {
     return SingleChildScrollView(
       key: const ValueKey("history"),
       child: Column(
         children: [
-          // Filter Section
           Container(
             color: Colors.white,
             padding: const EdgeInsets.all(16),
@@ -139,10 +116,8 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
               children: [
                 Row(
                   children: [
-                    _buildFilterChip("Last 7 Days", "7"),
-                    const SizedBox(width: 8),
-                    _buildFilterChip("Last 30 Days", "30"),
-                    const SizedBox(width: 8),
+                    _buildFilterChip("Last 7 Days", "7"), const SizedBox(width: 8),
+                    _buildFilterChip("Last 30 Days", "30"), const SizedBox(width: 8),
                     _buildFilterChip("Custom", "custom"),
                   ],
                 ),
@@ -164,32 +139,12 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
               ],
             ),
           ),
-          
-          // Leave Cards List
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                _buildLeaveCard(
-                  type: "Leave Without Pay",
-                  status: "Pending",
-                  color: Colors.amber.shade700,
-                  submitted: "Sep 28, 2025",
-                  start: "Sep 29, 2025", end: "Sep 30, 2025",
-                  reason: "Checkup - need to attend to my monthly health checkup that requires my immediate attention in the next two days.",
-                  pending: 2, approved: 0, declined: 0,
-                  hasAttachment: true,
-                ),
-                _buildLeaveCard(
-                  type: "Service Incentive Leave",
-                  status: "Approved",
-                  color: Colors.teal,
-                  submitted: "Sep 16, 2025",
-                  start: "Sep 16, 2025", end: "Sep 17, 2025",
-                  reason: "Personal Emergency - need to attend to family matters that requires my immediate attention in the next two days.",
-                  pending: 0, approved: 2, declined: 0,
-                  hasAttachment: false,
-                ),
+                _buildLeaveCard(type: "Leave Without Pay", status: "Pending", color: Colors.amber.shade700, submitted: "Sep 28, 2025", start: "Sep 29, 2025", end: "Sep 30, 2025", reason: "Checkup - need to attend to my monthly health checkup.", pending: 2, approved: 0, declined: 0, hasAttachment: true),
+                _buildLeaveCard(type: "Service Incentive Leave", status: "Approved", color: Colors.teal, submitted: "Sep 16, 2025", start: "Sep 16, 2025", end: "Sep 17, 2025", reason: "Personal Emergency - family matters.", pending: 0, approved: 2, declined: 0, hasAttachment: false),
               ],
             ),
           )
@@ -199,87 +154,17 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
   }
 
   Widget _buildOfflineTab() {
-    return Column(
+    return OfflineTabWidget(
       key: const ValueKey("offline"),
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Delete Synced Records Section
-                Row(
-                  children: [
-                    const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text("Delete Synced Records", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(child: _buildDatePicker("Date From")),
-                    const SizedBox(width: 12),
-                    Expanded(child: _buildDatePicker("Date To")),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    // ignore: deprecated_member_use
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent.withOpacity(0.8), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0, padding: const EdgeInsets.symmetric(vertical: 10)),
-                    onPressed: () {},
-                    icon: const Icon(Icons.delete_outline, size: 16),
-                    label: Text("Delete Synced Range", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13)),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                
-                // Offline Records List
-                Row(
-                  children: [
-                    const Icon(Icons.wifi_off, color: Colors.black87, size: 20),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Offline Records", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
-                        Text("Records saved while offline, pending sync", style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 11)),
-                      ],
-                    )
-                  ],
-                ),
-                const SizedBox(height: 16),
-                _buildOfflineCard("Leave Without Pay", "Sep 29 - Sep 30, 2025", "Pending Sync", Colors.amber.shade700),
-                _buildOfflineCard("Service Incentive Leave", "Sep 16 - Sep 17, 2025", "Pending Sync", Colors.amber.shade700),
-                _buildOfflineCard("Leave Without Pay", "Feb 12 - Feb 12, 2025", "Sync Failed", Colors.redAccent),
-              ],
-            ),
-          ),
-        ),
-        // Sync All Button docked at the bottom of the tab
-        Container(
-          padding: const EdgeInsets.all(16),
-          color: Colors.white,
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00C48C), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0, padding: const EdgeInsets.symmetric(vertical: 14)),
-              onPressed: () {},
-              child: Text("Sync All Records", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15)),
-            ),
-          ),
-        )
+      items: [
+        OfflineRecordItem(title: "Leave Without Pay", subtitle: "Sep 29 - Sep 30, 2025", status: "Pending Sync", statusColor: Colors.amber.shade700),
+        OfflineRecordItem(title: "Service Incentive Leave", subtitle: "Sep 16 - Sep 17, 2025", status: "Pending Sync", statusColor: Colors.amber.shade700),
+        OfflineRecordItem(title: "Leave Without Pay", subtitle: "Feb 12 - Feb 12, 2025", status: "Sync Failed", statusColor: Colors.redAccent),
       ],
+      onSyncAll: () {},
+      onDeleteRange: () {},
     );
   }
-
-
-  // --- REUSABLE COMPONENTS ---
 
   Widget _buildTabButton(String title, IconData icon, int index) {
     final bool isSelected = currentTab == index;
@@ -289,17 +174,11 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(25),
-            // ignore: deprecated_member_use
-            boxShadow: isSelected ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))] : [],
-          ),
+          decoration: BoxDecoration(color: isSelected ? Colors.white : Colors.transparent, borderRadius: BorderRadius.circular(25), boxShadow: isSelected ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))] : []),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 16, color: isSelected ? Colors.black87 : Colors.grey.shade500),
-              const SizedBox(width: 6),
+              Icon(icon, size: 16, color: isSelected ? Colors.black87 : Colors.grey.shade500), const SizedBox(width: 6),
               Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13, color: isSelected ? Colors.black87 : Colors.grey.shade500)),
             ],
           ),
@@ -314,30 +193,18 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
       child: GestureDetector(
         onTap: () => setState(() => selectedFilter = value),
         child: Container(
-          height: 36,
-          constraints: const BoxConstraints(minHeight: 36),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF2181FF) : Colors.white,
-            border: isSelected ? null : Border.all(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(8),
-          ),
+          height: 36, constraints: const BoxConstraints(minHeight: 36), alignment: Alignment.center,
+          decoration: BoxDecoration(color: isSelected ? const Color(0xFF2181FF) : Colors.white, border: isSelected ? null : Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
           child: Text(label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: isSelected ? Colors.white : Colors.grey.shade700)),
         ),
       ),
     );
   }
 
-  Widget _buildLeaveCard({
-    required String type, required String status, required Color color, 
-    required String submitted, required String start, required String end, 
-    required String reason, required int pending, required int approved, 
-    required int declined, required bool hasAttachment
-  }) {
+  Widget _buildLeaveCard({ required String type, required String status, required Color color, required String submitted, required String start, required String end, required String reason, required int pending, required int approved, required int declined, required bool hasAttachment }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      // ignore: deprecated_member_use
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))]),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))]),
       child: Column(
         children: [
           Container(height: 4, decoration: BoxDecoration(color: color, borderRadius: const BorderRadius.vertical(top: Radius.circular(8)))),
@@ -349,30 +216,11 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Flexible(
-                            child: Text(type, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(border: Border.all(color: color), borderRadius: BorderRadius.circular(12)),
-                            child: Text(status, style: GoogleFonts.inter(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
-                          )
-                        ],
-                      ),
-                    ),
-                    // 3-DOT MENU WITH EDIT & CANCEL
+                    Expanded(child: Row(children: [ Flexible(child: Text(type, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14))), const SizedBox(width: 8), Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(border: Border.all(color: color), borderRadius: BorderRadius.circular(12)), child: Text(status, style: GoogleFonts.inter(color: color, fontSize: 10, fontWeight: FontWeight.bold))) ])),
                     SizedBox(
                       height: 24, width: 24,
                       child: PopupMenuButton<String>(
-                        padding: EdgeInsets.zero,
-                        icon: const Icon(Icons.more_vert, size: 20, color: Colors.black87),
-                        onSelected: (val) {
-                          if (val == 'edit') _openEditModal();
-                        },
+                        padding: EdgeInsets.zero, icon: const Icon(Icons.more_vert, size: 20, color: Colors.black87), onSelected: (val) { if (val == 'edit') _openEditModal(); },
                         itemBuilder: (context) => [
                           PopupMenuItem(value: 'edit', child: Row(children: [const Icon(Icons.edit_outlined, color: Colors.amber, size: 18), const SizedBox(width: 8), Text("Edit", style: GoogleFonts.inter(fontSize: 13))])),
                           PopupMenuItem(value: 'cancel', child: Row(children: [const Icon(Icons.close, color: Colors.red, size: 18), const SizedBox(width: 8), Text("Cancel", style: GoogleFonts.inter(fontSize: 13))])),
@@ -382,64 +230,15 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _buildDateRow(Icons.calendar_today, "Date Submitted: ", submitted),
-                const SizedBox(height: 4),
-                _buildDateRow(Icons.calendar_month, "Start: ", start),
-                const SizedBox(height: 4),
-                _buildDateRow(Icons.calendar_month, "End: ", end),
-                const SizedBox(height: 12),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: const Color(0xFFF8F9FA), borderRadius: BorderRadius.circular(8)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey.shade700),
-                          const SizedBox(width: 6),
-                          Text("Reason", style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12)),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(reason, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade700, height: 1.4)),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _buildStatPill("Pending", pending, Colors.amber.shade700),
-                    _buildStatPill("Approved", approved, Colors.teal),
-                    _buildStatPill("Declined", declined, Colors.redAccent),
-                  ],
-                ),
+                _buildDateRow(Icons.calendar_today, "Date Submitted: ", submitted), const SizedBox(height: 4),
+                _buildDateRow(Icons.calendar_month, "Start: ", start), const SizedBox(height: 4),
+                _buildDateRow(Icons.calendar_month, "End: ", end), const SizedBox(height: 12),
+                Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: const Color(0xFFF8F9FA), borderRadius: BorderRadius.circular(8)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [ Row(children: [Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey.shade700), const SizedBox(width: 6), Text("Reason", style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12))]), const SizedBox(height: 6), Text(reason, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade700, height: 1.4)) ])), const SizedBox(height: 12),
+                Wrap(spacing: 8, runSpacing: 8, children: [ _buildStatPill("Pending", pending, Colors.amber.shade700), _buildStatPill("Approved", approved, Colors.teal), _buildStatPill("Declined", declined, Colors.redAccent) ]),
                 if (hasAttachment) ...[
-                  const SizedBox(height: 16),
-                  const Divider(),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.attach_file, size: 14, color: Colors.grey.shade600),
-                      const SizedBox(width: 6),
-                      Text("Attachments", style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade600)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade300)),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.picture_as_pdf, size: 14, color: Colors.redAccent),
-                        const SizedBox(width: 6),
-                        Text("medical_cert.pdf", style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500)),
-                      ],
-                    ),
-                  )
+                  const SizedBox(height: 16), const Divider(), const SizedBox(height: 8),
+                  Row(children: [Icon(Icons.attach_file, size: 14, color: Colors.grey.shade600), const SizedBox(width: 6), Text("Attachments", style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade600))]), const SizedBox(height: 8),
+                  Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6), decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade300)), child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.picture_as_pdf, size: 14, color: Colors.redAccent), const SizedBox(width: 6), Text("medical_cert.pdf", style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500))]))
                 ]
               ],
             ),
@@ -449,68 +248,12 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
     );
   }
 
-  Widget _buildOfflineCard(String title, String period, String status, Color statusColor) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.white, border: Border.all(color: Colors.grey.shade200), borderRadius: BorderRadius.circular(12)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13)),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    Icon(Icons.calendar_today, size: 12, color: Colors.grey.shade500),
-                    const SizedBox(width: 6),
-                    Text("Period: ", style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade500)),
-                    Flexible(
-                      child: Text(period, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black87), overflow: TextOverflow.ellipsis),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: status == "Sync Failed" ? statusColor : Colors.white, border: status == "Pending Sync" ? Border.all(color: statusColor) : null, borderRadius: BorderRadius.circular(12)),
-            child: Text(status, style: GoogleFonts.inter(color: status == "Sync Failed" ? Colors.white : statusColor, fontSize: 10, fontWeight: FontWeight.bold)),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDatePicker(String hint) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 40),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
-      child: Row(
-        children: [
-          Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade500),
-          const SizedBox(width: 8),
-          Text(hint, style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500)),
-        ],
-      ),
-    );
-  }
-
   Widget _buildDateRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 14, color: Colors.grey.shade500),
-        const SizedBox(width: 8),
+        Icon(icon, size: 14, color: Colors.grey.shade500), const SizedBox(width: 8),
         Text(label, style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 12)),
-        Flexible(
-          child: Text(value, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12), overflow: TextOverflow.ellipsis),
-        ),
+        Flexible(child: Text(value, style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12), overflow: TextOverflow.ellipsis)),
       ],
     );
   }

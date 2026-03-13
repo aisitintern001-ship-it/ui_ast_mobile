@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
+import '../widgets/text_input.dart';
 import '../widgets/bottom_nav.dart';
 
 class _MemberData {
@@ -119,18 +120,18 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
     var members = _mockMembers;
     final query = _searchController.text.toLowerCase();
     if (query.isNotEmpty) {
-      members =
-          members
-              .where(
-                (m) =>
-                    m.name.toLowerCase().contains(query) ||
-                    m.position.toLowerCase().contains(query),
-              )
-              .toList();
+      members = members
+          .where(
+            (m) =>
+                m.name.toLowerCase().contains(query) ||
+                m.position.toLowerCase().contains(query),
+          )
+          .toList();
     }
     if (_selectedDepartment != 'All') {
-      members =
-          members.where((m) => m.department == _selectedDepartment).toList();
+      members = members
+          .where((m) => m.department == _selectedDepartment)
+          .toList();
     }
     return members;
   }
@@ -212,31 +213,29 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                 Expanded(
                   child: SizedBox(
                     height: 38,
-                    child: TextField(
+                    child: AppTextInput(
                       controller: _searchController,
                       onChanged: (_) => setState(() {}),
                       style: GoogleFonts.inter(fontSize: 13),
-                      decoration: InputDecoration(
-                        hintText: 'Search member...',
-                        hintStyle: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: AppColors.textMuted,
-                        ),
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          size: 18,
-                          color: AppColors.textMuted,
-                        ),
-                        filled: true,
-                        fillColor: const Color(0xFFF3F4F6),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 0,
-                          horizontal: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide.none,
-                        ),
+                      hintText: 'Search member...',
+                      hintStyle: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: AppColors.textMuted,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        size: 18,
+                        color: AppColors.textMuted,
+                      ),
+                      filled: true,
+                      fillColor: const Color(0xFFF3F4F6),
+                      contentPadding: const EdgeInsets.symmetric(
+                        vertical: 0,
+                        horizontal: 12,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
                       ),
                     ),
                   ),
@@ -248,17 +247,17 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                     width: 38,
                     height: 38,
                     decoration: BoxDecoration(
-                      color:
-                          _showFilters
-                              ? AppColors.headerOrange
-                              : const Color(0xFFF3F4F6),
+                      color: _showFilters
+                          ? AppColors.headerOrange
+                          : const Color(0xFFF3F4F6),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
                       Icons.tune,
                       size: 18,
-                      color:
-                          _showFilters ? Colors.white : AppColors.textSecondary,
+                      color: _showFilters
+                          ? Colors.white
+                          : AppColors.textSecondary,
                     ),
                   ),
                 ),
@@ -284,29 +283,24 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                       'Customer Support',
                       'Project Management',
                     ],
-                    onChanged:
-                        (v) => setState(() => _selectedDepartment = v ?? 'All'),
+                    onChanged: (v) =>
+                        setState(() => _selectedDepartment = v ?? 'All'),
                   ),
                   const SizedBox(height: 8),
                   _FilterDropdown(
                     label: 'Team',
                     value: _selectedTeam,
                     items: const ['All', 'Team Alpha', 'Team Beta'],
-                    onChanged:
-                        (v) => setState(() => _selectedTeam = v ?? 'All'),
+                    onChanged: (v) =>
+                        setState(() => _selectedTeam = v ?? 'All'),
                   ),
                   const SizedBox(height: 8),
                   _FilterDropdown(
                     label: 'Reporting To',
                     value: _selectedReporting,
-                    items: const [
-                      'All',
-                      'Edward Peter',
-                      'Michael Chen',
-                    ],
-                    onChanged:
-                        (v) =>
-                            setState(() => _selectedReporting = v ?? 'All'),
+                    items: const ['All', 'Edward Peter', 'Michael Chen'],
+                    onChanged: (v) =>
+                        setState(() => _selectedReporting = v ?? 'All'),
                   ),
                   const SizedBox(height: 10),
                   SizedBox(
@@ -355,10 +349,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
       // Department header
       widgets.add(
         Padding(
-          padding: EdgeInsets.only(
-            top: widgets.isEmpty ? 0 : 16,
-            bottom: 8,
-          ),
+          padding: EdgeInsets.only(top: widgets.isEmpty ? 0 : 16, bottom: 8),
           child: Row(
             children: [
               Text(
@@ -371,10 +362,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
               ),
               const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 2,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF3F4F6),
                   borderRadius: BorderRadius.circular(10),
@@ -492,18 +480,14 @@ class _FilterDropdown extends StatelessWidget {
           height: 38,
           child: DropdownButtonFormField<String>(
             value: value,
-            items:
-                items
-                    .map(
-                      (e) => DropdownMenuItem(
-                        value: e,
-                        child: Text(
-                          e,
-                          style: GoogleFonts.inter(fontSize: 13),
-                        ),
-                      ),
-                    )
-                    .toList(),
+            items: items
+                .map(
+                  (e) => DropdownMenuItem(
+                    value: e,
+                    child: Text(e, style: GoogleFonts.inter(fontSize: 13)),
+                  ),
+                )
+                .toList(),
             onChanged: onChanged,
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.symmetric(
@@ -543,7 +527,9 @@ class _MemberCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isActive = member.status == 'Active';
-    final statusColor = isActive ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
+    final statusColor = isActive
+        ? const Color(0xFF10B981)
+        : const Color(0xFFF59E0B);
     final statusBg = isActive
         ? const Color(0xFF10B981).withValues(alpha: 0.1)
         : const Color(0xFFF59E0B).withValues(alpha: 0.1);
@@ -568,7 +554,9 @@ class _MemberCard extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 20,
-                        backgroundColor: member.avatarColor.withValues(alpha: 0.15),
+                        backgroundColor: member.avatarColor.withValues(
+                          alpha: 0.15,
+                        ),
                         child: Text(
                           member.initials,
                           style: GoogleFonts.inter(
@@ -588,10 +576,7 @@ class _MemberCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: const Color(0xFF10B981),
                               shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 2,
-                              ),
+                              border: Border.all(color: Colors.white, width: 2),
                             ),
                           ),
                         ),
@@ -700,10 +685,7 @@ class _MemberCard extends StatelessWidget {
           width: 80,
           child: Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: AppColors.textMuted,
-            ),
+            style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
           ),
         ),
         Expanded(

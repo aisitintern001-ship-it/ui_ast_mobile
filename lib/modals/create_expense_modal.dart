@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../widgets/text_input.dart';
 
 class CreateExpenseModal extends StatefulWidget {
   final bool isEdit; // Passed in to change Title and Button text
@@ -38,22 +39,55 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.isEdit ? "Edit Expense Claim" : "Create Expense Claim", style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF4A5568))),
+                        Text(
+                          widget.isEdit
+                              ? "Edit Expense Claim"
+                              : "Create Expense Claim",
+                          style: GoogleFonts.inter(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF4A5568),
+                          ),
+                        ),
                         const SizedBox(height: 4),
-                        Text("Sub-description will be here", style: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 13)),
+                        Text(
+                          "Sub-description will be here",
+                          style: GoogleFonts.inter(
+                            color: Colors.grey.shade500,
+                            fontSize: 13,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                   Container(
-                    decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(6)),
-                    child: IconButton(padding: EdgeInsets.zero, constraints: const BoxConstraints(minWidth: 32, minHeight: 32), iconSize: 18, icon: Icon(Icons.close, color: Colors.grey.shade600), onPressed: () => Navigator.pop(context)),
-                  )
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
+                      iconSize: 18,
+                      icon: Icon(Icons.close, color: Colors.grey.shade600),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
-              
+
               // EXPENSE TYPE RADIOS
-              Text("Select Expense Type", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 12)),
+              Text(
+                "Select Expense Type",
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -65,14 +99,23 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
               const SizedBox(height: 16),
 
               // DESCRIPTION FIELD
-              TextFormField(
+              AppTextInput(
                 maxLines: 4,
-                initialValue: widget.isEdit ? "Taxi fare for client meeting at Makati office. Round trip from home office to client site for quarterly business review presentation." : "",
-                decoration: InputDecoration(
-                  hintText: "Description",
-                  hintStyle: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 13),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
-                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFEF532A))), // Orange border active
+                initialValue: widget.isEdit
+                    ? "Taxi fare for client meeting at Makati office. Round trip from home office to client site for quarterly business review presentation."
+                    : "",
+                hintText: 'Description',
+                hintStyle: GoogleFonts.inter(
+                  color: Colors.grey.shade400,
+                  fontSize: 13,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Color(0xFFEF532A)),
                 ),
               ),
               const SizedBox(height: 20),
@@ -80,51 +123,93 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
               // THE DYNAMIC ITEM BOX
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Item 1", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 12)),
+                    Text(
+                      "Item 1",
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
                     const SizedBox(height: 12),
-                    
+
                     // Scan Receipt Button
                     OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
                         foregroundColor: const Color(0xFF2181FF),
                         side: const BorderSide(color: Color(0xFF2181FF)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       onPressed: () {},
-                      icon: const Icon(Icons.document_scanner_outlined, size: 16),
-                      label: Text("Scan Receipt", style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 12)),
+                      icon: const Icon(
+                        Icons.document_scanner_outlined,
+                        size: 16,
+                      ),
+                      label: Text(
+                        "Scan Receipt",
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 16),
 
                     // Item Form Fields
-                    _buildTextField("Date Expense Incurred", icon: Icons.calendar_today, value: widget.isEdit ? "Dec 20, 2025" : null),
+                    _buildTextField(
+                      "Date Expense Incurred",
+                      icon: Icons.calendar_today,
+                      value: widget.isEdit ? "Dec 20, 2025" : null,
+                    ),
                     const SizedBox(height: 12),
-                    _buildTextField("Establishment Spent At", value: widget.isEdit ? "Subic Bay Venezia Hotel" : null),
+                    _buildTextField(
+                      "Establishment Spent At",
+                      value: widget.isEdit ? "Subic Bay Venezia Hotel" : null,
+                    ),
                     const SizedBox(height: 12),
-                    _buildTextField("TIN/ABN", value: widget.isEdit ? "0000 0000 0000" : null),
+                    _buildTextField(
+                      "TIN/ABN",
+                      value: widget.isEdit ? "0000 0000 0000" : null,
+                    ),
                     const SizedBox(height: 12),
                     _buildDropdownField("PHP - Philippine Peso"),
                     const SizedBox(height: 12),
-                    _buildTextField("Purchase Amount", value: widget.isEdit ? "1,500.00" : null),
+                    _buildTextField(
+                      "Purchase Amount",
+                      value: widget.isEdit ? "1,500.00" : null,
+                    ),
                     const SizedBox(height: 16),
 
                     // Item Tax Toggle
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(child: Text("Including Tax", style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 12))),
+                        Expanded(
+                          child: Text(
+                            "Including Tax",
+                            style: GoogleFonts.inter(
+                              color: Colors.grey.shade600,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
                         Switch(
-                          value: widget.isEdit ? true : includingTaxItem, 
-                          onChanged: (val) => setState(() => includingTaxItem = val),
+                          value: widget.isEdit ? true : includingTaxItem,
+                          onChanged: (val) =>
+                              setState(() => includingTaxItem = val),
                           activeThumbColor: Colors.white,
                           activeTrackColor: const Color(0xFF2181FF),
-                        )
+                        ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -132,16 +217,28 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
 
               // ADD ITEM BUTTON
               SizedBox(
-                width: double.infinity, height: 44,
+                width: double.infinity,
+                height: 44,
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.black87,
-                    side: BorderSide(color: Colors.grey.shade300, style: BorderStyle.solid), // Use dashed package if desired
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    side: BorderSide(
+                      color: Colors.grey.shade300,
+                      style: BorderStyle.solid,
+                    ), // Use dashed package if desired
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                   onPressed: () {},
                   icon: const Icon(Icons.add, size: 16),
-                  label: Text("Add Item", style: GoogleFonts.inter(fontWeight: FontWeight.w600, fontSize: 13)),
+                  label: Text(
+                    "Add Item",
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -150,13 +247,23 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Text("Including Tax", style: GoogleFonts.inter(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.bold))),
+                  Expanded(
+                    child: Text(
+                      "Including Tax",
+                      style: GoogleFonts.inter(
+                        color: Colors.grey.shade600,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                   Switch(
-                    value: includingTaxOverall, 
-                    onChanged: (val) => setState(() => includingTaxOverall = val),
+                    value: includingTaxOverall,
+                    onChanged: (val) =>
+                        setState(() => includingTaxOverall = val),
                     activeThumbColor: Colors.white,
                     activeTrackColor: const Color(0xFF2181FF),
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -165,18 +272,27 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
 
               // SUBMIT BUTTON
               SizedBox(
-                width: double.infinity, height: 48,
+                width: double.infinity,
+                height: 48,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2181FF),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     elevation: 0,
                   ),
                   onPressed: () => Navigator.pop(context),
-                  child: Text(widget.isEdit ? "Save Changes" : "Submit", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 15)),
+                  child: Text(
+                    widget.isEdit ? "Save Changes" : "Submit",
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -192,24 +308,40 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
       onTap: () => setState(() => expenseType = value),
       child: Row(
         children: [
-          Icon(isSelected ? Icons.radio_button_checked : Icons.radio_button_off, color: isSelected ? const Color(0xFFEF532A) : Colors.grey.shade400, size: 20),
+          Icon(
+            isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
+            color: isSelected ? const Color(0xFFEF532A) : Colors.grey.shade400,
+            size: 20,
+          ),
           const SizedBox(width: 8),
-          Text(label, style: GoogleFonts.inter(color: isSelected ? Colors.black87 : Colors.grey.shade500, fontSize: 13)),
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              color: isSelected ? Colors.black87 : Colors.grey.shade500,
+              fontSize: 13,
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildTextField(String hint, {IconData? icon, String? value}) {
-    return TextFormField(
+    return AppTextInput(
       initialValue: value,
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 12),
-        prefixIcon: icon != null ? Icon(icon, color: Colors.grey.shade500, size: 16) : null,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
+      hintText: hint,
+      hintStyle: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 12),
+      prefixIcon: icon != null
+          ? Icon(icon, color: Colors.grey.shade500, size: 16)
+          : null,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey.shade300),
       ),
     );
   }
@@ -217,11 +349,26 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
   Widget _buildDropdownField(String hint) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Row(
         children: [
-          Expanded(child: Text(hint, style: GoogleFonts.inter(color: Colors.grey.shade700, fontSize: 12))),
-          Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500, size: 18),
+          Expanded(
+            child: Text(
+              hint,
+              style: GoogleFonts.inter(
+                color: Colors.grey.shade700,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          Icon(
+            Icons.keyboard_arrow_down,
+            color: Colors.grey.shade500,
+            size: 18,
+          ),
         ],
       ),
     );

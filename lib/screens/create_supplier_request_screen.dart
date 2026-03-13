@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
+import '../widgets/text_input.dart';
 
 class CreateSupplierRequestScreen extends StatefulWidget {
   const CreateSupplierRequestScreen({super.key});
@@ -137,7 +138,9 @@ class _CreateSupplierRequestScreenState
                           textAlign: TextAlign.center,
                           style: GoogleFonts.inter(
                             fontSize: 9,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w500,
                             color: isSelected
                                 ? const Color(0xFF2181FF)
                                 : AppColors.textSecondary,
@@ -171,9 +174,7 @@ class _CreateSupplierRequestScreenState
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border(
-                top: BorderSide(color: Colors.grey.shade200),
-              ),
+              border: Border(top: BorderSide(color: Colors.grey.shade200)),
             ),
             child: Row(
               children: [
@@ -332,10 +333,7 @@ class _CreateSupplierRequestScreenState
             hint: "Business Name",
           ),
           const SizedBox(height: 12),
-          _buildTextField(
-            controller: _shortNameController,
-            hint: "Short Name",
-          ),
+          _buildTextField(controller: _shortNameController, hint: "Short Name"),
           const SizedBox(height: 12),
           _buildDropdownField(
             hint: "Currency",
@@ -463,16 +461,28 @@ class _CreateSupplierRequestScreenState
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.person_outline, color: Colors.grey.shade500, size: 20),
+                    Icon(
+                      Icons.person_outline,
+                      color: Colors.grey.shade500,
+                      size: 20,
+                    ),
                     const SizedBox(width: 10),
                     Text(
                       "Contact ${entry.key + 1}",
-                      style: GoogleFonts.inter(fontSize: 13, color: AppColors.textPrimary),
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                     const Spacer(),
                     GestureDetector(
-                      onTap: () => setState(() => _contacts.removeAt(entry.key)),
-                      child: Icon(Icons.close, size: 18, color: Colors.grey.shade400),
+                      onTap: () =>
+                          setState(() => _contacts.removeAt(entry.key)),
+                      child: Icon(
+                        Icons.close,
+                        size: 18,
+                        color: Colors.grey.shade400,
+                      ),
                     ),
                   ],
                 ),
@@ -519,16 +529,28 @@ class _CreateSupplierRequestScreenState
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.location_on_outlined, color: Colors.grey.shade500, size: 20),
+                    Icon(
+                      Icons.location_on_outlined,
+                      color: Colors.grey.shade500,
+                      size: 20,
+                    ),
                     const SizedBox(width: 10),
                     Text(
                       "Address ${entry.key + 1}",
-                      style: GoogleFonts.inter(fontSize: 13, color: AppColors.textPrimary),
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                     const Spacer(),
                     GestureDetector(
-                      onTap: () => setState(() => _addresses.removeAt(entry.key)),
-                      child: Icon(Icons.close, size: 18, color: Colors.grey.shade400),
+                      onTap: () =>
+                          setState(() => _addresses.removeAt(entry.key)),
+                      child: Icon(
+                        Icons.close,
+                        size: 18,
+                        color: Colors.grey.shade400,
+                      ),
                     ),
                   ],
                 ),
@@ -666,16 +688,28 @@ class _CreateSupplierRequestScreenState
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.description_outlined, color: Colors.grey.shade500, size: 20),
+                    Icon(
+                      Icons.description_outlined,
+                      color: Colors.grey.shade500,
+                      size: 20,
+                    ),
                     const SizedBox(width: 10),
                     Text(
                       "Document ${entry.key + 1}",
-                      style: GoogleFonts.inter(fontSize: 13, color: AppColors.textPrimary),
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                     const Spacer(),
                     GestureDetector(
-                      onTap: () => setState(() => _documents.removeAt(entry.key)),
-                      child: Icon(Icons.close, size: 18, color: Colors.grey.shade400),
+                      onTap: () =>
+                          setState(() => _documents.removeAt(entry.key)),
+                      child: Icon(
+                        Icons.close,
+                        size: 18,
+                        color: Colors.grey.shade400,
+                      ),
                     ),
                   ],
                 ),
@@ -743,7 +777,9 @@ class _CreateSupplierRequestScreenState
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: isSelected ? AppColors.headerOrange : Colors.grey.shade400,
+                color: isSelected
+                    ? AppColors.headerOrange
+                    : Colors.grey.shade400,
                 width: 2,
               ),
             ),
@@ -777,25 +813,23 @@ class _CreateSupplierRequestScreenState
     required TextEditingController controller,
     required String hint,
   }) {
-    return TextField(
+    return AppTextInput(
       controller: controller,
       style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade300),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF2181FF)),
-        ),
+      hintText: hint,
+      hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Colors.grey.shade300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xFF2181FF)),
       ),
     );
   }
@@ -820,7 +854,10 @@ class _CreateSupplierRequestScreenState
           hint: RichText(
             text: TextSpan(
               text: hint,
-              style: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: AppColors.textMuted,
+              ),
               children: required
                   ? [
                       TextSpan(
@@ -834,10 +871,7 @@ class _CreateSupplierRequestScreenState
                   : null,
             ),
           ),
-          icon: Icon(
-            Icons.keyboard_arrow_down,
-            color: Colors.grey.shade500,
-          ),
+          icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
           style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
           items: items
               .map((i) => DropdownMenuItem(value: i, child: Text(i)))
@@ -885,8 +919,18 @@ class _CreateSupplierRequestScreenState
 
   String _formatDate(DateTime date) {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     final suffix = _daySuffix(date.day);
     return '${months[date.month - 1]} ${date.day}$suffix, ${date.year}';
@@ -895,14 +939,22 @@ class _CreateSupplierRequestScreenState
   String _daySuffix(int day) {
     if (day >= 11 && day <= 13) return 'th';
     switch (day % 10) {
-      case 1: return 'st';
-      case 2: return 'nd';
-      case 3: return 'rd';
-      default: return 'th';
+      case 1:
+        return 'st';
+      case 2:
+        return 'nd';
+      case 3:
+        return 'rd';
+      default:
+        return 'th';
     }
   }
 
-  Widget _buildSwitchRow(String label, bool value, ValueChanged<bool> onChanged) {
+  Widget _buildSwitchRow(
+    String label,
+    bool value,
+    ValueChanged<bool> onChanged,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(

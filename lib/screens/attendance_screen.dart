@@ -7,6 +7,7 @@ import '../theme/app_theme.dart';
 import '../widgets/app_toast.dart';
 import '../widgets/status_pill.dart';
 import '../widgets/bottom_nav.dart';
+import '../widgets/offline_tab_widget.dart'; // <-- ADDED
 import 'face_recognition_screen.dart';
 import 'home_screen.dart';
 
@@ -37,24 +38,9 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   final List<String> _selectedStatuses = ['Mngr. Approved', 'Processed Payroll'];
 
   final List<_AttendanceRecord> _records = [
-    _AttendanceRecord(
-      date: DateTime(2026, 1, 20),
-      status: 'Mngr. Approved',
-      normalHours: 8,
-      overtimeHours: 1.25,
-    ),
-    _AttendanceRecord(
-      date: DateTime(2026, 1, 19),
-      status: 'Mngr. Approved',
-      normalHours: 8,
-      overtimeHours: 0,
-    ),
-    _AttendanceRecord(
-      date: DateTime(2026, 1, 18),
-      status: 'Processed Payroll',
-      normalHours: 8,
-      overtimeHours: 0.5,
-    ),
+    _AttendanceRecord(date: DateTime(2026, 1, 20), status: 'Mngr. Approved', normalHours: 8, overtimeHours: 1.25),
+    _AttendanceRecord(date: DateTime(2026, 1, 19), status: 'Mngr. Approved', normalHours: 8, overtimeHours: 0),
+    _AttendanceRecord(date: DateTime(2026, 1, 18), status: 'Processed Payroll', normalHours: 8, overtimeHours: 0.5),
   ];
 
   @override
@@ -64,14 +50,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   }
 
   Future<void> _handleFaceAction(BuildContext context, String action) async {
-    final result = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (_) => FaceRecognitionScreen(mode: action),
-      ),
-    );
-
+    final result = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => FaceRecognitionScreen(mode: action)));
     if (!mounted) return;
-
     if (result == true) {
       setState(() {
         _lastAction = action;
@@ -79,33 +59,19 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         _showFailed = false;
         _failedAction = null;
       });
-
-      AppToast.show(
-        context,
-        type: ToastType.success,
-        title: '$action Record Successfully',
-        message: '$action was successfully recorded!',
-      );
+      AppToast.show(context, type: ToastType.success, title: '$action Record Successfully', message: '$action was successfully recorded!');
     } else {
       setState(() {
         _showFailed = true;
         _failedAction = action;
       });
-
-      AppToast.show(
-        context,
-        type: ToastType.error,
-        title: '$action Failed',
-        message: 'Face verification failed. Please try again.',
-      );
+      AppToast.show(context, type: ToastType.error, title: '$action Failed', message: 'Face verification failed. Please try again.');
     }
   }
 
   List<_AttendanceRecord> get _filteredRecords {
     final now = DateTime.now();
-    DateTime from;
-    DateTime to;
-
+    DateTime from; DateTime to;
     if (_range == '7') {
       to = DateTime(now.year, now.month, now.day);
       from = to.subtract(const Duration(days: 7));
@@ -119,30 +85,18 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       from = DateTime(2000);
       to = DateTime(2100);
     }
-
     return _records.where((r) {
       final d = DateTime(r.date.year, r.date.month, r.date.day);
       final inRange = !d.isBefore(from) && !d.isAfter(to);
-      final statusOk =
-          _selectedStatuses.isEmpty || _selectedStatuses.contains(r.status);
+      final statusOk = _selectedStatuses.isEmpty || _selectedStatuses.contains(r.status);
       return inRange && statusOk;
-    }).toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
+    }).toList()..sort((a, b) => b.date.compareTo(a.date));
   }
 
   Future<void> _pickCustomRange(BuildContext context) async {
     final now = DateTime.now();
-    final initial = _customRange ??
-        DateTimeRange(
-          start: now.subtract(const Duration(days: 7)),
-          end: now,
-        );
-    final picked = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(now.year - 2),
-      lastDate: DateTime(now.year + 2),
-      initialDateRange: initial,
-    );
+    final initial = _customRange ?? DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now);
+    final picked = await showDateRangePicker(context: context, firstDate: DateTime(now.year - 2), lastDate: DateTime(now.year + 2), initialDateRange: initial);
     if (picked != null) {
       setState(() {
         _range = 'custom';
@@ -152,32 +106,13 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   }
 
   Future<void> _openStatusFilter(BuildContext context, TapDownDetails details) async {
-    const options = [
-      'Mngr. Pending',
-      'Mngr. Approved',
-      'HR Pending',
-      'HR Approved',
-      'Pending Payroll',
-      'In Progress Payroll',
-      'Released Payroll',
-      'Processed Payroll',
-    ];
+    const options = ['Mngr. Pending', 'Mngr. Approved', 'HR Pending', 'HR Approved', 'Pending Payroll', 'In Progress Payroll', 'Released Payroll', 'Processed Payroll'];
     final tempSelected = Set<String>.from(_selectedStatuses);
-
     final overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
-    final position = RelativeRect.fromRect(
-      Rect.fromLTWH(
-        details.globalPosition.dx,
-        details.globalPosition.dy,
-        0,
-        0,
-      ),
-      Offset.zero & overlay.size,
-    );
+    final position = RelativeRect.fromRect(Rect.fromLTWH(details.globalPosition.dx, details.globalPosition.dy, 0, 0), Offset.zero & overlay.size);
 
     await showMenu<int>(
-      context: context,
-      position: position,
+      context: context, position: position,
       items: [
         PopupMenuItem<int>(
           enabled: false,
@@ -190,27 +125,13 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Filter Status',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    Text('Filter Status', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
                     TextButton(
                       onPressed: () {
-                        setState(() {
-                          _selectedStatuses.clear();
-                        });
+                        setState(() => _selectedStatuses.clear());
                         Navigator.of(context).pop();
                       },
-                      child: Text(
-                        'Clear all',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: Colors.red,
-                        ),
-                      ),
+                      child: Text('Clear all', style: GoogleFonts.inter(fontSize: 12, color: Colors.red)),
                     ),
                   ],
                 ),
@@ -227,53 +148,24 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           return InkWell(
                             onTap: () {
                               localSetState(() {
-                                if (selected) {
-                                  tempSelected.remove(label);
-                                } else {
-                                  tempSelected.add(label);
-                                }
+                                if (selected) tempSelected.remove(label);
+                                else tempSelected.add(label);
                               });
                               setState(() {
-                                _selectedStatuses
-                                  ..clear()
-                                  ..addAll(tempSelected);
+                                _selectedStatuses..clear()..addAll(tempSelected);
                               });
                             },
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 6),
                               child: Row(
                                 children: [
-                                  // Round indicator
                                   Container(
-                                    width: 18,
-                                    height: 18,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: selected ? AppColors.headerOrange : AppColors.textMuted,
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    child: selected
-                                        ? Center(
-                                            child: Container(
-                                              width: 10,
-                                              height: 10,
-                                              decoration: const BoxDecoration(
-                                                color: AppColors.headerOrange,
-                                                shape: BoxShape.circle,
-                                              ),
-                                            ),
-                                          )
-                                        : null,
+                                    width: 18, height: 18,
+                                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: selected ? AppColors.headerOrange : AppColors.textMuted, width: 1.5)),
+                                    child: selected ? Center(child: Container(width: 10, height: 10, decoration: const BoxDecoration(color: AppColors.headerOrange, shape: BoxShape.circle))) : null,
                                   ),
                                   const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      label,
-                                      style: GoogleFonts.inter(fontSize: 13),
-                                    ),
-                                  ),
+                                  Expanded(child: Text(label, style: GoogleFonts.inter(fontSize: 13))),
                                 ],
                               ),
                             ),
@@ -300,44 +192,24 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-          // Simple colored header bar
           Container(
             color: headerColor,
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 8,
-              left: 16,
-              right: 16,
-              bottom: 16,
-            ),
+            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8, left: 16, right: 16, bottom: 16),
             child: Row(
               children: [
                 IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-                onPressed: () {
-                  // --- ROUTING LOGIC UPDATE ---
-                  if (widget.fromDataIntegration) {
-                    // If we came from Settings -> Data Integration, just pop back to it
-                    Navigator.pop(context);
-                  } else {
-                    // If we came from Bottom Nav / Home, force navigation back to Home tab
-                    context.read<AppState>().setNavIndex(1); // Set to Home Tab
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomeScreen()),
-                      (Route<dynamic> route) => false,
-                    );
-                  }
-                },
-              ),
-                const SizedBox(width: 4),
-                Text(
-                  'Attendance',
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                  onPressed: () {
+                    if (widget.fromDataIntegration) {
+                      Navigator.pop(context);
+                    } else {
+                      context.read<AppState>().setNavIndex(1);
+                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen()), (Route<dynamic> route) => false);
+                    }
+                  },
                 ),
+                const SizedBox(width: 4),
+                Text('Attendance', style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white)),
               ],
             ),
           ),
@@ -348,36 +220,15 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 // Current status card
                 Container(
                   padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.divider),
-                  ),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.divider)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.access_time_filled_rounded,
-                        size: 40,
-                        color: headerColor,
-                      ),
+                      Icon(Icons.access_time_filled_rounded, size: 40, color: headerColor),
                       const SizedBox(height: 8),
-                      Text(
-                        _hasCurrentTimeIn ? 'You are currently timed in' : 'No Current Time In',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
+                      Text(_hasCurrentTimeIn ? 'You are currently timed in' : 'No Current Time In', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                       const SizedBox(height: 4),
-                      Text(
-                        'Started at 0:00 AM',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          color: AppColors.textMuted,
-                        ),
-                      ),
+                      Text('Started at 0:00 AM', style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted)),
                       const SizedBox(height: 16),
                       Row(
                         children: [
@@ -385,22 +236,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                             child: ElevatedButton.icon(
                               onPressed: () => _handleFaceAction(context, 'Time In'),
                               icon: const Icon(Icons.access_time_rounded, size: 18),
-                              label: Text(
-                                'Time In',
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
+                              label: Text('Time In', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -408,117 +245,40 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                             child: ElevatedButton.icon(
                               onPressed: () => _handleFaceAction(context, 'Time Out'),
                               icon: const Icon(Icons.access_time_rounded, size: 18),
-                              label: Text(
-                                'Time Out',
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
+                              label: Text('Time Out', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                             ),
                           ),
                         ],
                       ),
-                      // ── Attendance Failed Preview Card ──
                       if (_showFailed) ...[
                         const SizedBox(height: 16),
                         Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFEF2F2),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: const Color(0xFFFECACA)),
-                          ),
+                          width: double.infinity, padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFFECACA))),
                           child: Column(
                             children: [
-                              // Red warning icon
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Color(0xFFEF4444),
-                                ),
-                                child: const Icon(
-                                  Icons.close_rounded,
-                                  size: 28,
-                                  color: Colors.white,
-                                ),
-                              ),
+                              Container(width: 48, height: 48, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFEF4444)), child: const Icon(Icons.close_rounded, size: 28, color: Colors.white)),
                               const SizedBox(height: 12),
-                              Text(
-                                '${_failedAction ?? "Attendance"} Failed',
-                                style: GoogleFonts.inter(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: const Color(0xFFEF4444),
-                                ),
-                              ),
+                              Text('${_failedAction ?? "Attendance"} Failed', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFFEF4444))),
                               const SizedBox(height: 4),
-                              Text(
-                                'Face verification could not be completed.\nPlease try again.',
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: const Color(0xFF6B7280),
-                                  height: 1.4,
-                                ),
-                              ),
+                              Text('Face verification could not be completed.\nPlease try again.', textAlign: TextAlign.center, style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF6B7280), height: 1.4)),
                               const SizedBox(height: 12),
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
                                   onPressed: () {
-                                    if (_failedAction != null) {
-                                      _handleFaceAction(context, _failedAction!);
-                                    }
+                                    if (_failedAction != null) _handleFaceAction(context, _failedAction!);
                                   },
                                   icon: const Icon(Icons.refresh_rounded, size: 18),
-                                  label: Text(
-                                    'Try Again',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFEF4444),
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(vertical: 10),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
+                                  label: Text('Try Again', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600)),
+                                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444), foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                                 ),
                               ),
                               const SizedBox(height: 8),
                               GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _showFailed = false;
-                                    _failedAction = null;
-                                  });
-                                },
-                                child: Text(
-                                  'Dismiss',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: const Color(0xFF6B7280),
-                                    decoration: TextDecoration.underline,
-                                  ),
-                                ),
+                                onTap: () => setState(() { _showFailed = false; _failedAction = null; }),
+                                child: Text('Dismiss', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w500, color: const Color(0xFF6B7280), decoration: TextDecoration.underline)),
                               ),
                             ],
                           ),
@@ -526,13 +286,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       ],
                       if (_lastAction != null) ...[
                         const SizedBox(height: 12),
-                        Text(
-                          'Last action: $_lastAction',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
+                        Text('Last action: $_lastAction', style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary)),
                       ],
                     ],
                   ),
@@ -542,11 +296,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 // History / Offline toggle
                 Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: AppColors.divider),
-                  ),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.divider)),
                   child: Row(
                     children: [
                       Expanded(
@@ -554,28 +304,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           onTap: () => setState(() => _showHistory = true),
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(
-                              color: _showHistory ? headerColor : Colors.transparent,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
+                            decoration: BoxDecoration(color: _showHistory ? headerColor : Colors.transparent, borderRadius: BorderRadius.circular(20)),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  Icons.history_rounded,
-                                  size: 16,
-                                  color: _showHistory ? Colors.white : AppColors.textMuted,
-                                ),
+                                Icon(Icons.history_rounded, size: 16, color: _showHistory ? Colors.white : AppColors.textMuted),
                                 const SizedBox(width: 6),
-                                Text(
-                                  'History',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: _showHistory ? Colors.white : AppColors.textSecondary,
-                                  ),
-                                ),
+                                Text('History', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: _showHistory ? Colors.white : AppColors.textSecondary)),
                               ],
                             ),
                           ),
@@ -587,28 +323,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           onTap: () => setState(() => _showHistory = false),
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(
-                              color: !_showHistory ? headerColor : Colors.transparent,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
+                            decoration: BoxDecoration(color: !_showHistory ? headerColor : Colors.transparent, borderRadius: BorderRadius.circular(20)),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  Icons.wifi_off_rounded,
-                                  size: 16,
-                                  color: !_showHistory ? Colors.white : AppColors.textMuted,
-                                ),
+                                Icon(Icons.wifi_off_rounded, size: 16, color: !_showHistory ? Colors.white : AppColors.textMuted),
                                 const SizedBox(width: 6),
-                                Text(
-                                  'Offline',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    color: !_showHistory ? Colors.white : AppColors.textSecondary,
-                                  ),
-                                ),
+                                Text('Offline', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: !_showHistory ? Colors.white : AppColors.textSecondary)),
                               ],
                             ),
                           ),
@@ -617,102 +339,39 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 12),
 
                 if (_showHistory)
-                  // History card
                   Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.divider),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.divider)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Attendance History',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
+                        Text('Attendance History', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                         const SizedBox(height: 12),
                         Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
+                          spacing: 8, runSpacing: 8,
                           children: [
-                            GestureDetector(
-                              onTap: () => setState(() {
-                                _range = '7';
-                                _customRange = null;
-                              }),
-                              child: _HistoryChip(
-                                label: 'Last 7 Days',
-                                selected: _range == '7',
-                                color: headerColor,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () => setState(() {
-                                _range = '30';
-                                _customRange = null;
-                              }),
-                              child: _HistoryChip(
-                                label: 'Last 30 Days',
-                                selected: _range == '30',
-                                color: headerColor,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () => setState(() => _range = 'custom'),
-                              child: _HistoryChip(
-                                label: 'Custom',
-                                selected: _range == 'custom',
-                                color: headerColor,
-                              ),
-                            ),
+                            GestureDetector(onTap: () => setState(() { _range = '7'; _customRange = null; }), child: _HistoryChip(label: 'Last 7 Days', selected: _range == '7', color: headerColor)),
+                            GestureDetector(onTap: () => setState(() { _range = '30'; _customRange = null; }), child: _HistoryChip(label: 'Last 30 Days', selected: _range == '30', color: headerColor)),
+                            GestureDetector(onTap: () => setState(() => _range = 'custom'), child: _HistoryChip(label: 'Custom', selected: _range == 'custom', color: headerColor)),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        // Filter row
                         if (_selectedStatuses.isNotEmpty) ...[
                           Wrap(
-                            spacing: 4,
-                            runSpacing: 4,
+                            spacing: 4, runSpacing: 4,
                             children: _selectedStatuses.map((s) {
                               return Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE5F2FF),
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
+                                decoration: BoxDecoration(color: const Color(0xFFE5F2FF), borderRadius: BorderRadius.circular(999)),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
-                                      s,
-                                      style: GoogleFonts.inter(
-                                        fontSize: 11,
-                                        color: AppColors.textPrimary,
-                                      ),
-                                    ),
+                                    Text(s, style: GoogleFonts.inter(fontSize: 11, color: AppColors.textPrimary)),
                                     const SizedBox(width: 4),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _selectedStatuses.remove(s);
-                                        });
-                                      },
-                                      child: const Icon(
-                                        Icons.close_rounded,
-                                        size: 14,
-                                        color: AppColors.textMuted,
-                                      ),
-                                    ),
+                                    GestureDetector(onTap: () => setState(() => _selectedStatuses.remove(s)), child: const Icon(Icons.close_rounded, size: 14, color: AppColors.textMuted)),
                                   ],
                                 ),
                               );
@@ -727,40 +386,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                 behavior: HitTestBehavior.opaque,
                                 onTapDown: (details) => _openStatusFilter(context, details),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF3F4F6),
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: AppColors.divider),
-                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                  decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.divider)),
                                   child: Row(
                                     children: [
-                                      const Icon(
-                                        Icons.filter_list_rounded,
-                                        size: 16,
-                                        color: AppColors.textMuted,
-                                      ),
+                                      const Icon(Icons.filter_list_rounded, size: 16, color: AppColors.textMuted),
                                       const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          _selectedStatuses.isEmpty
-                                              ? 'Filter Status'
-                                              : 'Filter Status',
-                                          style: GoogleFonts.inter(
-                                            fontSize: 12,
-                                            color: AppColors.textSecondary,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      const Icon(
-                                        Icons.keyboard_arrow_down_rounded,
-                                        size: 18,
-                                        color: AppColors.textMuted,
-                                      ),
+                                      Expanded(child: Text('Filter Status', style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary), overflow: TextOverflow.ellipsis)),
+                                      const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.textMuted),
                                     ],
                                   ),
                                 ),
@@ -769,20 +402,36 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                             if (_range == 'custom') ...[
                               const SizedBox(width: 12),
                               Expanded(
-                                child: _DateFieldPlaceholder(
-                                  label: _customRange == null
-                                      ? 'Date From'
-                                      : '${_customRange!.start.toLocal()}'.split(' ')[0],
+                                child: GestureDetector(
                                   onTap: () => _pickCustomRange(context),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                    decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.divider)),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.textMuted),
+                                        const SizedBox(width: 6),
+                                        Expanded(child: Text(_customRange == null ? 'Date From' : '${_customRange!.start.toLocal()}'.split(' ')[0], style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted), overflow: TextOverflow.ellipsis)),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 8),
                               Expanded(
-                                child: _DateFieldPlaceholder(
-                                  label: _customRange == null
-                                      ? 'Date To'
-                                      : '${_customRange!.end.toLocal()}'.split(' ')[0],
+                                child: GestureDetector(
                                   onTap: () => _pickCustomRange(context),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                    decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.divider)),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.textMuted),
+                                        const SizedBox(width: 6),
+                                        Expanded(child: Text(_customRange == null ? 'Date To' : '${_customRange!.end.toLocal()}'.split(' ')[0], style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted), overflow: TextOverflow.ellipsis)),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
@@ -794,219 +443,48 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                             children: [
                               Expanded(
                                 child: OutlinedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _customRange = null;
-                                      _selectedStatuses.clear();
-                                    });
-                                  },
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: AppColors.textSecondary,
-                                    side: const BorderSide(color: AppColors.divider),
-                                    padding: const EdgeInsets.symmetric(vertical: 10),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'Clear Filter',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
+                                  onPressed: () => setState(() { _customRange = null; _selectedStatuses.clear(); }),
+                                  style: OutlinedButton.styleFrom(foregroundColor: AppColors.textSecondary, side: const BorderSide(color: AppColors.divider), padding: const EdgeInsets.symmetric(vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                                  child: Text('Clear Filter', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500)),
                                 ),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {});
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: headerColor,
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(vertical: 10),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'Apply Filter',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
+                                  onPressed: () => setState(() {}),
+                                  style: ElevatedButton.styleFrom(backgroundColor: headerColor, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                                  child: Text('Apply Filter', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600)),
                                 ),
                               ),
                             ],
                           ),
                         ],
-                        // Filtered records
                         if (_filteredRecords.isEmpty)
                           Container(
                             padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppColors.background,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              'No records found in this section yet',
-                              style: GoogleFonts.inter(
-                                fontSize: 12,
-                                color: AppColors.textMuted,
-                              ),
-                            ),
+                            decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(12)),
+                            child: Text('No records found in this section yet', style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted)),
                           )
                         else
                           Column(
-                            children: _filteredRecords
-                                .map((r) => Padding(
-                                      padding: const EdgeInsets.only(bottom: 12),
-                                      child: _HistoryRecordCard(record: r),
-                                    ))
-                                .toList(),
+                            children: _filteredRecords.map((r) => Padding(padding: const EdgeInsets.only(bottom: 12), child: _HistoryRecordCard(record: r))).toList(),
                           ),
                       ],
                     ),
                   )
                 else
-                  // Offline card
-                  Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.divider),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.delete_rounded, size: 16, color: AppColors.textMuted),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    'Delete Synced Records',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textPrimary,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _DateFieldPlaceholder(label: 'Date From'),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: _DateFieldPlaceholder(label: 'Date To'),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFFF6B6B),
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Delete Synced Range',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.divider),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.wifi_off_rounded, size: 16, color: AppColors.textMuted),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    'Offline Records (Time-In)',
-                                    style: GoogleFonts.inter(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.textPrimary,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Time-in records saved while offline, pending sync',
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                color: AppColors.textMuted,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            // Example offline record rows
-                            _OfflineRecordTile(date: '2025-12-26', time: '07:22 AM'),
-                            const SizedBox(height: 8),
-                            _OfflineRecordTile(date: '2025-12-29', time: '08:02 AM'),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Sync All Records',
-                                  style: GoogleFonts.inter(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  // --- CALL TO OUR NEW REUSABLE OFFLINE WIDGET ---
+                  SizedBox(
+                    height: 400, // Fixed height to allow scrolling inner area if needed
+                    child: OfflineTabWidget(
+                      key: const ValueKey("offline"),
+                      items: [
+                        OfflineRecordItem(title: "2025-12-26", subtitle: "In: 07:22 AM", status: "Pending Sync", statusColor: Colors.amber.shade700),
+                        OfflineRecordItem(title: "2025-12-29", subtitle: "In: 08:02 AM", status: "Pending Sync", statusColor: Colors.amber.shade700),
+                      ],
+                      onSyncAll: () {},
+                      onDeleteRange: () {},
+                    ),
                   ),
               ],
             ),
@@ -1018,148 +496,29 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   }
 }
 
-class _DateFieldPlaceholder extends StatelessWidget {
-  final String label;
-  final VoidCallback? onTap;
-
-  const _DateFieldPlaceholder({required this.label, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF3F4F6),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.divider),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.textMuted),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: AppColors.textMuted,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _OfflineRecordTile extends StatelessWidget {
-  final String date;
-  final String time;
-
-  const _OfflineRecordTile({required this.date, required this.time});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                date,
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                'In: $time',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-            ],
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF3E0),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              'Pending Sync',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFFF97316),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _AttendanceRecord {
   final DateTime date;
   final String status;
   final double normalHours;
   final double overtimeHours;
-
-  const _AttendanceRecord({
-    required this.date,
-    required this.status,
-    required this.normalHours,
-    required this.overtimeHours,
-  });
+  const _AttendanceRecord({required this.date, required this.status, required this.normalHours, required this.overtimeHours});
 }
 
 class _HistoryRecordCard extends StatelessWidget {
   final _AttendanceRecord record;
-
   const _HistoryRecordCard({required this.record});
-
   @override
   Widget build(BuildContext context) {
     final dateStr = '${record.date.toLocal()}'.split(' ')[0];
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.divider),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.divider)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Flexible(
-                child: Text(
-                  dateStr,
-                  style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+              Flexible(child: Text(dateStr, style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary), overflow: TextOverflow.ellipsis)),
               const SizedBox(width: 8),
               StatusPill(status: record.status),
             ],
@@ -1167,24 +526,8 @@ class _HistoryRecordCard extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _metricRow('Normal Hours', record.normalHours),
-                    _metricRow('Overtime Hours', record.overtimeHours),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    _metricRow('Night Differential', 0),
-                    _metricRow('Public Holiday', 0),
-                  ],
-                ),
-              ),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [ _metricRow('Normal Hours', record.normalHours), _metricRow('Overtime Hours', record.overtimeHours) ])),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [ _metricRow('Night Differential', 0), _metricRow('Public Holiday', 0) ])),
             ],
           ),
         ],
@@ -1196,9 +539,7 @@ class _HistoryRecordCard extends StatelessWidget {
 class _metricRow extends StatelessWidget {
   final String label;
   final double value;
-
   const _metricRow(this.label, this.value);
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -1206,23 +547,8 @@ class _metricRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Flexible(
-            child: Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ),
-          Text(
-            value.toStringAsFixed(2),
-            style: GoogleFonts.inter(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
+          Flexible(child: Text(label, style: GoogleFonts.inter(fontSize: 11, color: AppColors.textSecondary))),
+          Text(value.toStringAsFixed(2), style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
         ],
       ),
     );
@@ -1233,13 +559,7 @@ class _HistoryChip extends StatelessWidget {
   final String label;
   final bool selected;
   final Color color;
-
-  const _HistoryChip({
-    required this.label,
-    required this.selected,
-    required this.color,
-  });
-
+  const _HistoryChip({required this.label, required this.selected, required this.color});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1249,14 +569,7 @@ class _HistoryChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: selected ? Border.all(color: color, width: 1) : null,
       ),
-      child: Text(
-        label,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-          color: selected ? color : AppColors.textSecondary,
-        ),
-      ),
+      child: Text(label, style: GoogleFonts.inter(fontSize: 11, fontWeight: selected ? FontWeight.w600 : FontWeight.w500, color: selected ? color : AppColors.textSecondary)),
     );
   }
 }

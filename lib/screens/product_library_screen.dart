@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/advance_filter_widget.dart';
+import '../widgets/text_input.dart';
 import '../widgets/bottom_nav.dart';
 import '../data/product_mock_data.dart';
 
@@ -40,10 +41,13 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
 
     if (_searchQuery.isNotEmpty) {
       final q = _searchQuery.toLowerCase();
-      products = products.where((p) =>
-        p.code.toLowerCase().contains(q) ||
-        p.name.toLowerCase().contains(q)
-      ).toList();
+      products = products
+          .where(
+            (p) =>
+                p.code.toLowerCase().contains(q) ||
+                p.name.toLowerCase().contains(q),
+          )
+          .toList();
     }
     final segment = _productFilters['segment'];
     final category = _productFilters['category'];
@@ -51,12 +55,18 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
     final brand = _productFilters['brand'];
     final productType = _productFilters['productType'];
     final status = _productFilters['status'];
-    if (segment != null) products = products.where((p) => p.segment == segment).toList();
-    if (category != null) products = products.where((p) => p.category == category).toList();
-    if (subCategory != null) products = products.where((p) => p.subcategory == subCategory).toList();
-    if (brand != null) products = products.where((p) => p.brand == brand).toList();
-    if (productType != null) products = products.where((p) => p.productType == productType).toList();
-    if (status != null) products = products.where((p) => p.status == status).toList();
+    if (segment != null)
+      products = products.where((p) => p.segment == segment).toList();
+    if (category != null)
+      products = products.where((p) => p.category == category).toList();
+    if (subCategory != null)
+      products = products.where((p) => p.subcategory == subCategory).toList();
+    if (brand != null)
+      products = products.where((p) => p.brand == brand).toList();
+    if (productType != null)
+      products = products.where((p) => p.productType == productType).toList();
+    if (status != null)
+      products = products.where((p) => p.status == status).toList();
 
     return products;
   }
@@ -71,13 +81,10 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
           // ── Header ──
           _buildHeader(headerColor),
           // ── Body ──
-          Expanded(
-            child: _isListView ? _buildListBody() : _buildGridBody(),
-          ),
-          // ── Bottom Nav ──
-          const AppBottomNavBar(),
+          Expanded(child: _isListView ? _buildListBody() : _buildGridBody()),
         ],
       ),
+      bottomNavigationBar: const AppBottomNavBar(),
     );
   }
 
@@ -120,20 +127,19 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
 
   Widget _buildListBody() {
     final products = _filteredProducts;
-    return Column(
-      children: [
-        // Search + Filter + Toggle
-        _buildSearchAndFilterBar(),
-        // Product list
-        Expanded(
-          child: products.isEmpty
-              ? _buildEmptyState()
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  itemCount: products.length,
-                  itemBuilder: (_, i) => _buildProductCard(products[i]),
-                ),
-        ),
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(child: _buildSearchAndFilterBar()),
+        if (products.isEmpty)
+          SliverFillRemaining(hasScrollBody: false, child: _buildEmptyState())
+        else
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            sliver: SliverList.builder(
+              itemCount: products.length,
+              itemBuilder: (_, i) => _buildProductCard(products[i]),
+            ),
+          ),
       ],
     );
   }
@@ -166,17 +172,23 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
                       Icon(Icons.search, color: Colors.grey.shade400, size: 22),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: TextField(
+                        child: AppTextInput(
                           controller: _searchController,
                           onChanged: (v) => setState(() => _searchQuery = v),
-                          style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
-                          decoration: InputDecoration(
-                            hintText: 'Search Records',
-                            hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.zero,
-                            isDense: true,
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: AppColors.textPrimary,
                           ),
+                          hintText: 'Search Records',
+                          hintStyle: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: AppColors.textMuted,
+                          ),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          isDense: true,
                         ),
                       ),
                     ],
@@ -191,13 +203,48 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
           // Advance Filter
           AdvanceFilterWidget(
             fields: [
-              AdvanceFilterField(key: 'segment', label: 'Segment', hint: 'Select Segment', items: ProductMockData.allSegmentNames),
-              AdvanceFilterField(key: 'category', label: 'Category', hint: 'Select Category', items: ProductMockData.allCategoryNames),
-              AdvanceFilterField(key: 'subCategory', label: 'Sub-Category', hint: 'Select Sub-Category', items: ProductMockData.allSubcategoryNames),
-              AdvanceFilterField(key: 'brand', label: 'Brand', hint: 'Select Brand', items: ProductMockData.allBrands),
-              AdvanceFilterField(key: 'uom', label: 'Unit of Measure', hint: 'Select Unit', items: ProductMockData.allUOMs),
-              AdvanceFilterField(key: 'productType', label: 'Product Type', hint: 'Select Product Type', items: ProductMockData.allProductTypes),
-              AdvanceFilterField(key: 'status', label: 'Status', hint: 'Select Status', items: ProductMockData.allStatuses),
+              AdvanceFilterField(
+                key: 'segment',
+                label: 'Segment',
+                hint: 'Select Segment',
+                items: ProductMockData.allSegmentNames,
+              ),
+              AdvanceFilterField(
+                key: 'category',
+                label: 'Category',
+                hint: 'Select Category',
+                items: ProductMockData.allCategoryNames,
+              ),
+              AdvanceFilterField(
+                key: 'subCategory',
+                label: 'Sub-Category',
+                hint: 'Select Sub-Category',
+                items: ProductMockData.allSubcategoryNames,
+              ),
+              AdvanceFilterField(
+                key: 'brand',
+                label: 'Brand',
+                hint: 'Select Brand',
+                items: ProductMockData.allBrands,
+              ),
+              AdvanceFilterField(
+                key: 'uom',
+                label: 'Unit of Measure',
+                hint: 'Select Unit',
+                items: ProductMockData.allUOMs,
+              ),
+              AdvanceFilterField(
+                key: 'productType',
+                label: 'Product Type',
+                hint: 'Select Product Type',
+                items: ProductMockData.allProductTypes,
+              ),
+              AdvanceFilterField(
+                key: 'status',
+                label: 'Status',
+                hint: 'Select Status',
+                items: ProductMockData.allStatuses,
+              ),
             ],
             values: _productFilters,
             onChanged: (v) => setState(() => _productFilters.addAll(v)),
@@ -231,7 +278,9 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
               height: 38,
               decoration: BoxDecoration(
                 color: _isListView ? headerColor : Colors.white,
-                borderRadius: const BorderRadius.horizontal(left: Radius.circular(7)),
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(7),
+                ),
               ),
               child: Icon(
                 Icons.format_list_bulleted,
@@ -247,7 +296,9 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
               height: 38,
               decoration: BoxDecoration(
                 color: !_isListView ? headerColor : Colors.white,
-                borderRadius: const BorderRadius.horizontal(right: Radius.circular(7)),
+                borderRadius: const BorderRadius.horizontal(
+                  right: Radius.circular(7),
+                ),
               ),
               child: Icon(
                 Icons.grid_view_rounded,
@@ -309,7 +360,11 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
                             ),
                           );
                         },
-                        child: Icon(Icons.copy, size: 14, color: Colors.grey.shade400),
+                        child: Icon(
+                          Icons.copy,
+                          size: 14,
+                          color: Colors.grey.shade400,
+                        ),
                       ),
                       const Spacer(),
                       _statusBadge(product.status),
@@ -322,7 +377,11 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
                       Expanded(
                         child: Text(
                           product.name,
-                          style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                            height: 1.4,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -337,7 +396,11 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
                             ),
                           );
                         },
-                        child: Icon(Icons.copy, size: 14, color: Colors.grey.shade400),
+                        child: Icon(
+                          Icons.copy,
+                          size: 14,
+                          color: Colors.grey.shade400,
+                        ),
                       ),
                     ],
                   ),
@@ -355,7 +418,11 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.grey.shade200),
                         ),
-                        child: Icon(Icons.image_outlined, size: 30, color: Colors.grey.shade300),
+                        child: Icon(
+                          Icons.image_outlined,
+                          size: 30,
+                          color: Colors.grey.shade300,
+                        ),
                       ),
                       const SizedBox(width: 14),
                       // Left UOM column
@@ -375,7 +442,11 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _uomRow('Alternative UOM:', product.alternativeUOM, true),
+                            _uomRow(
+                              'Alternative UOM:',
+                              product.alternativeUOM,
+                              true,
+                            ),
                             _uomRow('SOH WHSO:', '${product.sohWHSO}', false),
                             _uomRow('SOH IT:', '${product.sohIT}', false),
                           ],
@@ -415,7 +486,9 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
                     ),
                   ),
                   Icon(
-                    isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    isExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
                     size: 20,
                     color: Colors.grey.shade500,
                   ),
@@ -515,7 +588,10 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
           Expanded(
             child: Text(
               value,
-              style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
         ],
@@ -548,10 +624,10 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
           child: _selectedSubcategory != null
               ? _buildSubcategoryProductsGrid()
               : _selectedCategory != null
-                  ? _buildSubcategoriesGrid()
-                  : _selectedSegment != null
-                      ? _buildCategoriesGrid()
-                      : _buildSegmentsGrid(),
+              ? _buildSubcategoriesGrid()
+              : _selectedSegment != null
+              ? _buildCategoriesGrid()
+              : _buildSegmentsGrid(),
         ),
       ],
     );
@@ -611,10 +687,7 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
           child: Text(
             _selectedSegment!.name,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              color: AppColors.textMuted,
-            ),
+            style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
           ),
         ),
         Expanded(
@@ -687,7 +760,8 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
                   itemBuilder: (_, i) => _gridCard(
                     icon: subcategories[i].icon,
                     label: subcategories[i].name,
-                    onTap: () => setState(() => _selectedSubcategory = subcategories[i]),
+                    onTap: () =>
+                        setState(() => _selectedSubcategory = subcategories[i]),
                   ),
                 ),
         ),
@@ -787,7 +861,11 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
                     ),
                   ),
                   const SizedBox(width: 4),
-                  Icon(Icons.chevron_right, size: 16, color: Colors.grey.shade400),
+                  Icon(
+                    Icons.chevron_right,
+                    size: 16,
+                    color: Colors.grey.shade400,
+                  ),
                 ],
               ),
             ),
@@ -819,9 +897,15 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.grey.shade100,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(12),
+                  ),
                 ),
-                child: Icon(Icons.image_outlined, size: 50, color: Colors.grey.shade300),
+                child: Icon(
+                  Icons.image_outlined,
+                  size: 50,
+                  color: Colors.grey.shade300,
+                ),
               ),
             ),
             Padding(
@@ -867,7 +951,11 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.inventory_2_outlined, size: 64, color: AppColors.textMuted),
+          Icon(
+            Icons.inventory_2_outlined,
+            size: 64,
+            color: AppColors.textMuted,
+          ),
           const SizedBox(height: 16),
           Text(
             'No products found',
@@ -896,9 +984,18 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
   int _sellPriceSubTab = 0;
 
   static const _tabLabels = [
-    'Identification', 'Attribute', 'Dimensions & Weight', 'Custom Label',
-    'Alternative UOM', 'Sell Price', 'Phantom BOM', 'Documentation',
-    'Transaction', 'Where Used', 'Alternative Products', 'Audit',
+    'Identification',
+    'Attribute',
+    'Dimensions & Weight',
+    'Custom Label',
+    'Alternative UOM',
+    'Sell Price',
+    'Phantom BOM',
+    'Documentation',
+    'Transaction',
+    'Where Used',
+    'Alternative Products',
+    'Audit',
   ];
 
   @override
@@ -945,7 +1042,11 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(color: Colors.grey.shade200),
                           ),
-                          child: Icon(Icons.image_outlined, size: 30, color: Colors.grey.shade300),
+                          child: Icon(
+                            Icons.image_outlined,
+                            size: 30,
+                            color: Colors.grey.shade300,
+                          ),
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -1015,7 +1116,11 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
       ),
       child: Text(
         status,
-        style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.white),
+        style: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -1038,7 +1143,10 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
           Expanded(
             child: Text(
               value,
-              style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
         ],
@@ -1240,10 +1348,25 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
           ),
           child: Row(
             children: [
-              Expanded(flex: 2, child: Text('UOM Option', style: _tableHeaderStyle())),
-              Expanded(flex: 2, child: Text('Select UOM', style: _tableHeaderStyle())),
-              Expanded(flex: 2, child: Text('Code', style: _tableHeaderStyle())),
-              Expanded(flex: 2, child: Text('UOM Conversion Factor', style: _tableHeaderStyle())),
+              Expanded(
+                flex: 2,
+                child: Text('UOM Option', style: _tableHeaderStyle()),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text('Select UOM', style: _tableHeaderStyle()),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text('Code', style: _tableHeaderStyle()),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  'UOM Conversion Factor',
+                  style: _tableHeaderStyle(),
+                ),
+              ),
             ],
           ),
         ),
@@ -1255,8 +1378,17 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
           ),
           child: Row(
             children: [
-              Expanded(flex: 2, child: Text('Base UOM', style: _tableCellStyle())),
-              Expanded(flex: 2, child: Text(p.alternativeUOM.isNotEmpty ? p.alternativeUOM : 'Each', style: _tableCellStyle())),
+              Expanded(
+                flex: 2,
+                child: Text('Base UOM', style: _tableCellStyle()),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(
+                  p.alternativeUOM.isNotEmpty ? p.alternativeUOM : 'Each',
+                  style: _tableCellStyle(),
+                ),
+              ),
               Expanded(flex: 2, child: Text(p.code, style: _tableCellStyle())),
               Expanded(flex: 2, child: Text('1', style: _tableCellStyle())),
             ],
@@ -1323,10 +1455,19 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
           ),
           child: Row(
             children: [
-              Expanded(flex: 2, child: Text('Product Code', style: _tableHeaderStyle())),
+              Expanded(
+                flex: 2,
+                child: Text('Product Code', style: _tableHeaderStyle()),
+              ),
               Expanded(flex: 2, child: Text('UOM', style: _tableHeaderStyle())),
-              Expanded(flex: 1, child: Text('Curr.', style: _tableHeaderStyle())),
-              Expanded(flex: 1, child: Text('Retail', style: _tableHeaderStyle())),
+              Expanded(
+                flex: 1,
+                child: Text('Curr.', style: _tableHeaderStyle()),
+              ),
+              Expanded(
+                flex: 1,
+                child: Text('Retail', style: _tableHeaderStyle()),
+              ),
             ],
           ),
         ),
@@ -1338,7 +1479,10 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
           child: Row(
             children: [
               Expanded(flex: 2, child: Text(p.code, style: _tableCellStyle())),
-              Expanded(flex: 2, child: Text(p.baseUOM, style: _tableCellStyle())),
+              Expanded(
+                flex: 2,
+                child: Text(p.baseUOM, style: _tableCellStyle()),
+              ),
               Expanded(flex: 1, child: Text('0', style: _tableCellStyle())),
               Expanded(flex: 1, child: Text('1.00', style: _tableCellStyle())),
             ],
@@ -1359,10 +1503,19 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
           ),
           child: Row(
             children: [
-              Expanded(flex: 2, child: Text('Product Code', style: _tableHeaderStyle())),
+              Expanded(
+                flex: 2,
+                child: Text('Product Code', style: _tableHeaderStyle()),
+              ),
               Expanded(flex: 2, child: Text('UOM', style: _tableHeaderStyle())),
-              Expanded(flex: 1, child: Text('Curr.', style: _tableHeaderStyle())),
-              Expanded(flex: 1, child: Text('Cost', style: _tableHeaderStyle())),
+              Expanded(
+                flex: 1,
+                child: Text('Curr.', style: _tableHeaderStyle()),
+              ),
+              Expanded(
+                flex: 1,
+                child: Text('Cost', style: _tableHeaderStyle()),
+              ),
             ],
           ),
         ),
@@ -1374,7 +1527,10 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
           child: Row(
             children: [
               Expanded(flex: 2, child: Text(p.code, style: _tableCellStyle())),
-              Expanded(flex: 2, child: Text(p.baseUOM, style: _tableCellStyle())),
+              Expanded(
+                flex: 2,
+                child: Text(p.baseUOM, style: _tableCellStyle()),
+              ),
               Expanded(flex: 1, child: Text('0', style: _tableCellStyle())),
               Expanded(flex: 1, child: Text('0.00', style: _tableCellStyle())),
             ],
@@ -1391,7 +1547,10 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
   Widget _buildPhantomBOMTab(Product p) {
     final bomItems = _getMockBOMItems(p);
     if (bomItems.isEmpty) {
-      return _buildEmptyTabState('No BOM Items', 'There is no data on this tab.');
+      return _buildEmptyTabState(
+        'No BOM Items',
+        'There is no data on this tab.',
+      );
     }
     return Column(
       children: [
@@ -1405,9 +1564,19 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
           child: Row(
             children: [
               SizedBox(width: 30, child: Text('#', style: _tableHeaderStyle())),
-              SizedBox(width: 60, child: Text('Thumbnail', style: _tableHeaderStyle())),
+              SizedBox(
+                width: 60,
+                child: Text('Thumbnail', style: _tableHeaderStyle()),
+              ),
               Expanded(child: Text('Product', style: _tableHeaderStyle())),
-              SizedBox(width: 60, child: Text('Quantity', style: _tableHeaderStyle(), textAlign: TextAlign.right)),
+              SizedBox(
+                width: 60,
+                child: Text(
+                  'Quantity',
+                  style: _tableHeaderStyle(),
+                  textAlign: TextAlign.right,
+                ),
+              ),
             ],
           ),
         ),
@@ -1422,7 +1591,10 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
             ),
             child: Row(
               children: [
-                SizedBox(width: 30, child: Text('$idx', style: _tableCellStyle())),
+                SizedBox(
+                  width: 30,
+                  child: Text('$idx', style: _tableCellStyle()),
+                ),
                 Container(
                   width: 50,
                   height: 40,
@@ -1432,7 +1604,11 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(color: Colors.grey.shade200),
                   ),
-                  child: Icon(Icons.image_outlined, size: 20, color: Colors.grey.shade300),
+                  child: Icon(
+                    Icons.image_outlined,
+                    size: 20,
+                    color: Colors.grey.shade300,
+                  ),
                 ),
                 Expanded(
                   child: Text(
@@ -1459,13 +1635,46 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
   List<Map<String, String>> _getMockBOMItems(Product p) {
     if (p.bomType == 'No BOM') return [];
     return [
-      {'code': 'AFI-000029', 'name': 'Aluminium Channel 75 x 25 × 1.2 Wall x 6000mm Long', 'qty': '10.00'},
-      {'code': 'AFI-004006', 'name': 'EPS Sandwich Pannel 15kg/cbm 1150 wide x 2000 Long x 75mm Thick - Color White', 'qty': '4.00'},
-      {'code': 'AFI-003988', 'name': 'EPS Sandwich Pannel 15kg/cbm 1150 wide x 2500 Long x 75mm Thick - Color White', 'qty': '4.00'},
-      {'code': 'AFI-004028', 'name': 'EPS Sandwich Pannel 15kg/cbm 1150 wide x 3000 Long x 75mm Thick - Color White', 'qty': '6.00'},
-      {'code': 'AFI-004190', 'name': 'EPS Sandwich Pannel 15kg/cbm 1150 Wide x 3500 Long x 75mm Thick - Color White', 'qty': '1.00'},
-      {'code': 'AFI-003963', 'name': 'EPS Sandwich Pannel 15kg/cbm 1150 wide x 4600 Long x 75mm Thick - Color White', 'qty': '2.00'},
-      {'code': 'AFI-002067', 'name': 'Female Beam - Back - 80mm x 80mm x 8075mm Long', 'qty': '1.00'},
+      {
+        'code': 'AFI-000029',
+        'name': 'Aluminium Channel 75 x 25 × 1.2 Wall x 6000mm Long',
+        'qty': '10.00',
+      },
+      {
+        'code': 'AFI-004006',
+        'name':
+            'EPS Sandwich Pannel 15kg/cbm 1150 wide x 2000 Long x 75mm Thick - Color White',
+        'qty': '4.00',
+      },
+      {
+        'code': 'AFI-003988',
+        'name':
+            'EPS Sandwich Pannel 15kg/cbm 1150 wide x 2500 Long x 75mm Thick - Color White',
+        'qty': '4.00',
+      },
+      {
+        'code': 'AFI-004028',
+        'name':
+            'EPS Sandwich Pannel 15kg/cbm 1150 wide x 3000 Long x 75mm Thick - Color White',
+        'qty': '6.00',
+      },
+      {
+        'code': 'AFI-004190',
+        'name':
+            'EPS Sandwich Pannel 15kg/cbm 1150 Wide x 3500 Long x 75mm Thick - Color White',
+        'qty': '1.00',
+      },
+      {
+        'code': 'AFI-003963',
+        'name':
+            'EPS Sandwich Pannel 15kg/cbm 1150 wide x 4600 Long x 75mm Thick - Color White',
+        'qty': '2.00',
+      },
+      {
+        'code': 'AFI-002067',
+        'name': 'Female Beam - Back - 80mm x 80mm x 8075mm Long',
+        'qty': '1.00',
+      },
     ];
   }
 
@@ -1474,19 +1683,31 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildDocumentationTab() {
-    return _buildEmptyTabState('No Documentation Found', 'There is no data on this tab.');
+    return _buildEmptyTabState(
+      'No Documentation Found',
+      'There is no data on this tab.',
+    );
   }
 
   Widget _buildTransactionTab() {
-    return _buildEmptyTabState('No Transaction Found', 'There is no data on this tab.');
+    return _buildEmptyTabState(
+      'No Transaction Found',
+      'There is no data on this tab.',
+    );
   }
 
   Widget _buildWhereUsedTab() {
-    return _buildEmptyTabState('No Where Used Found', 'There is no data on this tab.');
+    return _buildEmptyTabState(
+      'No Where Used Found',
+      'There is no data on this tab.',
+    );
   }
 
   Widget _buildAlternativeProductsTab() {
-    return _buildEmptyTabState('No Alternative Products', 'There is no data on this tab.');
+    return _buildEmptyTabState(
+      'No Alternative Products',
+      'There is no data on this tab.',
+    );
   }
 
   Widget _buildAuditTab() {
@@ -1532,9 +1753,6 @@ class _ProductDetailSheetState extends State<_ProductDetailSheet> {
   }
 
   TextStyle _tableCellStyle() {
-    return GoogleFonts.inter(
-      fontSize: 11,
-      color: AppColors.textPrimary,
-    );
+    return GoogleFonts.inter(fontSize: 11, color: AppColors.textPrimary);
   }
 }
