@@ -117,7 +117,6 @@ class _CompanySelectionScreenState extends State<CompanySelectionScreen> {
                     ),
                     child: Row(
                       children: [
-                        // Company initial
                         Container(
                           width: 40,
                           height: 40,
