@@ -148,8 +148,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           return InkWell(
                             onTap: () {
                               localSetState(() {
-                                if (selected) tempSelected.remove(label);
-                                else tempSelected.add(label);
+                                if (selected) {
+                                  tempSelected.remove(label);
+                                } else {
+                                  tempSelected.add(label);
+                                }
                               });
                               setState(() {
                                 _selectedStatuses..clear()..addAll(tempSelected);

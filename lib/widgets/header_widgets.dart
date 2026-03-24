@@ -44,7 +44,9 @@ class _DashboardHeaderState extends State<DashboardHeader>
     if (n.contains('pacific')) return 'assets/PHC.svg';
     if (n.contains('farm') && n.contains('australia')) return 'assets/AFI.svg';
     if (n.contains('software')) return 'assets/AST.svg';
-    if (n.contains('innovative') && (n.contains('fiber') || n.contains('fibre'))) return 'assets/IFI.svg';
+    if (n.contains('innovative') &&
+        (n.contains('fiber') || n.contains('fibre')))
+      return 'assets/IFI.svg';
     return 'assets/AST.svg';
   }
 
@@ -73,17 +75,30 @@ class _DashboardHeaderState extends State<DashboardHeader>
       ),
       items: companies.asMap().entries.map((e) {
         final c = e.value;
+        final color = state.companyColor(c);
         return PopupMenuItem<int>(
           value: e.key,
-          child: Text(
-            c.name,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
-            ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
+          child: Row(
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  c.name,
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+            ],
           ),
         );
       }).toList(),
@@ -116,10 +131,11 @@ class _DashboardHeaderState extends State<DashboardHeader>
         top: MediaQuery.of(context).padding.top + 16,
         left: 20,
         right: 20,
-        bottom: 24, 
+        bottom: 24,
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center, // Vertically centers text and logo
+        crossAxisAlignment:
+            CrossAxisAlignment.center, // Vertically centers text and logo
         children: [
           Expanded(
             child: Column(
@@ -132,10 +148,10 @@ class _DashboardHeaderState extends State<DashboardHeader>
                   child: Text(
                     user.name,
                     style: GoogleFonts.inter(
-                      fontSize: 24, 
+                      fontSize: 24,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
-                      height: 1.1, 
+                      height: 1.1,
                     ),
                   ),
                 ),
@@ -150,7 +166,7 @@ class _DashboardHeaderState extends State<DashboardHeader>
                     children: [
                       Flexible(
                         // FlexFit.loose ensures the text only takes up as much space as it needs
-                        fit: FlexFit.loose, 
+                        fit: FlexFit.loose,
                         child: Text(
                           companies.isEmpty
                               ? 'No company'

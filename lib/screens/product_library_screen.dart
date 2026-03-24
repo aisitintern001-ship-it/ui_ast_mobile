@@ -55,18 +55,24 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
     final brand = _productFilters['brand'];
     final productType = _productFilters['productType'];
     final status = _productFilters['status'];
-    if (segment != null)
+    if (segment != null) {
       products = products.where((p) => p.segment == segment).toList();
-    if (category != null)
+    }
+    if (category != null) {
       products = products.where((p) => p.category == category).toList();
-    if (subCategory != null)
+    }
+    if (subCategory != null) {
       products = products.where((p) => p.subcategory == subCategory).toList();
-    if (brand != null)
+    }
+    if (brand != null) {
       products = products.where((p) => p.brand == brand).toList();
-    if (productType != null)
+    }
+    if (productType != null) {
       products = products.where((p) => p.productType == productType).toList();
-    if (status != null)
+    }
+    if (status != null) {
       products = products.where((p) => p.status == status).toList();
+    }
 
     return products;
   }

@@ -27,7 +27,8 @@ class AppState extends ChangeNotifier {
   List<FavoriteItem> get allMenuItems => MockData.allMenuItems;
 
   // Favorite categories for picker
-  List<Map<String, dynamic>> get favoriteCategories => MockData.favoriteCategories;
+  List<Map<String, dynamic>> get favoriteCategories =>
+      MockData.favoriteCategories;
 
   // Dashboard items
   List<DashboardItem> get dashboardItems => MockData.dashboardItems;
@@ -54,6 +55,21 @@ class AppState extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  Color companyColor(CompanyModel company) {
+    switch (company.id) {
+      case '1':
+        return const Color(0xFF2563EB); // Pacific Harvest Co.
+      case '2':
+        return const Color(0xFFF97316); // Australia Farm Innovations
+      case '3':
+        return const Color(0xFF7561DB); // Australia Software Technology
+      case '4':
+        return const Color(0xFF10B981); // Innovative Fibre Industries
+      default:
+        return AppColors.headerOrange;
+    }
+  }
+
   void setHeaderColor(Color color) {
     _headerColor = color;
     notifyListeners();
@@ -64,22 +80,7 @@ class AppState extends ChangeNotifier {
 
     // Update header color based on selected company name
     if (company != null) {
-      switch (company.name) {
-        case 'Pacific Harvest Co.':
-          _headerColor = const Color(0xFF2563EB); // blue (wireframe)
-          break;
-        case 'Australia Farm Innovations':
-          _headerColor = const Color(0xFFF97316); // orange
-          break;
-        case 'Australia Software Technology':
-          _headerColor = const Color.fromARGB(255, 117, 97, 219); // blue
-          break;
-        case 'Innovative Fibre Industries':
-          _headerColor = const Color(0xFF10B981); // green
-          break;
-        default:
-          _headerColor = AppColors.headerOrange;
-      }
+      _headerColor = companyColor(company);
     } else {
       _headerColor = AppColors.headerOrange;
     }
@@ -144,7 +145,8 @@ class AppState extends ChangeNotifier {
   static const int maxFavorites = 5;
 
   void addFavorite(FavoriteItem item) {
-    if (!_favorites.any((f) => f.id == item.id) && _favorites.length < maxFavorites) {
+    if (!_favorites.any((f) => f.id == item.id) &&
+        _favorites.length < maxFavorites) {
       _favorites.add(item);
       notifyListeners();
     }
@@ -166,10 +168,15 @@ class AppState extends ChangeNotifier {
 
   List<DashboardItem> get filteredDashboardItems {
     if (_dashboardFilter == 'All') return dashboardItems;
-    return dashboardItems.where((item) => item.category == _dashboardFilter).toList();
+    return dashboardItems
+        .where((item) => item.category == _dashboardFilter)
+        .toList();
   }
 
-  int get pendingCount => dashboardItems.where((i) => i.category == 'Pending').length;
-  int get approvedCount => dashboardItems.where((i) => i.category == 'Approved').length;
-  int get sentForReviewCount => dashboardItems.where((i) => i.category == 'Sent for Review').length;
+  int get pendingCount =>
+      dashboardItems.where((i) => i.category == 'Pending').length;
+  int get approvedCount =>
+      dashboardItems.where((i) => i.category == 'Approved').length;
+  int get sentForReviewCount =>
+      dashboardItems.where((i) => i.category == 'Sent for Review').length;
 }

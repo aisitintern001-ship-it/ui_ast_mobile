@@ -479,7 +479,7 @@ class _FilterDropdown extends StatelessWidget {
         SizedBox(
           height: 38,
           child: DropdownButtonFormField<String>(
-            value: value,
+            initialValue: value,
             items: items
                 .map(
                   (e) => DropdownMenuItem(

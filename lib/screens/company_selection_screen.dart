@@ -98,6 +98,7 @@ class _CompanySelectionScreenState extends State<CompanySelectionScreen> {
               itemBuilder: (context, index) {
                 final company = filtered[index];
                 final isSelected = state.selectedCompany?.id == company.id;
+                final companyColor = state.companyColor(company);
 
                 return GestureDetector(
                   onTap: () {
@@ -108,29 +109,31 @@ class _CompanySelectionScreenState extends State<CompanySelectionScreen> {
                     margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: isSelected
+                          ? companyColor.withOpacity(0.08)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isSelected ? headerColor : AppColors.divider,
+                        color: isSelected ? companyColor : AppColors.divider,
                         width: isSelected ? 1.5 : 1,
                       ),
                     ),
                     child: Row(
                       children: [
                         Container(
-                          width: 40,
-                          height: 40,
+                          width: 18,
+                          height: 18,
                           decoration: BoxDecoration(
-                            color: headerColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            color: companyColor.withOpacity(0.12),
+                            shape: BoxShape.circle,
                           ),
                           child: Center(
-                            child: Text(
-                              company.name[0],
-                              style: GoogleFonts.inter(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: headerColor,
+                            child: Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                color: companyColor,
+                                shape: BoxShape.circle,
                               ),
                             ),
                           ),
@@ -183,7 +186,7 @@ class _CompanySelectionScreenState extends State<CompanySelectionScreen> {
                                       padding: const EdgeInsets.only(left: 8),
                                       child: Icon(
                                         Icons.keyboard_arrow_right_rounded,
-                                        color: headerColor,
+                                        color: companyColor,
                                         size: 20,
                                       ),
                                     ),

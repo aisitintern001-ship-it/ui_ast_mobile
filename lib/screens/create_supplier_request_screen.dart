@@ -301,7 +301,7 @@ class _CreateSupplierRequestScreenState
               Switch(
                 value: _accountActive,
                 onChanged: (v) => setState(() => _accountActive = v),
-                activeColor: const Color(0xFF2181FF),
+                activeThumbColor: const Color(0xFF2181FF),
               ),
             ],
           ),
@@ -972,7 +972,7 @@ class _CreateSupplierRequestScreenState
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: const Color(0xFF2181FF),
+            activeThumbColor: const Color(0xFF2181FF),
           ),
         ],
       ),

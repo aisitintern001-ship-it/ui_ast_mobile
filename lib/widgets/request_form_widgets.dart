@@ -328,7 +328,7 @@ class FormSwitchRow extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: const Color(0xFF2181FF),
+            activeThumbColor: const Color(0xFF2181FF),
           ),
         ],
       ),

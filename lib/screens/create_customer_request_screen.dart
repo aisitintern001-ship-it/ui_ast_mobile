@@ -574,7 +574,7 @@ class _CreateCustomerRequestScreenState
               Switch(
                 value: _exceptHold,
                 onChanged: (v) => setState(() => _exceptHold = v),
-                activeColor: const Color(0xFF2181FF),
+                activeThumbColor: const Color(0xFF2181FF),
               ),
             ],
           ),
