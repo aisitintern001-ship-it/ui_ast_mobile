@@ -45,8 +45,9 @@ class _DashboardHeaderState extends State<DashboardHeader>
     if (n.contains('farm') && n.contains('australia')) return 'assets/AFI.svg';
     if (n.contains('software')) return 'assets/AST.svg';
     if (n.contains('innovative') &&
-        (n.contains('fiber') || n.contains('fibre')))
+        (n.contains('fiber') || n.contains('fibre'))) {
       return 'assets/IFI.svg';
+    }
     return 'assets/AST.svg';
   }
 
@@ -173,7 +174,7 @@ class _DashboardHeaderState extends State<DashboardHeader>
                               : (selected?.name ?? companies.first.name),
                           style: GoogleFonts.inter(
                             fontSize: 14,
-                            color: Colors.white.withOpacity(0.95),
+                            color: Colors.white.withValues(alpha: 0.95),
                             fontWeight: FontWeight.w500,
                           ),
                           overflow: TextOverflow.ellipsis,

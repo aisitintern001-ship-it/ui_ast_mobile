@@ -8,7 +8,7 @@ import '../widgets/text_input.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/offline_tab_widget.dart';
 import '../widgets/add_button_widget.dart'; // <-- IMPORT REUSABLE BUTTON
-import 'create_supplier_request_screen.dart';
+import 'supplier_request/supplier_request_screen.dart' as supplier_form;
 
 class SupplierRequestScreen extends StatefulWidget {
   const SupplierRequestScreen({super.key});
@@ -30,7 +30,7 @@ class _SupplierRequestScreenState extends State<SupplierRequestScreen> {
   ];
 
   void _openCreateSupplier() {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => const CreateSupplierRequestScreen()));
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const supplier_form.SupplierRequestScreen()));
   }
 
   @override
@@ -172,8 +172,8 @@ class _SupplierRequestScreenState extends State<SupplierRequestScreen> {
         onTap: () => setState(() => selectedFilter = value),
         child: Container(
           constraints: const BoxConstraints(minHeight: 36), alignment: Alignment.center,
-          decoration: BoxDecoration(color: isSelected ? const Color(0xFF2181FF) : Colors.white, border: isSelected ? null : Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
-          child: Text(label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: isSelected ? Colors.white : Colors.grey.shade700)),
+          decoration: BoxDecoration(color: Colors.white, border: Border.all(color: isSelected ? const Color(0xFF2181FF) : Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
+          child: Text(label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: isSelected ? const Color(0xFF2181FF) : Colors.grey.shade700)),
         ),
       ),
     );

@@ -110,7 +110,7 @@ class _CompanySelectionScreenState extends State<CompanySelectionScreen> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? companyColor.withOpacity(0.08)
+                          ? companyColor.withValues(alpha: 0.08)
                           : Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
@@ -124,7 +124,7 @@ class _CompanySelectionScreenState extends State<CompanySelectionScreen> {
                           width: 18,
                           height: 18,
                           decoration: BoxDecoration(
-                            color: companyColor.withOpacity(0.12),
+                            color: companyColor.withValues(alpha: 0.12),
                             shape: BoxShape.circle,
                           ),
                           child: Center(

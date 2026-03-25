@@ -61,12 +61,14 @@ class FormSectionLabel extends StatelessWidget {
   }
 }
 
-/// Radio option with custom orange dot style
+/// Radio option with custom light blue dot style
 class FormRadioOption extends StatelessWidget {
   final String label;
   final int value;
   final int groupValue;
   final ValueChanged<int> onChanged;
+
+  static const Color _selectedColor = Color(0xFF2181FF);
 
   const FormRadioOption({
     super.key,
@@ -91,7 +93,7 @@ class FormRadioOption extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(
                 color: isSelected
-                    ? AppColors.headerOrange
+                    ? _selectedColor
                     : Colors.grey.shade400,
                 width: 2,
               ),
@@ -103,7 +105,7 @@ class FormRadioOption extends StatelessWidget {
                       height: 10,
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.headerOrange,
+                        color: _selectedColor,
                       ),
                     ),
                   )
@@ -119,6 +121,80 @@ class FormRadioOption extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Status toggle button - pill-shaped toggle for status selection
+/// Unselected: outlined with gray border and gray text
+/// Selected: blue background with white text
+class StatusToggleButton extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  static const Color _selectedColor = Color(0xFF2181FF);
+
+  const StatusToggleButton({
+    super.key,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? _selectedColor : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? _selectedColor : Colors.grey.shade300,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: isSelected ? Colors.white : Colors.grey.shade600,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Status toggle button group - horizontal row of status toggles
+class StatusToggleGroup extends StatelessWidget {
+  final List<String> options;
+  final String selectedValue;
+  final ValueChanged<String> onChanged;
+
+  const StatusToggleGroup({
+    super.key,
+    required this.options,
+    required this.selectedValue,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: options.map((option) {
+        return StatusToggleButton(
+          label: option,
+          isSelected: option == selectedValue,
+          onTap: () => onChanged(option),
+        );
+      }).toList(),
     );
   }
 }
@@ -200,7 +276,7 @@ class FormDropdownField extends StatelessWidget {
                         text: ' *',
                         style: GoogleFonts.inter(
                           fontSize: 14,
-                          color: AppColors.headerOrange,
+                          color: const Color(0xFF2181FF),
                         ),
                       ),
                     ]
@@ -240,7 +316,7 @@ class FormDateField extends StatelessWidget {
       },
       child: Container(
         constraints: const BoxConstraints(minHeight: 48),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.grey.shade300),
@@ -249,11 +325,13 @@ class FormDateField extends StatelessWidget {
           children: [
             Icon(Icons.calendar_today, size: 16, color: Colors.grey.shade500),
             const SizedBox(width: 12),
-            Text(
-              _formatDate(date),
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: AppColors.textPrimary,
+            Expanded(
+              child: Text(
+                'Date Account Opened - ${_formatDate(date)}',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ),
           ],
@@ -302,6 +380,8 @@ class FormSwitchRow extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
 
+  static const Color _activeColor = Color(0xFF2181FF);
+
   const FormSwitchRow({
     super.key,
     required this.label,
@@ -328,7 +408,13 @@ class FormSwitchRow extends StatelessWidget {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: const Color(0xFF2181FF),
+            activeThumbColor: Colors.white,
+            activeTrackColor: _activeColor,
+            inactiveThumbColor: Colors.white,
+            inactiveTrackColor: const Color(0xFFE0E0E0),
+            trackOutlineColor: WidgetStateProperty.resolveWith((states) {
+              return Colors.transparent;
+            }),
           ),
         ],
       ),
@@ -463,24 +549,21 @@ class FormTabBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      height: 48, // Fixed height for the pill container
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade300),
       ),
-      clipBehavior: Clip.antiAlias,
       child: AnimatedBuilder(
         animation: controller,
         builder: (context, child) {
           return Row(
-            // Row without SingleChildScrollView forces all items to fit on screen
             children: labels.asMap().entries.map((entry) {
               int index = entry.key;
               String label = entry.value;
               bool isSelected = controller.index == index;
 
-              // Expanded forces each tab to take exactly equal width (1/7th of the screen)
               return Expanded(
                 child: GestureDetector(
                   onTap: () {
@@ -488,32 +571,21 @@ class FormTabBar extends StatelessWidget {
                   },
                   behavior: HitTestBehavior.opaque,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 2,
-                    ), // Tiny padding
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
                     decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: isSelected
-                              ? const Color(0xFF2181FF)
-                              : Colors.transparent,
-                          width: 3, // Thickness of the underline
-                        ),
-                      ),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     alignment: Alignment.center,
-                    // FittedBox scales the text down instead of wrapping to a second line
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
                         label,
-                        maxLines: 1, // Strictly forbids stacking
+                        maxLines: 1,
                         style: GoogleFonts.inter(
-                          fontSize:
-                              12, // Slightly smaller base font to help it fit
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.w500,
+                          fontSize: 10,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.w500,
                           color: isSelected
                               ? const Color(0xFF2181FF)
                               : Colors.grey.shade500,

@@ -5,7 +5,6 @@ import '../models/app_state.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../screens/team_leave_requests_screen.dart';
-import '../screens/expense_claim_screen.dart';
 
 class FavoritesSection extends StatelessWidget {
   final VoidCallback? onViewAll;

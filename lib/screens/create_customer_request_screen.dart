@@ -215,8 +215,6 @@ class _CreateCustomerRequestScreenState
           const SizedBox(height: 20),
 
           // Date Account Opened
-          const FormSectionLabel("Date Account Opened"),
-          const SizedBox(height: 8),
           FormDateField(
             date: _dateAccountOpened,
             onChanged: (picked) => setState(() => _dateAccountOpened = picked),
@@ -239,7 +237,11 @@ class _CreateCustomerRequestScreenState
               Switch(
                 value: _accountActive,
                 onChanged: (v) => setState(() => _accountActive = v),
-                activeThumbColor: const Color(0xFF2181FF),
+                activeThumbColor: Colors.white,
+                activeTrackColor: const Color(0xFF2181FF),
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: const Color(0xFFE0E0E0),
+                trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
               ),
             ],
           ),
@@ -574,7 +576,11 @@ class _CreateCustomerRequestScreenState
               Switch(
                 value: _exceptHold,
                 onChanged: (v) => setState(() => _exceptHold = v),
-                activeThumbColor: const Color(0xFF2181FF),
+                activeThumbColor: Colors.white,
+                activeTrackColor: const Color(0xFF2181FF),
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: const Color(0xFFE0E0E0),
+                trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
               ),
             ],
           ),

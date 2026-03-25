@@ -49,7 +49,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     _showHistory = widget.initialShowHistory;
   }
 
-  Future<void> _handleFaceAction(BuildContext context, String action) async {
+  Future<void> _handleFaceAction(String action) async {
     final result = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => FaceRecognitionScreen(mode: action)));
     if (!mounted) return;
     if (result == true) {
@@ -59,13 +59,17 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
         _showFailed = false;
         _failedAction = null;
       });
-      AppToast.show(context, type: ToastType.success, title: '$action Record Successfully', message: '$action was successfully recorded!');
+      if (mounted) {
+        AppToast.show(context, type: ToastType.success, title: '$action Record Successfully', message: '$action was successfully recorded!');
+      }
     } else {
       setState(() {
         _showFailed = true;
         _failedAction = action;
       });
-      AppToast.show(context, type: ToastType.error, title: '$action Failed', message: 'Face verification failed. Please try again.');
+      if (mounted) {
+        AppToast.show(context, type: ToastType.error, title: '$action Failed', message: 'Face verification failed. Please try again.');
+      }
     }
   }
 
@@ -164,8 +168,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                 children: [
                                   Container(
                                     width: 18, height: 18,
-                                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: selected ? AppColors.headerOrange : AppColors.textMuted, width: 1.5)),
-                                    child: selected ? Center(child: Container(width: 10, height: 10, decoration: const BoxDecoration(color: AppColors.headerOrange, shape: BoxShape.circle))) : null,
+                                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: selected ? const Color(0xFF2181FF) : AppColors.textMuted, width: 1.5)),
+                                    child: selected ? Center(child: Container(width: 10, height: 10, decoration: const BoxDecoration(color: Color(0xFF2181FF), shape: BoxShape.circle))) : null,
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(child: Text(label, style: GoogleFonts.inter(fontSize: 13))),
@@ -237,7 +241,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                         children: [
                           Expanded(
                             child: ElevatedButton.icon(
-                              onPressed: () => _handleFaceAction(context, 'Time In'),
+                              onPressed: () => _handleFaceAction('Time In'),
                               icon: const Icon(Icons.access_time_rounded, size: 18),
                               label: Text('Time In', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
                               style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
@@ -246,7 +250,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: ElevatedButton.icon(
-                              onPressed: () => _handleFaceAction(context, 'Time Out'),
+                              onPressed: () => _handleFaceAction('Time Out'),
                               icon: const Icon(Icons.access_time_rounded, size: 18),
                               label: Text('Time Out', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
                               style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
@@ -271,7 +275,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
                                   onPressed: () {
-                                    if (_failedAction != null) _handleFaceAction(context, _failedAction!);
+                                    if (_failedAction != null) _handleFaceAction(_failedAction!);
                                   },
                                   icon: const Icon(Icons.refresh_rounded, size: 18),
                                   label: Text('Try Again', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600)),
@@ -529,8 +533,8 @@ class _HistoryRecordCard extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [ _metricRow('Normal Hours', record.normalHours), _metricRow('Overtime Hours', record.overtimeHours) ])),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [ _metricRow('Night Differential', 0), _metricRow('Public Holiday', 0) ])),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [ _MetricRow('Normal Hours', record.normalHours), _MetricRow('Overtime Hours', record.overtimeHours) ])),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: const [ _MetricRow('Night Differential', 0), _MetricRow('Public Holiday', 0) ])),
             ],
           ),
         ],
@@ -539,10 +543,10 @@ class _HistoryRecordCard extends StatelessWidget {
   }
 }
 
-class _metricRow extends StatelessWidget {
+class _MetricRow extends StatelessWidget {
   final String label;
   final double value;
-  const _metricRow(this.label, this.value);
+  const _MetricRow(this.label, this.value);
   @override
   Widget build(BuildContext context) {
     return Padding(

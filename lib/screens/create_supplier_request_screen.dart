@@ -278,8 +278,6 @@ class _CreateSupplierRequestScreenState
           const SizedBox(height: 20),
 
           // Date Account Opened
-          _sectionLabel("Date Account Opened"),
-          const SizedBox(height: 8),
           _buildDateField(_dateAccountOpened, (picked) {
             setState(() => _dateAccountOpened = picked);
           }),
@@ -301,7 +299,11 @@ class _CreateSupplierRequestScreenState
               Switch(
                 value: _accountActive,
                 onChanged: (v) => setState(() => _accountActive = v),
-                activeThumbColor: const Color(0xFF2181FF),
+                activeThumbColor: Colors.white,
+                activeTrackColor: const Color(0xFF2181FF),
+                inactiveThumbColor: Colors.white,
+                inactiveTrackColor: const Color(0xFFE0E0E0),
+                trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
               ),
             ],
           ),
@@ -766,6 +768,7 @@ class _CreateSupplierRequestScreenState
     ValueChanged<int> onChanged,
   ) {
     final isSelected = value == groupValue;
+    const selectedColor = Color(0xFF2181FF);
     return GestureDetector(
       onTap: () => onChanged(value),
       child: Row(
@@ -778,7 +781,7 @@ class _CreateSupplierRequestScreenState
               shape: BoxShape.circle,
               border: Border.all(
                 color: isSelected
-                    ? AppColors.headerOrange
+                    ? selectedColor
                     : Colors.grey.shade400,
                 width: 2,
               ),
@@ -790,7 +793,7 @@ class _CreateSupplierRequestScreenState
                       height: 10,
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.headerOrange,
+                        color: selectedColor,
                       ),
                     ),
                   )
@@ -864,7 +867,7 @@ class _CreateSupplierRequestScreenState
                         text: ' *',
                         style: GoogleFonts.inter(
                           fontSize: 14,
-                          color: AppColors.headerOrange,
+                          color: const Color(0xFF2181FF),
                         ),
                       ),
                     ]
@@ -904,11 +907,13 @@ class _CreateSupplierRequestScreenState
           children: [
             Icon(Icons.calendar_today, size: 16, color: Colors.grey.shade500),
             const SizedBox(width: 12),
-            Text(
-              _formatDate(date),
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                color: AppColors.textPrimary,
+            Expanded(
+              child: Text(
+                'Date Account Opened - ${_formatDate(date)}',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ),
           ],
@@ -972,7 +977,11 @@ class _CreateSupplierRequestScreenState
           Switch(
             value: value,
             onChanged: onChanged,
-            activeThumbColor: const Color(0xFF2181FF),
+            activeThumbColor: Colors.white,
+            activeTrackColor: const Color(0xFF2181FF),
+            inactiveThumbColor: Colors.white,
+            inactiveTrackColor: const Color(0xFFE0E0E0),
+            trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
           ),
         ],
       ),

@@ -207,6 +207,9 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
                               setState(() => includingTaxItem = val),
                           activeThumbColor: Colors.white,
                           activeTrackColor: const Color(0xFF2181FF),
+                          inactiveThumbColor: Colors.white,
+                          inactiveTrackColor: const Color(0xFFE0E0E0),
+                          trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
                         ),
                       ],
                     ),
@@ -263,6 +266,9 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
                         setState(() => includingTaxOverall = val),
                     activeThumbColor: Colors.white,
                     activeTrackColor: const Color(0xFF2181FF),
+                    inactiveThumbColor: Colors.white,
+                    inactiveTrackColor: const Color(0xFFE0E0E0),
+                    trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
                   ),
                 ],
               ),
@@ -310,7 +316,7 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
         children: [
           Icon(
             isSelected ? Icons.radio_button_checked : Icons.radio_button_off,
-            color: isSelected ? const Color(0xFFEF532A) : Colors.grey.shade400,
+            color: isSelected ? const Color(0xFF2181FF) : Colors.grey.shade400,
             size: 20,
           ),
           const SizedBox(width: 8),
