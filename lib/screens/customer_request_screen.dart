@@ -9,7 +9,7 @@ import '../widgets/expandable_status_filter.dart';
 import '../widgets/request_form_widgets.dart';
 import '../widgets/offline_tab_widget.dart';
 import '../widgets/add_button_widget.dart'; // <-- IMPORT REUSABLE BUTTON
-import 'create_customer_request_screen.dart';
+import 'customer_request/customer_request_screen.dart';
 
 class CustomerRequestScreen extends StatefulWidget {
   const CustomerRequestScreen({super.key});
