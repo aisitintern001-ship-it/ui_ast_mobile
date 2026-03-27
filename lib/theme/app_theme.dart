@@ -33,9 +33,22 @@ class AppColors {
   static const Color iconTeal = Color(0xFF14B8A6);
   static const Color iconYellow = Color(0xFFF59E0B);
   static const Color dangerRed = Color(0xFFEF4444);
+
+  // Dashboard design tokens (reference-matched)
+  static const Color dashboardAccent = Color(0xFFFC5A2A);
+  static const Color dashboardAccentDark = Color(0xFFE74A1E);
+  static const Color dashboardAccentSoft = Color(0xFFFFEEE7);
+  static const Color dashboardCardFill = Color(0xFFFFFFFF);
+  static const Color dashboardCardShadow = Color(0x14000000);
 }
 
 class AppTheme {
+  static const LinearGradient dashboardHeaderGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [AppColors.dashboardAccent, AppColors.dashboardAccentDark],
+  );
+
   static TextTheme get _textTheme => GoogleFonts.interTextTheme(
         const TextTheme(
           displayLarge: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.textPrimary),

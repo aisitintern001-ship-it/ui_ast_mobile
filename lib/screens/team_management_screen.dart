@@ -8,6 +8,7 @@ import 'team_members_screen.dart';
 import 'member_timesheet_screen.dart';
 import 'team_leave_requests_screen.dart';
 import 'expense_claim_screen.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class TeamManagementScreen extends StatelessWidget {
   const TeamManagementScreen({super.key});
@@ -39,7 +40,7 @@ class TeamManagementScreen extends StatelessWidget {
         'screen': const TeamLeaveRequestsScreen(),
       },
       {
-        'icon': Icons.attach_money_rounded,
+        'icon': LucideIcons.dollarSign,
         'iconColor': AppColors.headerOrange,
         'title': 'Expense Claim Approval',
         'subtitle': 'Review expense claims',

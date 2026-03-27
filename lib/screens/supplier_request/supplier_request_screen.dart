@@ -3,13 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/request_address_tabs.dart';
+import '../../widgets/request_contacts_tabs.dart';
+import '../../widgets/request_documents_tabs.dart';
 import '../../widgets/request_form_widgets.dart';
-import 'tabs/identification_tab.dart';
 import 'tabs/attribute_tab.dart';
-import 'tabs/contacts_tab.dart';
-import 'tabs/address_tab.dart';
 import 'tabs/finance_tab.dart';
-import 'tabs/documents_tab.dart';
+import '../../widgets/request_identification_tabs.dart';
 
 class SupplierRequestScreen extends StatefulWidget {
   const SupplierRequestScreen({super.key});
@@ -23,12 +23,12 @@ class _SupplierRequestScreenState extends State<SupplierRequestScreen>
   late TabController _tabController;
 
   // ================= TAB KEYS =================
-  final _identificationKey = GlobalKey<SupplierIdentificationTabState>();
+  final _identificationKey = GlobalKey<RequestIdentificationTabState>();
   final _attributeKey = GlobalKey<SupplierAttributeTabState>();
-  final _contactsKey = GlobalKey<SupplierContactsTabState>();
-  final _addressKey = GlobalKey<SupplierAddressTabState>();
+  final _contactsKey = GlobalKey<RequestContactsTabState>();
+  final _addressKey = GlobalKey<RequestAddressTabState>();
   final _financeKey = GlobalKey<SupplierFinanceTabState>();
-  final _documentsKey = GlobalKey<SupplierDocumentsTabState>();
+  final _documentsKey = GlobalKey<RequestDocumentsTabState>();
 
   static const _tabLabels = [
     'Identification',
@@ -196,12 +196,12 @@ class _SupplierRequestScreenState extends State<SupplierRequestScreen>
             child: TabBarView(
               controller: _tabController,
               children: [
-                SupplierIdentificationTab(key: _identificationKey),
+                RequestIdentificationTab(key: _identificationKey, entityType: "supplier"),
                 SupplierAttributeTab(key: _attributeKey),
-                SupplierContactsTab(key: _contactsKey),
-                SupplierAddressTab(key: _addressKey),
+                RequestContactsTab(key: _contactsKey, entityName: "supplier"),
+                RequestAddressTab(key: _addressKey, entityName: "supplier"),
                 SupplierFinanceTab(key: _financeKey),
-                SupplierDocumentsTab(key: _documentsKey),
+                RequestDocumentsTab(key: _documentsKey, entityName: "supplier"),
               ],
             ),
           ),

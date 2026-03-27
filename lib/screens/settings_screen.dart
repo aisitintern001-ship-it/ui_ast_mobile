@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 // Import your state and models
 import '../models/app_state.dart';
@@ -68,7 +69,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   behavior: HitTestBehavior.opaque,
   onTap: () => _showModal(const FavoritesManagementSheet()),
   child: _buildSettingsTile(
-    icon: Icons.grid_view_rounded,
+    icon: LucideIcons.layoutGrid,
     iconColor: const Color(0xFF14B8A6),
     title: 'Edit Categories',
   ),
@@ -86,7 +87,7 @@ _buildDivider(),
     );
   },
   child: _buildSettingsTile(
-    icon: Icons.sync_rounded,
+    icon: LucideIcons.databaseBackup,
     iconColor: const Color(0xFFF97316),
     title: 'Data Integration',
   ),
@@ -97,7 +98,7 @@ _buildDivider(),
                   behavior: HitTestBehavior.opaque,
                   onTap: () => _showModal(const AvailableLeaveModal()),
                   child: _buildSettingsTile(
-                    icon: Icons.park_rounded,
+                    icon: LucideIcons.treePalm,
                     iconColor: const Color(0xFF8B5CF6),
                     title: 'View Entitlement',
                   ),
@@ -108,7 +109,7 @@ _buildDivider(),
                   behavior: HitTestBehavior.opaque,
                   onTap: () => _showModal(const ShiftScheduleModal()),
                   child: _buildSettingsTile(
-                    icon: Icons.calendar_today_rounded,
+                    icon: LucideIcons.calendar,
                     iconColor: const Color(0xFF3B82F6),
                     title: 'View Shift Schedule',
                   ),
@@ -136,7 +137,7 @@ _buildDivider(),
                   behavior: HitTestBehavior.opaque,
                   onTap: () => setState(() => _isPolicyExpanded = !_isPolicyExpanded),
                   child: _buildSettingsTile(
-                    icon: Icons.wifi_off_rounded,
+                    icon: LucideIcons.wifiOff,
                     iconColor: const Color(0xFF6B7280),
                     title: 'Offline Records Policy',
                     trailingIcon: _isPolicyExpanded 
@@ -178,7 +179,7 @@ _buildDivider(),
                   behavior: HitTestBehavior.opaque,
                   onTap: () => _showLogoutConfirmation(context),
                   child: _buildSettingsTile(
-                    icon: Icons.logout_rounded,
+                    icon: LucideIcons.logOut,
                     iconColor: const Color(0xFFF97316),
                     title: 'Logout',
                     showTrailing: false,

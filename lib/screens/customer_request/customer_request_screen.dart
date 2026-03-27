@@ -3,13 +3,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../models/app_state.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/request_address_tabs.dart';
+import '../../widgets/request_contacts_tabs.dart';
+import '../../widgets/request_documents_tabs.dart';
 import '../../widgets/request_form_widgets.dart';
-import 'tabs/address_tab.dart';
 import 'tabs/attribute_tab.dart';
-import 'tabs/contacts_tab.dart';
-import 'tabs/documents_tab.dart';
 import 'tabs/finance_tab.dart';
-import 'tabs/identification_tab.dart';
+import '../../widgets/request_identification_tabs.dart';
 import 'tabs/requirements_tab.dart';
 
 class CreateCustomerRequestScreen extends StatefulWidget {
@@ -24,13 +24,13 @@ class _CreateCustomerRequestScreenState extends State<CreateCustomerRequestScree
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  final _identificationKey = GlobalKey<CustomerIdentificationTabState>();
+  final _identificationKey = GlobalKey<RequestIdentificationTabState>();
   final _attributeKey = GlobalKey<CustomerAttributeTabState>();
-  final _contactsKey = GlobalKey<CustomerContactsTabState>();
-  final _addressKey = GlobalKey<CustomerAddressTabState>();
+  final _contactsKey = GlobalKey<RequestContactsTabState>();
+  final _addressKey = GlobalKey<RequestAddressTabState>();
   final _financeKey = GlobalKey<CustomerFinanceTabState>();
   final _requirementsKey = GlobalKey<CustomerRequirementsTabState>();
-  final _documentsKey = GlobalKey<CustomerDocumentsTabState>();
+  final _documentsKey = GlobalKey<RequestDocumentsTabState>();
 
   static const _tabLabels = [
     'Identification',
@@ -194,13 +194,13 @@ class _CreateCustomerRequestScreenState extends State<CreateCustomerRequestScree
             child: TabBarView(
               controller: _tabController,
               children: [
-                CustomerIdentificationTab(key: _identificationKey),
+                RequestIdentificationTab(key: _identificationKey, entityType: "customer"),
                 CustomerAttributeTab(key: _attributeKey),
-                CustomerContactsTab(key: _contactsKey),
-                CustomerAddressTab(key: _addressKey),
+                RequestContactsTab(key: _contactsKey, entityName: "customer"),
+                RequestAddressTab(key: _addressKey, entityName: "customer"),
                 CustomerFinanceTab(key: _financeKey),
                 CustomerRequirementsTab(key: _requirementsKey),
-                CustomerDocumentsTab(key: _documentsKey),
+                RequestDocumentsTab(key: _documentsKey, entityName: "customer"),
               ],
             ),
           ),

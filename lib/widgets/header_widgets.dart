@@ -127,7 +127,16 @@ class _DashboardHeaderState extends State<DashboardHeader>
     final selected = state.selectedCompany;
 
     return Container(
-      color: headerColor,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+          colors: [
+            headerColor,
+            Color.lerp(headerColor, Colors.white, 0.18) ?? headerColor,
+          ],
+        ),
+      ),
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 16,
         left: 20,

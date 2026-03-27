@@ -40,7 +40,7 @@ class FavoritesSection extends StatelessWidget {
                   'View All',
                   style: GoogleFonts.inter(
                     fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: headerColor,
                   ),
                 ),
@@ -49,7 +49,10 @@ class FavoritesSection extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           if (favorites.isEmpty)
-            _EmptyFavorites(onAdd: onViewAll)
+            _EmptyFavorites(
+              onAdd: onViewAll,
+              actionColor: headerColor,
+            )
           else
             _FavoritesGrid(
               favorites: favorites,
@@ -64,8 +67,9 @@ class FavoritesSection extends StatelessWidget {
 
 class _EmptyFavorites extends StatelessWidget {
   final VoidCallback? onAdd;
+  final Color actionColor;
 
-  const _EmptyFavorites({this.onAdd});
+  const _EmptyFavorites({this.onAdd, required this.actionColor});
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +85,7 @@ class _EmptyFavorites extends StatelessWidget {
           const SizedBox(height: 8),
           TextButton(
             onPressed: onAdd,
-            child: Text('Add favorites', style: GoogleFonts.inter(fontSize: 13, color: AppColors.iconBlue)),
+            child: Text('Add favorites', style: GoogleFonts.inter(fontSize: 13, color: actionColor)),
           ),
         ],
       ),
@@ -103,25 +107,35 @@ class _FavoritesGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconColor = themeColor ?? AppColors.iconBlue;
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          ...favorites.take(AppState.maxFavorites).map(
-                (item) => Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: _FavoriteIconItem(
-                    item: item,
-                    themeColor: iconColor,
-                  ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final visibleFavorites = favorites.take(AppState.maxFavorites).toList();
+        final totalItems = visibleFavorites.length + 1;
+        const spacing = 8.0;
+        final tileWidth = (((constraints.maxWidth - (spacing * (totalItems - 1))) /
+                    totalItems)
+                .clamp(52.0, 72.0))
+            .toDouble();
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ...visibleFavorites.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              return Padding(
+                padding: const EdgeInsets.only(right: spacing),
+                child: _FavoriteIconItem(
+                  item: item,
+                  themeColor: iconColor,
+                  width: tileWidth,
                 ),
-              ),
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: _AddNewCard(onTap: onViewAll),
-          ),
-        ],
-      ),
+              );
+            }),
+            _AddNewCard(onTap: onViewAll, width: tileWidth),
+          ],
+        );
+      },
     );
   }
 }
@@ -129,8 +143,13 @@ class _FavoritesGrid extends StatelessWidget {
 class _FavoriteIconItem extends StatelessWidget {
   final FavoriteItem item;
   final Color? themeColor;
+  final double width;
 
-  const _FavoriteIconItem({required this.item, this.themeColor});
+  const _FavoriteIconItem({
+    required this.item,
+    this.themeColor,
+    required this.width,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -153,37 +172,44 @@ class _FavoriteIconItem extends StatelessWidget {
           );
         }
       },
-      child: SizedBox(
-        width: 72,
+      child: Container(
+        width: 64,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFEFF1F5)),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColors.dashboardCardShadow,
+              blurRadius: 6,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 56,
-              height: 56,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(item.icon, color: color, size: 26),
+              child: Icon(item.icon, color: color, size: 18),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               item.title,
               textAlign: TextAlign.center,
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 9,
                 fontWeight: FontWeight.w500,
                 color: AppColors.textSecondary,
-                height: 1.3,
               ),
             ),
           ],
@@ -195,33 +221,42 @@ class _FavoriteIconItem extends StatelessWidget {
 
 class _AddNewCard extends StatelessWidget {
   final VoidCallback? onTap;
+  final double width;
 
-  const _AddNewCard({this.onTap});
+  const _AddNewCard({this.onTap, required this.width});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: SizedBox(
-        width: 72,
+      child: Container(
+        width: 64,
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFEFF1F5)),
+        ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 56,
-              height: 56,
+              width: 36,
+              height: 36,
               decoration: BoxDecoration(
                 color: const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.divider),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.add, color: Colors.black87, size: 28),
+              child: const Icon(Icons.add, color: Color(0xFF9CA3AF), size: 18),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
-              'Add New',
+              'Add',
               textAlign: TextAlign.center,
+              maxLines: 1,
               style: GoogleFonts.inter(
-                fontSize: 11,
+                fontSize: 9,
                 fontWeight: FontWeight.w500,
                 color: AppColors.textSecondary,
               ),
@@ -331,90 +366,100 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
             ),
             const SizedBox(height: 20),
 
-            // My Favorites section
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'My Favorites',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: _toggleOptions,
-                  child: Text(
-                    _showOptions ? 'Cancel' : 'Edit',
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: themeColor,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Selected favorites + Add button
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: [
-                ..._selected.map((item) => _FavoriteChip(
-                      item: item,
-                      themeColor: themeColor,
-                      onRemove: () => _remove(item.id),
-                      showRemove: true,
-                    )),
-                if (_selected.length < AppState.maxFavorites)
-                  _AddButton(
-                    onTap: () => setState(() => _showOptions = true),
-                  ),
-              ],
-            ),
-
-            // Category options (when + or Edit clicked)
-            if (_showOptions) ...[
-              const SizedBox(height: 20),
-              ...categories.map<Widget>((cat) {
-                final label = cat['label'] as String;
-                final items = cat['items'] as List<FavoriteItem>;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        label,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+            // Scrollable content
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // My Favorites section
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'My Favorites',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: items.map((item) {
-                          final isSelected = _selected.any((f) => f.id == item.id);
-                          return _FavoriteChip(
-                            item: item,
-                            themeColor: themeColor,
-                            onTap: isSelected ? null : () => _add(item),
-                            onRemove: isSelected ? () => _remove(item.id) : null,
-                            showRemove: isSelected,
-                          );
-                        }).toList(),
-                      ),
+                        GestureDetector(
+                          onTap: _toggleOptions,
+                          child: Text(
+                            _showOptions ? 'Cancel' : 'Edit',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: themeColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Selected favorites + Add button
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 12,
+                      children: [
+                        ..._selected.map((item) => _FavoriteChip(
+                              item: item,
+                              themeColor: themeColor,
+                              onRemove: () => _remove(item.id),
+                              showRemove: true,
+                            )),
+                        if (_selected.length < AppState.maxFavorites)
+                          _AddButton(
+                            onTap: () => setState(() => _showOptions = true),
+                          ),
+                      ],
+                    ),
+
+                    // Category options (when + or Edit clicked)
+                    if (_showOptions) ...[
+                      const SizedBox(height: 20),
+                      ...categories.map<Widget>((cat) {
+                        final label = cat['label'] as String;
+                        final items = cat['items'] as List<FavoriteItem>;
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                label,
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 12,
+                                children: items.map((item) {
+                                  final isSelected = _selected.any((f) => f.id == item.id);
+                                  return _FavoriteChip(
+                                    item: item,
+                                    themeColor: themeColor,
+                                    onTap: isSelected ? null : () => _add(item),
+                                    onRemove: isSelected ? () => _remove(item.id) : null,
+                                    showRemove: isSelected,
+                                  );
+                                }).toList(),
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
                     ],
-                  ),
-                );
-              }),
-            ],
+                  ],
+                ),
+              ),
+            ),
 
             const SizedBox(height: 20),
             SizedBox(
@@ -461,49 +506,54 @@ class _FavoriteChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
-        width: 72,
+        width: 56,
         child: Stack(
           clipBehavior: Clip.none,
           children: [
             Column(
               children: [
                 Container(
-                  width: 56,
-                  height: 56,
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
                     color: themeColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(item.icon, color: themeColor, size: 24),
+                  child: Icon(item.icon, color: themeColor, size: 20),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  item.title,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
+                const SizedBox(height: 4),
+                SizedBox(
+                  height: 26,
+                  child: Text(
+                    item.title,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    softWrap: true,
+                    overflow: TextOverflow.clip,
+                    style: GoogleFonts.inter(
+                      fontSize: 8,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textSecondary,
+                      height: 1.3,
+                    ),
                   ),
                 ),
               ],
             ),
             if (showRemove && onRemove != null)
               Positioned(
-                top: -4,
-                right: -4,
+                top: -3,
+                right: -2,
                 child: GestureDetector(
                   onTap: onRemove,
                   child: Container(
-                    width: 20,
-                    height: 20,
+                    width: 16,
+                    height: 16,
                     decoration: const BoxDecoration(
                       color: AppColors.dangerRed,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.check_rounded, size: 12, color: Colors.white),
+                    child: const Icon(Icons.check_rounded, size: 10, color: Colors.white),
                   ),
                 ),
               ),
@@ -524,26 +574,29 @@ class _AddButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
-        width: 72,
+        width: 56,
         child: Column(
           children: [
             Container(
-              width: 56,
-              height: 56,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 color: const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: AppColors.divider),
               ),
-              child: const Icon(Icons.add_rounded, color: Colors.black54, size: 28),
+              child: const Icon(Icons.add_rounded, color: Colors.black54, size: 22),
             ),
-            const SizedBox(height: 6),
-            Text(
-              'Add',
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
+            const SizedBox(height: 4),
+            SizedBox(
+              height: 26,
+              child: Text(
+                'Add',
+                style: GoogleFonts.inter(
+                  fontSize: 8,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.textSecondary,
+                ),
               ),
             ),
           ],

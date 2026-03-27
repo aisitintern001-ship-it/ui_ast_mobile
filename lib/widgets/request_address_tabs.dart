@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../data/address_location_data.dart';
-import '../../../theme/app_theme.dart';
-import '../../../widgets/request_form_widgets.dart';
+import '../data/address_location_data.dart';
+import '../theme/app_theme.dart';
+import 'request_form_widgets.dart';
 
-/// Address data model
+class RequestAddressTab extends StatefulWidget {
+  final String entityName;
+  const RequestAddressTab({super.key, this.entityName = "record"});
+
+  @override
+  State<RequestAddressTab> createState() => RequestAddressTabState();
+}
+
+class RequestAddressTabState extends _BaseAddressTabState<RequestAddressTab> {
+  @override
+  String get entityName => widget.entityName;
+}
+
 class AddressData {
   String? addressType;
   bool setAsPrimary;
@@ -59,36 +71,26 @@ class AddressData {
   }
 }
 
-class SupplierAddressTab extends StatefulWidget {
-  const SupplierAddressTab({super.key});
-
-  @override
-  State<SupplierAddressTab> createState() => SupplierAddressTabState();
-}
-
-class SupplierAddressTabState extends State<SupplierAddressTab>
+abstract class _BaseAddressTabState<T extends StatefulWidget> extends State<T>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
-  // ================= STATE =================
+  String get entityName;
+
   final List<AddressData> _addresses = [];
 
-  // ================= VALIDATION =================
   List<String> validate() {
     final missing = <String>[];
-    // Add validation rules as needed
     return missing;
   }
 
-  // ================= DATA =================
   Map<String, dynamic> getData() {
     return {
       "addresses": _addresses.map((a) => a.toMap()).toList(),
     };
   }
 
-  // ================= ACTIONS =================
   void _addAddress() {
     setState(() {
       _addresses.add(AddressData());
@@ -102,7 +104,6 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
     });
   }
 
-  // ================= UI =================
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -114,23 +115,19 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
         children: [
           const FormTabTitle("Address Tab"),
           const SizedBox(height: 6),
-          const FormTabDescription(
-            "Address Tab records the supplier's address details and information, which helps identify and locate the supplier within the system.",
+          FormTabDescription(
+            "Address Tab records the $entityName's address details and information.",
           ),
           const SizedBox(height: 20),
-
-          // Show Add Address at top only when no addresses exist
           if (_addresses.isEmpty)
             FormAddButton(
               label: "Add Address",
               onPressed: _addAddress,
             ),
-
           if (_addresses.isNotEmpty) ...[
             ..._addresses.asMap().entries.map((entry) {
               return _buildAddressCard(entry.key, entry.value);
             }),
-            // Show Add Address at bottom when addresses exist
             FormAddButton(
               label: "Add Address",
               onPressed: _addAddress,
@@ -153,7 +150,6 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ================= HEADER =================
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
@@ -195,14 +191,11 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
               ],
             ),
           ),
-
-          // ================= FORM FIELDS =================
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ================= SELECT TYPE =================
                 _buildDropdownField(
                   hint: "Select Type",
                   value: address.addressType,
@@ -210,20 +203,14 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
                   onChanged: (v) => setState(() => address.addressType = v),
                 ),
                 const SizedBox(height: 12),
-
-                // ================= SET AS PRIMARY =================
                 _buildCheckboxRow(
                   label: "Set As Primary",
                   value: address.setAsPrimary,
                   onChanged: (v) => setState(() => address.setAsPrimary = v ?? false),
                 ),
                 const SizedBox(height: 16),
-
-                // ================= COUNTRY =================
                 _buildCountrySelector(address),
                 const SizedBox(height: 12),
-
-                // ================= REGION =================
                 _buildLocationSelector(
                   hint: "Select Region",
                   value: address.region,
@@ -233,8 +220,6 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
                       : null,
                 ),
                 const SizedBox(height: 12),
-
-                // ================= PROVINCE =================
                 _buildLocationSelector(
                   hint: "Select Province",
                   value: address.province,
@@ -244,8 +229,6 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
                       : null,
                 ),
                 const SizedBox(height: 12),
-
-                // ================= CITY / TOWN =================
                 _buildLocationSelector(
                   hint: "Select City or Town",
                   value: address.city,
@@ -255,30 +238,25 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
                       : null,
                 ),
                 const SizedBox(height: 12),
-
-                // ================= ADDRESS LINE 1 =================
                 _buildTextField(
                   controller: address.addressLine1Controller,
                   hint: "Address Line 1",
                   isRequired: true,
                 ),
                 const SizedBox(height: 12),
-
-                // ================= ADDRESS LINE 2 =================
                 _buildTextField(
                   controller: address.addressLine2Controller,
                   hint: "Address Line 2",
                 ),
                 const SizedBox(height: 12),
-
-                // ================= LATITUDE & LONGITUDE =================
                 Row(
                   children: [
                     Expanded(
                       child: _buildTextField(
                         controller: address.latitudeController,
                         hint: "Latitude",
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true, signed: true),
                         isRequired: true,
                       ),
                     ),
@@ -287,15 +265,14 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
                       child: _buildTextField(
                         controller: address.longitudeController,
                         hint: "Longitude",
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true, signed: true),
                         isRequired: true,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
-
-                // ================= INSTRUCTIONS =================
                 _buildTextField(
                   controller: address.instructionsController,
                   hint: "Enter Instructions",
@@ -308,8 +285,6 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
       ),
     );
   }
-
-  // ================= FORM FIELD WIDGETS =================
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -331,11 +306,13 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
               ? RichText(
                   text: TextSpan(
                     text: hint,
-                    style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
+                    style:
+                        GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
                     children: [
                       TextSpan(
                         text: ' *',
-                        style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF2181FF)),
+                        style: GoogleFonts.inter(
+                            fontSize: 12, color: const Color(0xFF2181FF)),
                       ),
                     ],
                   ),
@@ -346,7 +323,8 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
             color: AppColors.textMuted,
           ),
           floatingLabelBehavior: FloatingLabelBehavior.never,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           isDense: true,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
@@ -395,11 +373,10 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
                 maxLines: 1,
               ),
             ),
-            icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500, size: 20),
+            icon:
+                Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500, size: 20),
             style: GoogleFonts.inter(fontSize: 12, color: AppColors.textPrimary),
-            items: items
-                .map((i) => DropdownMenuItem(value: i, child: Text(i)))
-                .toList(),
+            items: items.map((i) => DropdownMenuItem(value: i, child: Text(i))).toList(),
             onChanged: enabled ? onChanged : null,
           ),
         ),
@@ -428,7 +405,8 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
               Expanded(
                 child: Text(
                   address.country!,
-                  style: GoogleFonts.inter(fontSize: 12, color: AppColors.textPrimary),
+                  style:
+                      GoogleFonts.inter(fontSize: 12, color: AppColors.textPrimary),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -465,7 +443,6 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
           setState(() {
             address.country = country['name'];
             address.countryCode = country['code'];
-            // Reset dependent fields
             address.region = null;
             address.province = null;
             address.city = null;
@@ -489,7 +466,6 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
         onSelect: (region) {
           setState(() {
             address.region = region;
-            // Reset dependent fields
             address.province = null;
             address.city = null;
           });
@@ -512,7 +488,6 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
         onSelect: (province) {
           setState(() {
             address.province = province;
-            // Reset dependent field
             address.city = null;
           });
           Navigator.pop(context);
@@ -566,7 +541,8 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
                   value ?? hint,
                   style: GoogleFonts.inter(
                     fontSize: 12,
-                    color: value != null ? AppColors.textPrimary : AppColors.textMuted,
+                    color:
+                        value != null ? AppColors.textPrimary : AppColors.textMuted,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -620,7 +596,6 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
     );
   }
 
-  // ================= DISPOSE =================
   @override
   void dispose() {
     for (var address in _addresses) {
@@ -629,8 +604,6 @@ class SupplierAddressTabState extends State<SupplierAddressTab>
     super.dispose();
   }
 }
-
-// ================= COUNTRY PICKER MODAL =================
 
 class _CountryPickerModal extends StatefulWidget {
   final String? selectedCountry;
@@ -686,7 +659,6 @@ class _CountryPickerModalState extends State<_CountryPickerModal> {
       ),
       child: Column(
         children: [
-          // Handle bar
           Container(
             margin: const EdgeInsets.only(top: 12),
             width: 40,
@@ -696,7 +668,6 @@ class _CountryPickerModalState extends State<_CountryPickerModal> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          // Header
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -717,7 +688,6 @@ class _CountryPickerModalState extends State<_CountryPickerModal> {
               ],
             ),
           ),
-          // Search bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Container(
@@ -731,16 +701,17 @@ class _CountryPickerModalState extends State<_CountryPickerModal> {
                 style: GoogleFonts.inter(fontSize: 14),
                 decoration: InputDecoration(
                   hintText: "Search country...",
-                  hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
+                  hintStyle:
+                      GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
                   prefixIcon: Icon(Icons.search, color: Colors.grey.shade500, size: 20),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
             ),
           ),
           const SizedBox(height: 8),
-          // Country list
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -751,10 +722,13 @@ class _CountryPickerModalState extends State<_CountryPickerModal> {
                 return GestureDetector(
                   onTap: () => widget.onSelect(country),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
                     margin: const EdgeInsets.only(bottom: 4),
                     decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFF2181FF).withValues(alpha: 0.1) : Colors.transparent,
+                      color: isSelected
+                          ? const Color(0xFF2181FF).withValues(alpha: 0.1)
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -772,7 +746,8 @@ class _CountryPickerModalState extends State<_CountryPickerModal> {
                                 country['name']!,
                                 style: GoogleFonts.inter(
                                   fontSize: 14,
-                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                  fontWeight:
+                                      isSelected ? FontWeight.w600 : FontWeight.w400,
                                   color: AppColors.textPrimary,
                                 ),
                               ),
@@ -804,8 +779,6 @@ class _CountryPickerModalState extends State<_CountryPickerModal> {
     );
   }
 }
-
-// ================= LOCATION PICKER MODAL (Region, Province, City) =================
 
 class _LocationPickerModal extends StatefulWidget {
   final String title;
@@ -841,9 +814,8 @@ class _LocationPickerModalState extends State<_LocationPickerModal> {
       if (query.isEmpty) {
         _filteredItems = widget.items;
       } else {
-        _filteredItems = widget.items
-            .where((item) => item.toLowerCase().contains(query))
-            .toList();
+        _filteredItems =
+            widget.items.where((item) => item.toLowerCase().contains(query)).toList();
       }
     });
   }
@@ -864,7 +836,6 @@ class _LocationPickerModalState extends State<_LocationPickerModal> {
       ),
       child: Column(
         children: [
-          // Handle bar
           Container(
             margin: const EdgeInsets.only(top: 12),
             width: 40,
@@ -874,7 +845,6 @@ class _LocationPickerModalState extends State<_LocationPickerModal> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          // Header
           Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
@@ -895,7 +865,6 @@ class _LocationPickerModalState extends State<_LocationPickerModal> {
               ],
             ),
           ),
-          // Search bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Container(
@@ -909,16 +878,17 @@ class _LocationPickerModalState extends State<_LocationPickerModal> {
                 style: GoogleFonts.inter(fontSize: 14),
                 decoration: InputDecoration(
                   hintText: "Search...",
-                  hintStyle: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
+                  hintStyle:
+                      GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
                   prefixIcon: Icon(Icons.search, color: Colors.grey.shade500, size: 20),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
             ),
           ),
           const SizedBox(height: 8),
-          // Items list
           Expanded(
             child: _filteredItems.isEmpty
                 ? Center(
@@ -946,7 +916,8 @@ class _LocationPickerModalState extends State<_LocationPickerModal> {
                       return GestureDetector(
                         onTap: () => widget.onSelect(item),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 12, horizontal: 12),
                           margin: const EdgeInsets.only(bottom: 4),
                           decoration: BoxDecoration(
                             color: isSelected
@@ -961,7 +932,8 @@ class _LocationPickerModalState extends State<_LocationPickerModal> {
                                   item,
                                   style: GoogleFonts.inter(
                                     fontSize: 14,
-                                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                    fontWeight:
+                                        isSelected ? FontWeight.w600 : FontWeight.w400,
                                     color: AppColors.textPrimary,
                                   ),
                                 ),

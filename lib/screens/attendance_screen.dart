@@ -200,7 +200,16 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       body: Column(
         children: [
           Container(
-            color: headerColor,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  headerColor,
+                  headerColor.withValues(alpha: 0.85),
+                ],
+              ),
+            ),
             padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8, left: 16, right: 16, bottom: 16),
             child: Row(
               children: [

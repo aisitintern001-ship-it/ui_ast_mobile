@@ -53,8 +53,8 @@ class DashboardSection extends StatelessWidget {
                     'View All',
                     style: GoogleFonts.inter(
                       fontSize: 13,
-                      color: AppColors.iconBlue,
-                      fontWeight: FontWeight.w500,
+                      color: state.headerColor,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -79,10 +79,11 @@ class _StatusChipsRow extends StatelessWidget {
     ];
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: filters.map((f) {
         final isSelected = state.dashboardFilter == (f['filterKey'] as String);
-        return Flexible(
+        final count = f['count'] as int;
+        return Expanded(
           child: GestureDetector(
           onTap: () => state.setDashboardFilter(f['filterKey'] as String),
           child: Column(
@@ -104,39 +105,41 @@ class _StatusChipsRow extends StatelessWidget {
                       maxLines: 1,
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.iconRed,
-                      shape: BoxShape.circle,
-                    ),
-                    constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
-                    child: Center(
-                      child: Text(
-                        '${f['count']}',
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                  if (count > 0) ...[
+                    const SizedBox(width: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.iconRed,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                      child: Center(
+                        child: Text(
+                          '$count',
+                          style: GoogleFonts.inter(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
-              const SizedBox(height: 6),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                height: 2,
-                width: isSelected ? 50 : 0,
-                decoration: BoxDecoration(
-                  color: headerColor,
-                  borderRadius: BorderRadius.circular(1),
+               const SizedBox(height: 6),
+               AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: 2,
+                  width: isSelected ? double.infinity : 0,
+                  decoration: BoxDecoration(
+                    color: headerColor,
+                    borderRadius: BorderRadius.circular(1),
+                  ),
                 ),
-              ),
-            ],
-          ),
+             ],
+           ),
         ),
         );
       }).toList(),
@@ -175,8 +178,8 @@ class _DashboardItemTile extends StatelessWidget {
             height: 40,
             margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
-              color: item.iconBgColor,
-              shape: BoxShape.circle,
+              color: iconColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(item.icon, color: iconColor, size: 20),
           ),

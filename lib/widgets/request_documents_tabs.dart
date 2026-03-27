@@ -1,64 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../widgets/request_form_widgets.dart';
 import 'package:file_picker/file_picker.dart';
+import 'request_form_widgets.dart';
 
-class SupplierDocumentsTab extends StatefulWidget {
-  const SupplierDocumentsTab({super.key});
+class RequestDocumentsTab extends StatefulWidget {
+  final String entityName;
+  const RequestDocumentsTab({super.key, this.entityName = "record"});
 
   @override
-  State<SupplierDocumentsTab> createState() => SupplierDocumentsTabState();
+  State<RequestDocumentsTab> createState() => RequestDocumentsTabState();
 }
 
-class SupplierDocumentsTabState extends State<SupplierDocumentsTab>
+class RequestDocumentsTabState
+    extends _BaseDocumentsTabState<RequestDocumentsTab> {
+  @override
+  String get entityName => widget.entityName;
+}
+
+abstract class _BaseDocumentsTabState<T extends StatefulWidget> extends State<T>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
-  // ================= STATE =================
+  String get entityName;
+
   final List<Map<String, String>> _documents = [];
 
-  // ================= VALIDATION =================
   List<String> validate() {
     final missing = <String>[];
-    // Add validation rules as needed
     return missing;
   }
 
-// --- NEW: FILE PICKER LOGIC ---
   Future<void> _pickFile(int index) async {
-    // Opens the device's file explorer
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'png', 'jpeg'], // Restrict to documents/images
+      allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'png', 'jpeg'],
     );
 
     if (result != null) {
-      // User picked a file
       String fileName = result.files.single.name;
-      
       setState(() {
-        // Update the UI with the selected file name
         _documents[index]['fileName'] = fileName;
-        
-        // IMPORTANT FOR UPLOADING LATER:
-        // If you are on Flutter Web, you need the file bytes to upload to an API:
-        // var fileBytes = result.files.single.bytes; 
-        
-        // If you are on Mobile (Android/iOS), you usually use the path:
-        // var filePath = result.files.single.path;
       });
     }
-    // User canceled the picker - no action needed
   }
-  // ================= DATA =================
+
   Map<String, dynamic> getData() {
     return {
       "documents": _documents,
     };
   }
 
-  // ================= UI =================
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -70,17 +62,15 @@ class SupplierDocumentsTabState extends State<SupplierDocumentsTab>
         children: [
           const FormTabTitle("Documents Tab"),
           const SizedBox(height: 6),
-          const FormTabDescription(
-            "Documents Tab records the supplier's document details and information, which helps manage documentation within the system.",
+          FormTabDescription(
+            "Documents Tab records the $entityName's document details and information, which helps manage documentation within the system.",
           ),
           const SizedBox(height: 20),
-
-          // --- MAIN DOCUMENT CONTAINER ---
           if (_documents.isNotEmpty)
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFFAFAFA), // Light grey background like wireframe
+                color: const Color(0xFFFAFAFA),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.grey.shade300),
               ),
@@ -92,10 +82,7 @@ class SupplierDocumentsTabState extends State<SupplierDocumentsTab>
                 ],
               ),
             ),
-            
           if (_documents.isNotEmpty) const SizedBox(height: 16),
-
-          // --- ADD DOCUMENT BUTTON ---
           SizedBox(
             width: double.infinity,
             height: 48,
@@ -129,14 +116,12 @@ class SupplierDocumentsTabState extends State<SupplierDocumentsTab>
     );
   }
 
-  // --- INDIVIDUAL DOCUMENT CARD UI ---
   Widget _buildDocumentCard(int index) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 24), // Spacing between documents
+      margin: const EdgeInsets.only(bottom: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Row: "Document X" and Trash Icon
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -166,8 +151,6 @@ class SupplierDocumentsTabState extends State<SupplierDocumentsTab>
             ],
           ),
           const SizedBox(height: 16),
-
-          // Label Input Field
           TextFormField(
             decoration: InputDecoration(
               filled: true,
@@ -177,7 +160,8 @@ class SupplierDocumentsTabState extends State<SupplierDocumentsTab>
                 fontSize: 13,
                 color: Colors.grey.shade500,
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(color: Colors.grey.shade300),
@@ -192,8 +176,6 @@ class SupplierDocumentsTabState extends State<SupplierDocumentsTab>
             },
           ),
           const SizedBox(height: 16),
-
-          // Add Supporting Document Section
           Text(
             "Add Supporting Document",
             style: GoogleFonts.inter(
@@ -203,22 +185,19 @@ class SupplierDocumentsTabState extends State<SupplierDocumentsTab>
             ),
           ),
           const SizedBox(height: 8),
-
-        // Choose File Button
           SizedBox(
             height: 36,
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2181FF), 
+                backgroundColor: const Color(0xFF2181FF),
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20), 
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 20),
               ),
-              // --- UPDATED: Trigger the file picker ---
-              onPressed: () => _pickFile(index), 
+              onPressed: () => _pickFile(index),
               child: Text(
                 "Choose File",
                 style: GoogleFonts.inter(
@@ -228,14 +207,12 @@ class SupplierDocumentsTabState extends State<SupplierDocumentsTab>
               ),
             ),
           ),
-          
-          // Optional: Show selected filename if one exists
           if (_documents[index]['fileName']?.isNotEmpty ?? false) ...[
-             const SizedBox(height: 8),
-             Text(
-               "Selected: ${_documents[index]['fileName']}",
-               style: GoogleFonts.inter(fontSize: 12, color: Colors.green),
-             )
+            const SizedBox(height: 8),
+            Text(
+              "Selected: ${_documents[index]['fileName']}",
+              style: GoogleFonts.inter(fontSize: 12, color: Colors.green),
+            )
           ]
         ],
       ),

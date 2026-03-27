@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../theme/app_theme.dart';
-import '../../../widgets/request_form_widgets.dart';
+import '../theme/app_theme.dart';
+import 'request_form_widgets.dart';
 
-/// Contact data model
+class RequestContactsTab extends StatefulWidget {
+  final String entityName;
+  const RequestContactsTab({super.key, this.entityName = "record"});
+
+  @override
+  State<RequestContactsTab> createState() => RequestContactsTabState();
+}
+
 class ContactData {
   String? contactType;
   bool setAsPrimary;
@@ -76,36 +83,24 @@ class ContactData {
   }
 }
 
-class SupplierContactsTab extends StatefulWidget {
-  const SupplierContactsTab({super.key});
-
-  @override
-  State<SupplierContactsTab> createState() => SupplierContactsTabState();
-}
-
-class SupplierContactsTabState extends State<SupplierContactsTab>
+class RequestContactsTabState extends State<RequestContactsTab>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
-  // ================= STATE =================
   final List<ContactData> _contacts = [];
 
-  // ================= VALIDATION =================
   List<String> validate() {
     final missing = <String>[];
-    // Add validation rules as needed
     return missing;
   }
 
-  // ================= DATA =================
   Map<String, dynamic> getData() {
     return {
       "contacts": _contacts.map((c) => c.toMap()).toList(),
     };
   }
 
-  // ================= ACTIONS =================
   void _addContact() {
     setState(() {
       _contacts.add(ContactData());
@@ -119,7 +114,6 @@ class SupplierContactsTabState extends State<SupplierContactsTab>
     });
   }
 
-  // ================= UI =================
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -131,23 +125,19 @@ class SupplierContactsTabState extends State<SupplierContactsTab>
         children: [
           const FormTabTitle("Contacts Tab"),
           const SizedBox(height: 6),
-          const FormTabDescription(
-            "Contacts Tab records the supplier's contact details and information, which helps identify and communicate with the supplier within the system.",
+          FormTabDescription(
+            "Contacts Tab records the ${widget.entityName}'s contact details and information.",
           ),
           const SizedBox(height: 20),
-
-          // Show Add Contact at top only when no contacts exist
           if (_contacts.isEmpty)
             FormAddButton(
               label: "Add Contact",
               onPressed: _addContact,
             ),
-
           if (_contacts.isNotEmpty) ...[
             ..._contacts.asMap().entries.map((entry) {
               return _buildContactCard(entry.key, entry.value);
             }),
-            // Show Add Contact at bottom when contacts exist
             FormAddButton(
               label: "Add Contact",
               onPressed: _addContact,
@@ -170,7 +160,6 @@ class SupplierContactsTabState extends State<SupplierContactsTab>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ================= HEADER =================
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
@@ -212,31 +201,25 @@ class SupplierContactsTabState extends State<SupplierContactsTab>
               ],
             ),
           ),
-
-          // ================= FORM FIELDS =================
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ================= SELECT TYPE =================
                 _buildDropdownField(
                   hint: "Select Type",
                   value: contact.contactType,
-                  items: const [], // No options as per requirements
+                  items: const [],
                   onChanged: (v) => setState(() => contact.contactType = v),
                 ),
                 const SizedBox(height: 12),
-
-                // ================= SET AS PRIMARY =================
                 _buildCheckboxRow(
                   label: "Set As Primary",
                   value: contact.setAsPrimary,
-                  onChanged: (v) => setState(() => contact.setAsPrimary = v ?? false),
+                  onChanged: (v) =>
+                      setState(() => contact.setAsPrimary = v ?? false),
                 ),
                 const SizedBox(height: 16),
-
-                // ================= NAME FIELDS =================
                 _buildTextField(
                   controller: contact.firstNameController,
                   hint: "First Name",
@@ -252,29 +235,22 @@ class SupplierContactsTabState extends State<SupplierContactsTab>
                   hint: "Last Name",
                 ),
                 const SizedBox(height: 12),
-
-                // ================= EMAIL =================
                 _buildTextField(
                   controller: contact.emailController,
                   hint: "Email Address",
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 12),
-
-                // ================= JOB TITLE =================
                 _buildTextField(
                   controller: contact.jobTitleController,
                   hint: "Job Title",
                 ),
                 const SizedBox(height: 16),
-
-                // ================= HAS PHONE =================
                 _buildSwitchRow(
                   label: "Has Phone",
                   value: contact.hasPhone,
                   onChanged: (v) => setState(() => contact.hasPhone = v),
                 ),
-
                 if (contact.hasPhone) ...[
                   const SizedBox(height: 12),
                   Row(
@@ -285,7 +261,8 @@ class SupplierContactsTabState extends State<SupplierContactsTab>
                           hint: "Country",
                           value: contact.phoneCountry,
                           items: const [],
-                          onChanged: (v) => setState(() => contact.phoneCountry = v),
+                          onChanged: (v) =>
+                              setState(() => contact.phoneCountry = v),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -311,14 +288,11 @@ class SupplierContactsTabState extends State<SupplierContactsTab>
                   ),
                 ],
                 const SizedBox(height: 16),
-
-                // ================= HAS MOBILE =================
                 _buildSwitchRow(
                   label: "Has Mobile",
                   value: contact.hasMobile,
                   onChanged: (v) => setState(() => contact.hasMobile = v),
                 ),
-
                 if (contact.hasMobile) ...[
                   const SizedBox(height: 12),
                   Row(
@@ -328,7 +302,8 @@ class SupplierContactsTabState extends State<SupplierContactsTab>
                           hint: "Country Code",
                           value: contact.mobileCountryCode,
                           items: const [],
-                          onChanged: (v) => setState(() => contact.mobileCountryCode = v),
+                          onChanged: (v) =>
+                              setState(() => contact.mobileCountryCode = v),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -344,22 +319,18 @@ class SupplierContactsTabState extends State<SupplierContactsTab>
                   ),
                 ],
                 const SizedBox(height: 16),
-
-                // ================= INCLUDED IN EMAIL CORRESPONDENCE =================
                 _buildCheckboxRow(
                   label: "Included in email correspondence",
                   value: contact.includedInEmailCorrespondence,
-                  onChanged: (v) => setState(() => contact.includedInEmailCorrespondence = v ?? false),
+                  onChanged: (v) => setState(
+                      () => contact.includedInEmailCorrespondence = v ?? false),
                 ),
                 const SizedBox(height: 12),
-
-                // ================= ADD COMMENT =================
                 _buildCheckboxRow(
                   label: "Add comment",
                   value: contact.addComment,
                   onChanged: (v) => setState(() => contact.addComment = v ?? false),
                 ),
-
                 if (contact.addComment) ...[
                   const SizedBox(height: 12),
                   _buildTextField(
@@ -375,8 +346,6 @@ class SupplierContactsTabState extends State<SupplierContactsTab>
       ),
     );
   }
-
-  // ================= FORM FIELD WIDGETS =================
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -399,7 +368,8 @@ class SupplierContactsTabState extends State<SupplierContactsTab>
             color: AppColors.textMuted,
           ),
           hintMaxLines: 1,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           isDense: true,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8),
@@ -444,11 +414,10 @@ class SupplierContactsTabState extends State<SupplierContactsTab>
               maxLines: 1,
             ),
           ),
-          icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500, size: 20),
+          icon:
+              Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500, size: 20),
           style: GoogleFonts.inter(fontSize: 12, color: AppColors.textPrimary),
-          items: items
-              .map((i) => DropdownMenuItem(value: i, child: Text(i)))
-              .toList(),
+          items: items.map((i) => DropdownMenuItem(value: i, child: Text(i))).toList(),
           onChanged: onChanged,
         ),
       ),
@@ -526,7 +495,6 @@ class SupplierContactsTabState extends State<SupplierContactsTab>
     );
   }
 
-  // ================= DISPOSE =================
   @override
   void dispose() {
     for (var contact in _contacts) {

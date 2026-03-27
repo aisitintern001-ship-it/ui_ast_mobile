@@ -18,6 +18,8 @@ import 'supplier_request_screen.dart';
 import 'customer_request_screen.dart';
 import 'team_management_screen.dart';
 import 'product_library_screen.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -106,9 +108,9 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 8),
 
                   if (companyNews.isNotEmpty)
-                    _NewsBanner(
-                      news: companyNews.first,
-                      onTap: () => _showNewsModal(context, companyNews.first),
+                    _NewsCarousel(
+                      newsList: companyNews,
+                      onTapNews: (news) => _showNewsModal(context, news),
                     )
                   else
                     Padding(
@@ -191,6 +193,72 @@ class HomeScreen extends StatelessWidget {
           const AppBottomNavBar(),
         ],
       ),
+    );
+  }
+}
+
+class _NewsCarousel extends StatefulWidget {
+  final List<NewsItem> newsList;
+  final Function(NewsItem) onTapNews;
+
+  const _NewsCarousel({required this.newsList, required this.onTapNews});
+
+  @override
+  State<_NewsCarousel> createState() => _NewsCarouselState();
+}
+
+class _NewsCarouselState extends State<_NewsCarousel> {
+  int _currentPage = 0;
+  final PageController _pageController = PageController();
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 145,
+          child: PageView.builder(
+            controller: _pageController,
+            itemCount: widget.newsList.length,
+            onPageChanged: (index) {
+              setState(() => _currentPage = index);
+            },
+            itemBuilder: (context, index) {
+              return _NewsBanner(
+                news: widget.newsList[index],
+                onTap: () => widget.onTapNews(widget.newsList[index]),
+              );
+            },
+          ),
+        ),
+        if (widget.newsList.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.newsList.length, (index) {
+                final isActive = index == _currentPage;
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  width: isActive ? 8 : 6,
+                  height: isActive ? 8 : 6,
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? AppColors.textSecondary
+                        : AppColors.textMuted.withValues(alpha: 0.4),
+                    shape: BoxShape.circle,
+                  ),
+                );
+              }),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -365,7 +433,8 @@ class _MainMenuSection extends StatefulWidget {
   State<_MainMenuSection> createState() => _MainMenuSectionState();
 }
 
-class _MainMenuSectionState extends State<_MainMenuSection> {
+class _MainMenuSectionState extends State<_MainMenuSection>
+    with TickerProviderStateMixin {
   final Map<String, bool> _expanded = {
     'employeeHub': false,
     'productLibrary': false,
@@ -375,8 +444,30 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
     'tasks': false,
   };
 
-  void _toggle(String key) =>
-      setState(() => _expanded[key] = !(_expanded[key] ?? false));
+  void _toggle(String key) {
+    setState(() {
+      final wasExpanded = _expanded[key] ?? false;
+      // Close all dropdowns first
+      _expanded.updateAll((k, v) => false);
+      // Toggle the clicked dropdown (open if it was closed)
+      _expanded[key] = !wasExpanded;
+    });
+  }
+
+  Widget _animatedDropdown({required String key, required Widget child}) {
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+      alignment: Alignment.topCenter,
+      child: _expanded[key] == true
+          ? AnimatedOpacity(
+              duration: const Duration(milliseconds: 200),
+              opacity: 1.0,
+              child: child,
+            )
+          : const SizedBox.shrink(),
+    );
+  }
 
   Widget _sectionHeader(
     String key,
@@ -409,11 +500,14 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
             ),
             ...?(trailing != null ? [trailing] : null),
             if (showChevron)
-              Icon(
-                _expanded[key] ?? false
-                    ? Icons.expand_less_rounded
-                    : Icons.expand_more_rounded,
-                color: AppColors.textMuted,
+              AnimatedRotation(
+                turns: _expanded[key] == true ? 0.5 : 0.0,
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                child: const Icon(
+                  Icons.expand_more_rounded,
+                  color: AppColors.textMuted,
+                ),
               ),
           ],
         ),
@@ -436,15 +530,15 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
       {
         'id': 'expense',
         'title': 'Expense Claim',
-        'icon': Icons.attach_money_rounded,
+        'icon': LucideIcons.dollarSign,
       },
-      {'id': 'payslip', 'title': 'Payslip', 'icon': Icons.attach_money_rounded},
-      {'id': 'team', 'title': 'Team Management', 'icon': Icons.group_rounded},
+      {'id': 'payslip', 'title': 'Payslip', 'icon': LucideIcons.handCoins},
+      {'id': 'team', 'title': 'Team Management', 'icon': LucideIcons.users},
     ];
 
     return Container(
-      margin: const EdgeInsets.only(top: 12),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -453,12 +547,12 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           // 3 items per row, wrapping as needed – matches reference UI
-          const spacing = 12.0;
+          const spacing = 8.0;
           final itemWidth = (constraints.maxWidth - (spacing * 2)) / 3;
 
           return Wrap(
             spacing: spacing,
-            runSpacing: 16,
+            runSpacing: 12,
             children: items.map((it) {
               final id = it['id'] as String;
               return SizedBox(
@@ -502,24 +596,24 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
-                        width: 52,
-                        height: 52,
+                        width: 44,
+                        height: 44,
                         decoration: BoxDecoration(
                           color: accent.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
                           it['icon'] as IconData,
                           color: accent,
-                          size: 26,
+                          size: 22,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       Text(
                         it['title'] as String,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.inter(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: FontWeight.w500,
                           color: AppColors.textSecondary,
                         ),
@@ -536,91 +630,96 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
   }
 
   Widget _simpleMenuGrid(Color accent, List<Map<String, dynamic>> items) {
-    final alignLeft = items.length == 1;
     return Container(
-      margin: const EdgeInsets.only(top: 12),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(top: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.divider),
       ),
-      child: Row(
-        mainAxisAlignment: alignLeft
-            ? MainAxisAlignment.start
-            : MainAxisAlignment.spaceBetween,
-        children: items.map((it) {
-          return Expanded(
-            child: GestureDetector(
-              onTap: () {
-                if (it['id'] == 'signature') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SignatureModal()),
-                  );
-                } else if (it['id'] == 'faceReg') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const FaceRegistrationScreen()),
-                  );
-                } else if (it['id'] == 'supplierRequest') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SupplierRequestScreen()),
-                  );
-                } else if (it['id'] == 'customerRequest') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const CustomerRequestScreen()),
-                  );
-                } else if (it['id'] == 'product') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const ProductLibraryScreen()),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Opening ${it['title']}...'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: alignLeft
-                    ? CrossAxisAlignment.start
-                    : CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: accent.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      it['icon'] as IconData,
-                      color: accent,
-                      size: 26,
-                    ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          const spacing = 8.0;
+          final itemWidth = (constraints.maxWidth - (spacing * 2)) / 3;
+
+          return Wrap(
+            spacing: spacing,
+            runSpacing: 12,
+            alignment: WrapAlignment.start,
+            children: items.map((it) {
+              return SizedBox(
+                width: itemWidth,
+                child: GestureDetector(
+                  onTap: () {
+                    if (it['id'] == 'signature') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SignatureModal()),
+                      );
+                    } else if (it['id'] == 'faceReg') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const FaceRegistrationScreen()),
+                      );
+                    } else if (it['id'] == 'supplierRequest') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SupplierRequestScreen()),
+                      );
+                    } else if (it['id'] == 'customerRequest') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CustomerRequestScreen()),
+                      );
+                    } else if (it['id'] == 'product') {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ProductLibraryScreen()),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Opening ${it['title']}...'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: accent.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          it['icon'] as IconData,
+                          color: accent,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        it['title'] as String,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    it['title'] as String,
-                    textAlign: alignLeft ? TextAlign.left : TextAlign.center,
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                ),
+              );
+            }).toList(),
           );
-        }).toList(),
+        },
       ),
     );
   }
@@ -657,14 +756,14 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
-                Icons.people_alt_rounded,
+                LucideIcons.users,
                 color: headerColor,
                 size: 20,
               ),
             ),
             showChevron: true,
           ),
-          if (_expanded['employeeHub'] == true) _hubGrid(headerColor),
+          _animatedDropdown(key: 'employeeHub', child: _hubGrid(headerColor)),
 
           const SizedBox(height: 12),
 
@@ -680,20 +779,22 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
-                Icons.inventory_2_rounded,
+               LucideIcons.shoppingBag,
                 color: headerColor,
                 size: 20,
               ),
             ),
           ),
-          if (_expanded['productLibrary'] == true)
-            _simpleMenuGrid(headerColor, [
+          _animatedDropdown(
+            key: 'productLibrary',
+            child: _simpleMenuGrid(headerColor, [
               {
                 'id': 'product',
                 'title': 'Product',
-                'icon': Icons.inventory_2_rounded,
+                'icon': LucideIcons.shoppingBag,
               },
             ]),
+          ),
 
           const SizedBox(height: 12),
 
@@ -709,30 +810,32 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
-                Icons.settings_suggest_rounded,
+               LucideIcons.settings,
                 color: headerColor,
                 size: 20,
               ),
             ),
           ),
-          if (_expanded['managementConsole'] == true)
-            _simpleMenuGrid(headerColor, [
+          _animatedDropdown(
+            key: 'managementConsole',
+            child: _simpleMenuGrid(headerColor, [
               {
                 'id': 'employee',
                 'title': 'Employee',
-                'icon': Icons.person_outline_rounded,
+                'icon': LucideIcons.user,
               },
               {
                 'id': 'signature',
                 'title': 'Signature',
-                'icon': Icons.border_color_rounded,
+                'icon': LucideIcons.signature,
               },
               {
                 'id': 'faceReg',
                 'title': 'Face Registration',
-                'icon': Icons.face_retouching_natural_rounded,
+                'icon': LucideIcons.scanFace,
               },
             ]),
+          ),
 
           const SizedBox(height: 12),
 
@@ -748,25 +851,27 @@ class _MainMenuSectionState extends State<_MainMenuSection> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
-                Icons.description_rounded,
+                LucideIcons.clipboardList,
                 color: headerColor,
                 size: 20,
               ),
             ),
           ),
-          if (_expanded['companyForms'] ?? false)
-            _simpleMenuGrid(headerColor, [
+          _animatedDropdown(
+            key: 'companyForms',
+            child: _simpleMenuGrid(headerColor, [
               {
                 'id': 'supplierRequest',
                 'title': 'Supplier Request',
-                'icon': Icons.group_outlined,
+                'icon': LucideIcons.package,
               },
               {
                 'id': 'customerRequest',
                 'title': 'Customer Request',
-                'icon': Icons.people_alt_outlined,
+                'icon': LucideIcons.userCheck,
               },
             ]),
+          ),
 
           const SizedBox(height: 12),
 
