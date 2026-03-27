@@ -129,13 +129,15 @@ class _StatusChipsRow extends StatelessWidget {
                 ],
               ),
                const SizedBox(height: 6),
-               AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  height: 2,
-                  width: isSelected ? double.infinity : 0,
-                  decoration: BoxDecoration(
-                    color: headerColor,
-                    borderRadius: BorderRadius.circular(1),
+               FractionallySizedBox(
+                  widthFactor: isSelected ? 1.0 : 0.0,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    height: 2,
+                    decoration: BoxDecoration(
+                      color: headerColor,
+                      borderRadius: BorderRadius.circular(1),
+                    ),
                   ),
                 ),
              ],

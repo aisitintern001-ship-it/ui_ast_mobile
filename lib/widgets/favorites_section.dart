@@ -5,6 +5,9 @@ import '../models/app_state.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 import '../screens/team_leave_requests_screen.dart';
+import '../screens/expense_claim_screen.dart';
+import '../screens/attendance_screen.dart';
+import '../screens/product_library_screen.dart';
 
 class FavoritesSection extends StatelessWidget {
   final VoidCallback? onViewAll;
@@ -111,25 +114,20 @@ class _FavoritesGrid extends StatelessWidget {
       builder: (context, constraints) {
         final visibleFavorites = favorites.take(AppState.maxFavorites).toList();
         final totalItems = visibleFavorites.length + 1;
-        const spacing = 8.0;
-        final tileWidth = (((constraints.maxWidth - (spacing * (totalItems - 1))) /
+        const spacing = 6.0;
+        final tileWidth = ((constraints.maxWidth - (spacing * (totalItems - 1))) /
                     totalItems)
-                .clamp(52.0, 72.0))
             .toDouble();
 
         return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ...visibleFavorites.asMap().entries.map((entry) {
-              final index = entry.key;
-              final item = entry.value;
-              return Padding(
-                padding: const EdgeInsets.only(right: spacing),
-                child: _FavoriteIconItem(
-                  item: item,
-                  themeColor: iconColor,
-                  width: tileWidth,
-                ),
+            ...visibleFavorites.map((item) {
+              return _FavoriteIconItem(
+                item: item,
+                themeColor: iconColor,
+                width: tileWidth,
               );
             }),
             _AddNewCard(onTap: onViewAll, width: tileWidth),
@@ -156,11 +154,24 @@ class _FavoriteIconItem extends StatelessWidget {
     final color = themeColor ?? item.color;
     return GestureDetector(
       onTap: () {
-        if (item.id == 'leave_request') {
+        Widget? screen;
+        switch (item.id) {
+          case 'leave_request':
+            screen = const TeamLeaveRequestsScreen();
+            break;
+          case 'expense_claim':
+            screen = const ExpenseClaimScreen();
+            break;
+          case 'attendance':
+            screen = const AttendanceScreen();
+            break;
+          case 'product':
+            screen = const ProductLibraryScreen();
+            break;
+        }
+        if (screen != null) {
           Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const TeamLeaveRequestsScreen(),
-            ),
+            MaterialPageRoute(builder: (_) => screen!),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -173,8 +184,9 @@ class _FavoriteIconItem extends StatelessWidget {
         }
       },
       child: Container(
-        width: 64,
-        padding: const EdgeInsets.all(8),
+        width: width,
+        height: 70,
+        padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -192,24 +204,25 @@ class _FavoriteIconItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(item.icon, color: color, size: 18),
+              child: Icon(item.icon, color: color, size: 16),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Text(
               item.title,
               textAlign: TextAlign.center,
-              maxLines: 1,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.inter(
-                fontSize: 9,
+                fontSize: 8,
                 fontWeight: FontWeight.w500,
                 color: AppColors.textSecondary,
+                height: 1.2,
               ),
             ),
           ],
@@ -230,8 +243,9 @@ class _AddNewCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 64,
-        padding: const EdgeInsets.all(8),
+        width: width,
+        height: 70,
+        padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -242,23 +256,24 @@ class _AddNewCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
                 color: const Color(0xFFF3F4F6),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.add, color: Color(0xFF9CA3AF), size: 18),
+              child: const Icon(Icons.add, color: Color(0xFF9CA3AF), size: 16),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Text(
               'Add',
               textAlign: TextAlign.center,
-              maxLines: 1,
+              maxLines: 2,
               style: GoogleFonts.inter(
-                fontSize: 9,
+                fontSize: 8,
                 fontWeight: FontWeight.w500,
                 color: AppColors.textSecondary,
+                height: 1.2,
               ),
             ),
           ],
