@@ -887,8 +887,8 @@ class _MainMenuSectionState extends State<_MainMenuSection>
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
-                Icons.build_rounded,
-                color: AppColors.iconTeal,
+                LucideIcons.wrench,
+                color: const Color.fromARGB(255, 109, 121, 119),
                 size: 20,
               ),
             ),

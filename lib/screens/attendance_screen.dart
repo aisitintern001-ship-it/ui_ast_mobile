@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
@@ -240,7 +241,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(Icons.access_time_filled_rounded, size: 40, color: headerColor),
+                      Icon(LucideIcons.clock, size: 40, color: headerColor),
                       const SizedBox(height: 8),
                       Text(_hasCurrentTimeIn ? 'You are currently timed in' : 'No Current Time In', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                       const SizedBox(height: 4),
@@ -312,7 +313,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 // History / Offline toggle
                 Container(
                   padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.divider)),
+                  decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(8)),
                   child: Row(
                     children: [
                       Expanded(
@@ -320,14 +321,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           onTap: () => setState(() => _showHistory = true),
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(color: _showHistory ? headerColor : Colors.transparent, borderRadius: BorderRadius.circular(20)),
+                            decoration: BoxDecoration(color: _showHistory ? Colors.white : Colors.transparent, borderRadius: BorderRadius.circular(6)),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.history_rounded, size: 16, color: _showHistory ? Colors.white : AppColors.textMuted),
+                                Icon(Icons.history_rounded, size: 16, color: _showHistory ? AppColors.textPrimary : AppColors.textMuted),
                                 const SizedBox(width: 6),
-                                Text('History', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: _showHistory ? Colors.white : AppColors.textSecondary)),
+                                Text('History', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: _showHistory ? AppColors.textPrimary : AppColors.textSecondary)),
                               ],
                             ),
                           ),
@@ -339,14 +340,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           onTap: () => setState(() => _showHistory = false),
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(color: !_showHistory ? headerColor : Colors.transparent, borderRadius: BorderRadius.circular(20)),
+                            decoration: BoxDecoration(color: !_showHistory ? Colors.white : Colors.transparent, borderRadius: BorderRadius.circular(6)),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.wifi_off_rounded, size: 16, color: !_showHistory ? Colors.white : AppColors.textMuted),
+                                Icon(Icons.wifi_off_rounded, size: 16, color: !_showHistory ? AppColors.textPrimary : AppColors.textMuted),
                                 const SizedBox(width: 6),
-                                Text('Offline', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: !_showHistory ? Colors.white : AppColors.textSecondary)),
+                                Text('Offline', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: !_showHistory ? AppColors.textPrimary : AppColors.textSecondary)),
                               ],
                             ),
                           ),

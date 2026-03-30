@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 // Import all your main screens here so the Nav Bar can open them:
 import '../screens/attendance_screen.dart';
@@ -19,8 +20,8 @@ class AppBottomNavBar extends StatelessWidget {
 
     final items = [
       {'icon': Icons.calendar_month_rounded, 'label': 'Attendance'},
-      {'icon': Icons.home_rounded, 'label': 'Home'},
-      {'icon': Icons.settings_rounded, 'label': 'Settings'},
+      {'icon': LucideIcons.house, 'label': 'Home'},
+      {'icon': LucideIcons.settings, 'label': 'Settings'},
     ];
 
     return Container(

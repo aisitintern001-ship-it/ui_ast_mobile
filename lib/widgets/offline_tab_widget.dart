@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class OfflineRecordItem {
   final String title;
@@ -77,7 +78,7 @@ class OfflineTabWidget extends StatelessWidget {
                 // Offline Records List
                 Row(
                   children: [
-                    const Icon(Icons.wifi_off, color: Colors.black87, size: 20),
+                    const Icon(LucideIcons.wifiOff, color: Colors.black87, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(

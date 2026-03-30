@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:camera/camera.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_toast.dart';
@@ -14,9 +15,92 @@ class FaceRecognitionScreen extends StatefulWidget {
   State<FaceRecognitionScreen> createState() => _FaceRecognitionScreenState();
 }
 
-class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
+class _FaceRecognitionScreenState extends State<FaceRecognitionScreen>
+    with WidgetsBindingObserver {
   bool _showFailed = false;
-  int _confirmCount = 0; // 0 = first attempt (will fail), 1+ = subsequent (will succeed)
+  int _confirmCount = 0;
+  CameraController? _cameraController;
+  List<CameraDescription>? _cameras;
+  bool _isCameraInitialized = false;
+  bool _isCameraError = false;
+  String? _cameraErrorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _initializeCamera();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _cameraController?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final controller = _cameraController;
+    if (controller == null || !controller.value.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive) {
+      controller.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      _initializeCamera();
+    }
+  }
+
+  Future<void> _initializeCamera() async {
+    try {
+      _cameras = await availableCameras();
+
+      if (_cameras == null || _cameras!.isEmpty) {
+        setState(() {
+          _isCameraError = true;
+          _cameraErrorMessage = 'No cameras available on this device';
+        });
+        return;
+      }
+
+      // Try to find front camera first for face recognition
+      CameraDescription? frontCamera;
+      for (final camera in _cameras!) {
+        if (camera.lensDirection == CameraLensDirection.front) {
+          frontCamera = camera;
+          break;
+        }
+      }
+
+      // Fall back to first camera if no front camera
+      final selectedCamera = frontCamera ?? _cameras!.first;
+
+      _cameraController = CameraController(
+        selectedCamera,
+        ResolutionPreset.medium,
+        enableAudio: false,
+        imageFormatGroup: ImageFormatGroup.jpeg,
+      );
+
+      await _cameraController!.initialize();
+
+      if (mounted) {
+        setState(() {
+          _isCameraInitialized = true;
+          _isCameraError = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isCameraError = true;
+          _cameraErrorMessage = 'Failed to initialize camera: ${e.toString()}';
+        });
+      }
+    }
+  }
 
   void _onConfirm() {
     if (_confirmCount == 0) {
@@ -46,10 +130,12 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
   }
 
   Widget _buildCameraScreen(BuildContext context) {
+    final headerColor = context.watch<AppState>().headerColor;
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: context.watch<AppState>().headerColor,
+        backgroundColor: headerColor,
         foregroundColor: Colors.white,
         title: Text(
           'Face Recognition',
@@ -61,21 +147,131 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
       ),
       body: Column(
         children: [
-          // Camera preview placeholder
+          // Camera preview
           Expanded(
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Container(
-                  width: double.infinity,
-                  color: Colors.black,
-                ),
+                // Camera preview or placeholder
+                if (_isCameraInitialized && _cameraController != null)
+                  SizedBox(
+                    width: double.infinity,
+                    height: double.infinity,
+                    child: CameraPreview(_cameraController!),
+                  )
+                else if (_isCameraError)
+                  Container(
+                    width: double.infinity,
+                    color: Colors.black,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.camera_alt_outlined,
+                          size: 64,
+                          color: Colors.white54,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _cameraErrorMessage ?? 'Camera not available',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: Colors.white70,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _initializeCamera,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: headerColor,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: Text(
+                            'Retry',
+                            style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Container(
+                    width: double.infinity,
+                    color: Colors.black,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Initializing camera...',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Face guide overlay
                 Container(
                   width: 260,
                   height: 260,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white, width: 3),
+                    borderRadius: BorderRadius.circular(130),
+                    border: Border.all(
+                      color: _isCameraInitialized ? headerColor : Colors.white,
+                      width: 3,
+                    ),
+                  ),
+                ),
+
+                // Corner guides
+                Positioned(
+                  top: MediaQuery.of(context).size.height * 0.15,
+                  left: MediaQuery.of(context).size.width * 0.15,
+                  child: _buildCornerGuide(headerColor, topLeft: true),
+                ),
+                Positioned(
+                  top: MediaQuery.of(context).size.height * 0.15,
+                  right: MediaQuery.of(context).size.width * 0.15,
+                  child: _buildCornerGuide(headerColor, topRight: true),
+                ),
+                Positioned(
+                  bottom: MediaQuery.of(context).size.height * 0.25,
+                  left: MediaQuery.of(context).size.width * 0.15,
+                  child: _buildCornerGuide(headerColor, bottomLeft: true),
+                ),
+                Positioned(
+                  bottom: MediaQuery.of(context).size.height * 0.25,
+                  right: MediaQuery.of(context).size.width * 0.15,
+                  child: _buildCornerGuide(headerColor, bottomRight: true),
+                ),
+
+                // Instructions overlay
+                Positioned(
+                  bottom: 20,
+                  left: 20,
+                  right: 20,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.black54,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Position your face within the circle',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -123,9 +319,11 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: _onConfirm,
+                        onPressed: _isCameraInitialized || _isCameraError
+                            ? _onConfirm
+                            : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.headerOrange,
+                          backgroundColor: headerColor,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
@@ -147,6 +345,26 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCornerGuide(Color color,
+      {bool topLeft = false,
+      bool topRight = false,
+      bool bottomLeft = false,
+      bool bottomRight = false}) {
+    return SizedBox(
+      width: 20,
+      height: 20,
+      child: CustomPaint(
+        painter: _CornerPainter(
+          color: color,
+          topLeft: topLeft,
+          topRight: topRight,
+          bottomLeft: bottomLeft,
+          bottomRight: bottomRight,
+        ),
       ),
     );
   }
@@ -372,3 +590,52 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen> {
   }
 }
 
+class _CornerPainter extends CustomPainter {
+  final Color color;
+  final bool topLeft;
+  final bool topRight;
+  final bool bottomLeft;
+  final bool bottomRight;
+
+  _CornerPainter({
+    required this.color,
+    this.topLeft = false,
+    this.topRight = false,
+    this.bottomLeft = false,
+    this.bottomRight = false,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path();
+
+    if (topLeft) {
+      path.moveTo(0, size.height);
+      path.lineTo(0, 0);
+      path.lineTo(size.width, 0);
+    } else if (topRight) {
+      path.moveTo(0, 0);
+      path.lineTo(size.width, 0);
+      path.lineTo(size.width, size.height);
+    } else if (bottomLeft) {
+      path.moveTo(0, 0);
+      path.lineTo(0, size.height);
+      path.lineTo(size.width, size.height);
+    } else if (bottomRight) {
+      path.moveTo(size.width, 0);
+      path.lineTo(size.width, size.height);
+      path.lineTo(0, size.height);
+    }
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}

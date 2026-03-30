@@ -38,6 +38,7 @@ class FavoritesSection extends StatelessWidget {
                 ),
               ),
               GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: onViewAll,
                 child: Text(
                   'View All',
@@ -51,17 +52,16 @@ class FavoritesSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          if (favorites.isEmpty)
-            _EmptyFavorites(
-              onAdd: onViewAll,
-              actionColor: headerColor,
-            )
-          else
-            _FavoritesGrid(
-              favorites: favorites,
-              themeColor: headerColor,
-              onViewAll: onViewAll,
-            ),
+          favorites.isEmpty
+              ? _EmptyFavorites(
+                  onAdd: onViewAll,
+                  actionColor: headerColor,
+                )
+              : _FavoritesGrid(
+                  favorites: favorites,
+                  themeColor: headerColor,
+                  onViewAll: onViewAll,
+                ),
         ],
       ),
     );
@@ -110,10 +110,13 @@ class _FavoritesGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final iconColor = themeColor ?? AppColors.iconBlue;
+    final visibleFavorites = favorites.take(AppState.maxFavorites).toList();
+    final isAtMax = visibleFavorites.length >= AppState.maxFavorites;
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final visibleFavorites = favorites.take(AppState.maxFavorites).toList();
-        final totalItems = visibleFavorites.length + 1;
+        // Calculate items: favorites + add button (if not at max)
+        final totalItems = isAtMax ? visibleFavorites.length : visibleFavorites.length + 1;
         const spacing = 6.0;
         final tileWidth = ((constraints.maxWidth - (spacing * (totalItems - 1))) /
                     totalItems)
@@ -123,14 +126,14 @@ class _FavoritesGrid extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ...visibleFavorites.map((item) {
-              return _FavoriteIconItem(
-                item: item,
-                themeColor: iconColor,
-                width: tileWidth,
-              );
-            }),
-            _AddNewCard(onTap: onViewAll, width: tileWidth),
+            ...visibleFavorites.map((item) => _FavoriteIconItem(
+                  item: item,
+                  themeColor: iconColor,
+                  width: tileWidth,
+                )),
+            // Only show Add button if not at max
+            if (!isAtMax)
+              _AddNewCard(onTap: onViewAll, width: tileWidth),
           ],
         );
       },
@@ -153,6 +156,7 @@ class _FavoriteIconItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = themeColor ?? item.color;
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         Widget? screen;
         switch (item.id) {
@@ -241,6 +245,7 @@ class _AddNewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
         width: width,
@@ -327,6 +332,7 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
     _initFromState(state);
     final themeColor = state.headerColor;
     final categories = state.favoriteCategories;
+    final isAtMax = _selected.length >= AppState.maxFavorites;
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
@@ -355,17 +361,40 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        'Select your top services (Max 5)',
-                        style: GoogleFonts.inter(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
-                        ),
+                      Row(
+                        children: [
+                          Text(
+                            'Select your top services ',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: isAtMax
+                                  ? themeColor.withValues(alpha: 0.15)
+                                  : Colors.grey.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              '${_selected.length}/${AppState.maxFavorites}',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: isAtMax ? themeColor : AppColors.textSecondary,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
                 GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: () => Navigator.pop(context),
                   child: Container(
                     width: 36,
@@ -400,6 +429,7 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
                           ),
                         ),
                         GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap: _toggleOptions,
                           child: Text(
                             _showOptions ? 'Cancel' : 'Edit',
@@ -414,8 +444,9 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Selected favorites + Add button
+                    // Selected favorites + Add button - LEFT ALIGNED
                     Wrap(
+                      alignment: WrapAlignment.start,
                       spacing: 8,
                       runSpacing: 12,
                       children: [
@@ -424,20 +455,66 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
                               themeColor: themeColor,
                               onRemove: () => _remove(item.id),
                               showRemove: true,
+                              isFavorited: true,
                             )),
-                        if (_selected.length < AppState.maxFavorites)
+                        // Only show Add button if not at max
+                        if (!isAtMax)
                           _AddButton(
                             onTap: () => setState(() => _showOptions = true),
                           ),
                       ],
                     ),
 
-                    // Category options (when + or Edit clicked)
+                    // Max limit message
+                    if (isAtMax)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: themeColor.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: themeColor.withValues(alpha: 0.2)),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.info_outline_rounded,
+                                size: 16,
+                                color: themeColor,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Maximum of 5 favorites reached. Remove one to add another.',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: themeColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                    // Category options (when + or Edit clicked) - LEFT ALIGNED
+                    // Items already in favorites are hidden from these lists
                     if (_showOptions) ...[
                       const SizedBox(height: 20),
                       ...categories.map<Widget>((cat) {
                         final label = cat['label'] as String;
-                        final items = cat['items'] as List<FavoriteItem>;
+                        final allItems = cat['items'] as List<FavoriteItem>;
+                        // Filter out items that are already in favorites
+                        final availableItems = allItems
+                            .where((item) => !_selected.any((f) => f.id == item.id))
+                            .toList();
+
+                        // Don't show category if all items are already favorited
+                        if (availableItems.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
                           child: Column(
@@ -453,16 +530,19 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
                               ),
                               const SizedBox(height: 10),
                               Wrap(
+                                alignment: WrapAlignment.start,
                                 spacing: 8,
                                 runSpacing: 12,
-                                children: items.map((item) {
-                                  final isSelected = _selected.any((f) => f.id == item.id);
-                                  return _FavoriteChip(
-                                    item: item,
-                                    themeColor: themeColor,
-                                    onTap: isSelected ? null : () => _add(item),
-                                    onRemove: isSelected ? () => _remove(item.id) : null,
-                                    showRemove: isSelected,
+                                children: availableItems.map((item) {
+                                  return Opacity(
+                                    opacity: isAtMax ? 0.5 : 1.0,
+                                    child: _FavoriteChip(
+                                      item: item,
+                                      themeColor: themeColor,
+                                      onTap: isAtMax ? null : () => _add(item),
+                                      showRemove: false,
+                                      isFavorited: false,
+                                    ),
                                   );
                                 }).toList(),
                               ),
@@ -507,6 +587,7 @@ class _FavoriteChip extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onRemove;
   final bool showRemove;
+  final bool isFavorited;
 
   const _FavoriteChip({
     required this.item,
@@ -514,11 +595,19 @@ class _FavoriteChip extends StatelessWidget {
     this.onTap,
     this.onRemove,
     this.showRemove = false,
+    this.isFavorited = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Gray color for non-favorited items, theme color for favorited items
+    final iconColor = isFavorited ? themeColor : const Color(0xFF9CA3AF);
+    final bgColor = isFavorited
+        ? themeColor.withValues(alpha: 0.12)
+        : const Color(0xFFF3F4F6);
+
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: SizedBox(
         width: 56,
@@ -531,10 +620,17 @@ class _FavoriteChip extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: themeColor.withValues(alpha: 0.12),
+                    color: bgColor,
                     borderRadius: BorderRadius.circular(10),
+                    border: isFavorited
+                        ? null
+                        : Border.all(color: const Color(0xFFE5E7EB)),
                   ),
-                  child: Icon(item.icon, color: themeColor, size: 20),
+                  child: Icon(
+                    item.icon,
+                    color: iconColor,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 SizedBox(
@@ -548,7 +644,9 @@ class _FavoriteChip extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 8,
                       fontWeight: FontWeight.w500,
-                      color: AppColors.textSecondary,
+                      color: isFavorited
+                          ? AppColors.textSecondary
+                          : const Color(0xFF9CA3AF),
                       height: 1.3,
                     ),
                   ),
@@ -560,13 +658,21 @@ class _FavoriteChip extends StatelessWidget {
                 top: -3,
                 right: -2,
                 child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: onRemove,
                   child: Container(
                     width: 16,
                     height: 16,
-                    decoration: const BoxDecoration(
-                      color: AppColors.dangerRed,
+                    decoration: BoxDecoration(
+                      color: themeColor,
                       shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: themeColor.withValues(alpha: 0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        ),
+                      ],
                     ),
                     child: const Icon(Icons.check_rounded, size: 10, color: Colors.white),
                   ),
@@ -587,6 +693,7 @@ class _AddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: SizedBox(
         width: 56,
@@ -598,9 +705,12 @@ class _AddButton extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFFF3F4F6),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.divider),
+                border: Border.all(
+                  color: AppColors.divider,
+                  style: BorderStyle.solid,
+                ),
               ),
-              child: const Icon(Icons.add_rounded, color: Colors.black54, size: 22),
+              child: const Icon(Icons.add_rounded, color: Color(0xFF6B7280), size: 22),
             ),
             const SizedBox(height: 4),
             SizedBox(

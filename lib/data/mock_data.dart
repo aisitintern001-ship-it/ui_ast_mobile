@@ -91,9 +91,24 @@ class MockData {
       ],
     },
     {
-      'label': 'Finance',
+      'label': 'Company Forms',
+      'items': [
+        FavoriteItem(id: 'supplier_request', title: 'Supplier Request', icon: LucideIcons.truck, color: AppColors.iconOrange, route: '/supplier-request'),
+        FavoriteItem(id: 'customer_request', title: 'Customer Request', icon: LucideIcons.userPlus, color: AppColors.iconOrange, route: '/customer-request'),
+      ],
+    },
+    {
+      'label': 'Expense Claim',
       'items': [
         FavoriteItem(id: 'expense_claim', title: 'Expense Claim', icon: LucideIcons.dollarSign, color: AppColors.iconOrange, route: '/expense-claim'),
+      ],
+    },
+    {
+      'label': 'Management Console',
+      'items': [
+        FavoriteItem(id: 'employee', title: 'Employee', icon: LucideIcons.users, color: AppColors.iconOrange, route: '/employee'),
+        FavoriteItem(id: 'signature', title: 'Signature', icon: LucideIcons.penTool, color: AppColors.iconOrange, route: '/signature'),
+        FavoriteItem(id: 'face_registration', title: 'Face Registration', icon: LucideIcons.scanFace, color: AppColors.iconOrange, route: '/face-registration'),
       ],
     },
   ];
