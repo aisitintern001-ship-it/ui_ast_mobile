@@ -17,6 +17,8 @@ class AddButtonWidget extends StatelessWidget {
       onPressed: onPressed,
       backgroundColor: const Color(0xFF2181FF),
       elevation: 4,
+      // This applies the perfectly circular edges (pill shape)
+      shape: const StadiumBorder(), 
       icon: const Icon(Icons.add, color: Colors.white, size: 18),
       label: Text(
         label,

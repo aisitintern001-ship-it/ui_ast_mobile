@@ -4,6 +4,13 @@ import '../data/mock_data.dart';
 import '../theme/app_theme.dart';
 
 class AppState extends ChangeNotifier {
+    // Attendance: persistent time-in state
+    bool _hasCurrentTimeIn = false;
+    bool get hasCurrentTimeIn => _hasCurrentTimeIn;
+    void setHasCurrentTimeIn(bool value) {
+      _hasCurrentTimeIn = value;
+      notifyListeners();
+    }
   // Theme color for header
   Color _headerColor = const Color(0xFF2563EB);
   Color get headerColor => _headerColor;
@@ -60,7 +67,8 @@ class AppState extends ChangeNotifier {
       case '1':
         return const Color(0xFF2563EB); // Pacific Harvest Co.
       case '2':
-        return const Color(0xFFF97316); // Australia Farm Innovations
+        // Australia Farm Innovations (fallback solid color)
+        return const Color(0xFFF25329);
       case '3':
         return const Color(0xFF7561DB); // Australia Software Technology
       case '4':
@@ -68,6 +76,49 @@ class AppState extends ChangeNotifier {
       default:
         return AppColors.headerOrange;
     }
+  }
+
+  // Gradient for Australia Farm Innovations
+  LinearGradient? companyHeaderGradient(CompanyModel company) {
+    if (company.id == '2') {
+      return const LinearGradient(
+        colors: [
+          Color(0xFFF25329), // #f25329
+          Color(0xFFF86037), // #f86037
+          Color(0xFFFE6C45), // #fe6c45
+          Color(0xFFFF8260), // #ff8260
+        ],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      );
+    }
+    if (company.id == '1') {
+      return const LinearGradient(
+        colors: [
+          Color(0xFF3F75ED), // #3f75ed
+          Color(0xFF5081EF), // #5081ef
+          Color(0xFF6792F1), // #6792f1
+          Color(0xFFBCCFF9), // #bccff9
+        ],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      );
+    }
+    if (company.id == '3') {
+      return const LinearGradient(
+        colors: [
+          Color(0xFF7A67DC), // #3f75ed
+          Color(0xFF7D6ADD), // #5081ef
+          Color(0xFF8472DF), // #6792f1
+          Color(0xFF8D7CE1), // #bccff9
+        ],
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+      );
+    }
+    return null;
+
+    
   }
 
   void setHeaderColor(Color color) {

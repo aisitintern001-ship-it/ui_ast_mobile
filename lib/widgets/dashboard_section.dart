@@ -1,66 +1,111 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
 
-class DashboardSection extends StatelessWidget {
+class DashboardSection extends StatefulWidget {
   const DashboardSection({super.key});
+
+  @override
+  State<DashboardSection> createState() => _DashboardSectionState();
+}
+
+class _DashboardSectionState extends State<DashboardSection>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _headerAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+    _headerAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
 
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return FadeTransition(
+      opacity: _headerAnimation,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, 0.05),
+          end: Offset.zero,
+        ).animate(_headerAnimation),
+        child: Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'My Dashboard',
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-
-          // Wireframe-style tabs: Pending | Approval | Sync Records
-          _StatusChipsRow(),
-          const SizedBox(height: 12),
-
-          // Items list
-          ...state.filteredDashboardItems
-              .take(6)
-              .map((item) => _DashboardItemTile(item: item)),
-
-          // View all button
-          if (state.filteredDashboardItems.length > 6)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Center(
-                child: TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    'View All',
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'My Dashboard',
                     style: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: state.headerColor,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Wireframe-style tabs: Pending | Approval | Sync Records
+              _StatusChipsRow(),
+              const SizedBox(height: 12),
+
+              // Items list with staggered animation
+              ...state.filteredDashboardItems
+                  .take(6)
+                  .toList()
+                  .asMap()
+                  .entries
+                  .map((entry) => _AnimatedDashboardItemTile(
+                        item: entry.value,
+                        index: entry.key,
+                      )),
+
+              // View all button
+              if (state.filteredDashboardItems.length > 6)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Center(
+                    child: TextButton(
+                      onPressed: () {},
+                      child: Text(
+                        'View All',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: state.headerColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
-        ],
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -149,10 +194,55 @@ class _StatusChipsRow extends StatelessWidget {
   }
 }
 
-class _DashboardItemTile extends StatelessWidget {
+class _AnimatedDashboardItemTile extends StatefulWidget {
   final DashboardItem item;
+  final int index;
 
-  const _DashboardItemTile({required this.item});
+  const _AnimatedDashboardItemTile({required this.item, required this.index});
+
+  @override
+  State<_AnimatedDashboardItemTile> createState() => _AnimatedDashboardItemTileState();
+}
+
+class _AnimatedDashboardItemTileState extends State<_AnimatedDashboardItemTile>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _scaleAnimation;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.1, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+
+    _scaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+
+    Future.delayed(Duration(milliseconds: 50 * widget.index), () {
+      if (mounted) _controller.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   Color _iconColor(DashboardItem item, Color headerColor) {
     if (item.iconBgColor == const Color(0xFFE9E6FD)) return const Color(0xFF7C4DFF);
@@ -164,15 +254,32 @@ class _DashboardItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final headerColor = state.headerColor;
-    final iconColor = _iconColor(item, headerColor);
-    final isSyncRecord = item.category == 'Sent for Review';
+    final iconColor = _iconColor(widget.item, headerColor);
+    final isSyncRecord = widget.item.category == 'Sent for Review';
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.divider, width: 0.5)),
-      ),
-      child: Row(
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: GestureDetector(
+            onTapDown: (_) {
+              setState(() => _isPressed = true);
+              HapticFeedback.selectionClick();
+            },
+            onTapUp: (_) => setState(() => _isPressed = false),
+            onTapCancel: () => setState(() => _isPressed = false),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 100),
+              transform: Matrix4.identity()..scale(_isPressed ? 0.98 : 1.0),
+              transformAlignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              decoration: BoxDecoration(
+                color: _isPressed ? Colors.grey.shade50 : Colors.transparent,
+                border: const Border(bottom: BorderSide(color: AppColors.divider, width: 0.5)),
+              ),
+              child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
@@ -183,7 +290,7 @@ class _DashboardItemTile extends StatelessWidget {
               color: iconColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(item.icon, color: iconColor, size: 20),
+            child: Icon(widget.item.icon, color: iconColor, size: 20),
           ),
           Expanded(
             child: isSyncRecord
@@ -191,6 +298,10 @@ class _DashboardItemTile extends StatelessWidget {
                 : _buildDefaultContent(),
           ),
         ],
+      ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -204,7 +315,7 @@ class _DashboardItemTile extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                item.title,
+                widget.item.title,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -214,14 +325,14 @@ class _DashboardItemTile extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              item.date,
+              widget.item.date,
               style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
             ),
           ],
         ),
         const SizedBox(height: 2),
         Text(
-          item.subtitle,
+          widget.item.subtitle,
           style: GoogleFonts.inter(
             fontSize: 12,
             color: AppColors.textMuted,
@@ -231,15 +342,15 @@ class _DashboardItemTile extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
-            color: item.statusColor.withValues(alpha: 0.15),
+            color: widget.item.statusColor.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            item.status,
+            widget.item.status,
             style: GoogleFonts.inter(
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: item.statusColor,
+              color: widget.item.statusColor,
             ),
           ),
         ),
@@ -256,7 +367,7 @@ class _DashboardItemTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                item.title,
+                widget.item.title,
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -265,7 +376,7 @@ class _DashboardItemTile extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                item.subtitle,
+                widget.item.subtitle,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: AppColors.textMuted,
@@ -273,7 +384,7 @@ class _DashboardItemTile extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                item.date,
+                widget.item.date,
                 style: GoogleFonts.inter(
                   fontSize: 12,
                   color: AppColors.textMuted,
@@ -286,11 +397,11 @@ class _DashboardItemTile extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: item.statusColor,
+            color: widget.item.statusColor,
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            item.status,
+            widget.item.status,
             style: GoogleFonts.inter(
               fontSize: 10,
               fontWeight: FontWeight.w600,

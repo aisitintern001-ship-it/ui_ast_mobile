@@ -7,7 +7,8 @@ import '../widgets/text_input.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/expandable_status_filter.dart';
 import '../widgets/offline_tab_widget.dart';
-import '../widgets/add_button_widget.dart'; // <-- IMPORT REUSABLE BUTTON
+import '../widgets/add_button_widget.dart';
+import '../widgets/history_offline_tabs.dart';
 
 class ExpenseClaimScreen extends StatefulWidget {
   const ExpenseClaimScreen({super.key});
@@ -53,11 +54,15 @@ class _ExpenseClaimScreenState extends State<ExpenseClaimScreen> {
       ),
       body: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.all(16), padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(25)),
-            child: Row(
-              children: [ _buildTabButton("History", Icons.history, 0), _buildTabButton("Offline", Icons.wifi_off, 1) ],
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: HistoryOfflineTabs(
+              showHistory: currentTab == 0,
+              onChanged: (val) => setState(() => currentTab = val ? 0 : 1),
+              backgroundColor: Colors.grey.shade200,
+              activeColor: Colors.white,
+              inactiveColor: Colors.transparent,
+              borderRadius: 25,
             ),
           ),
           Expanded(child: AnimatedSwitcher(duration: const Duration(milliseconds: 300), child: currentTab == 0 ? _buildHistoryTab() : _buildOfflineTab()))
@@ -89,7 +94,7 @@ class _ExpenseClaimScreenState extends State<ExpenseClaimScreen> {
                 const SizedBox(height: 12),
                 ExpandableStatusFilter(statuses: _expenseStatuses, selectedStatus: selectedStatus, onChanged: (v) => setState(() => selectedStatus = v), placeholder: 'Filter by Status'),
                 const SizedBox(height: 12),
-                SizedBox(width: double.infinity, height: 40, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2181FF), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0), onPressed: () {}, child: Text("Apply Filter", style: GoogleFonts.inter(fontWeight: FontWeight.bold)))),
+                SizedBox(width: double.infinity, height: 40, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2181FF), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)), elevation: 0), onPressed: () {}, child: Text("Apply Filter", style: GoogleFonts.inter(fontWeight: FontWeight.bold)))),
               ],
             ),
           ),

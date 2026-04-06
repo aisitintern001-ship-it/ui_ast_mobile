@@ -17,7 +17,6 @@ class FaceRecognitionScreen extends StatefulWidget {
 
 class _FaceRecognitionScreenState extends State<FaceRecognitionScreen>
     with WidgetsBindingObserver {
-  bool _showFailed = false;
   int _confirmCount = 0;
   CameraController? _cameraController;
   List<CameraDescription>? _cameras;
@@ -102,10 +101,120 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen>
     }
   }
 
+  void _showFailedDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevents closing by tapping outside
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: Color(0xFFFCA5A5), width: 1), // Light red border
+          ),
+          backgroundColor: const Color(0xFFFEF2F2), // Light red background wash
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Red X Icon
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEF4444),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                // Title
+                Text(
+                  '${widget.mode} Failed',
+                  style: GoogleFonts.inter(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFFEF4444),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                
+                // Message
+                Text(
+                  'Face verification could not be completed.\nPlease try again.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    color: const Color(0xFF6B7280),
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 28),
+                
+                // Try Again Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close dialog to try again
+                    },
+                    icon: const Icon(Icons.refresh, size: 20),
+                    label: Text(
+                      'Try Again',
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEF4444),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                
+                // Dismiss Button
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop(); // Close dialog
+                    Navigator.of(context).pop(false); // Exit screen entirely
+                  },
+                  child: Text(
+                    'Dismiss',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFF6B7280),
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void _onConfirm() {
     if (_confirmCount == 0) {
       _confirmCount++;
-      setState(() => _showFailed = true);
+      // Trigger the pop-up modal
+      _showFailedDialog();
+      
+      // Kept the toast just in case, but you can remove it if the modal is enough
       AppToast.show(
         context,
         type: ToastType.error,
@@ -117,15 +226,8 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen>
     }
   }
 
-  void _retakePhoto() {
-    setState(() => _showFailed = false);
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_showFailed) {
-      return _buildFailedScreen(context);
-    }
     return _buildCameraScreen(context);
   }
 
@@ -366,226 +468,6 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen>
           bottomRight: bottomRight,
         ),
       ),
-    );
-  }
-
-  Widget _buildFailedScreen(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFFFF8F6),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Column(
-            children: [
-              const Spacer(flex: 2),
-
-              // Face icon with red rings
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Outer faded ring
-                  Container(
-                    width: 160,
-                    height: 160,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color(0xFFEF4444).withValues(alpha: 0.06),
-                    ),
-                  ),
-                  // Middle ring
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color(0xFFEF4444).withValues(alpha: 0.10),
-                    ),
-                  ),
-                  // Inner circle with face icon
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFFEF4444),
-                    ),
-                    child: const Icon(
-                      Icons.sentiment_satisfied_alt,
-                      size: 44,
-                      color: Colors.white,
-                    ),
-                  ),
-                  // Small camera badge
-                  Positioned(
-                    bottom: 38,
-                    right: 38,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 4,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt,
-                        size: 14,
-                        color: Color(0xFFEF4444),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Title
-              Text(
-                'Face Match Failed',
-                style: GoogleFonts.inter(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFFEF4444),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "We couldn't verified you identity. Please make sure\nyour face is clearly visible and matches your\nregistered photo.",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  color: const Color(0xFF6B7280),
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 28),
-
-              // Tips card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Tips for better result:',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: const Color(0xFF374151),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTipRow(1, 'Ensure good lighting on your face.'),
-                    const SizedBox(height: 12),
-                    _buildTipRow(2, 'Remove sunglasses or face coverings.'),
-                    const SizedBox(height: 12),
-                    _buildTipRow(3, 'Face the camera directly.'),
-                  ],
-                ),
-              ),
-
-              const Spacer(flex: 2),
-
-              // Retake Photo button
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton.icon(
-                  onPressed: _retakePhoto,
-                  icon: const Icon(Icons.camera_alt_outlined, size: 20),
-                  label: Text(
-                    'Retake Photo',
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFEF4444),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Go back button
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: OutlinedButton.icon(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  icon: const Icon(Icons.arrow_back, size: 18),
-                  label: Text(
-                    'Go back',
-                    style: GoogleFonts.inter(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF6B7280),
-                    side: const BorderSide(color: Color(0xFFE5E7EB)),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTipRow(int number, String text) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 22,
-          height: 22,
-          decoration: BoxDecoration(
-            color: const Color(0xFFFEE2E2),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Center(
-            child: Text(
-              '$number',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFFEF4444),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            text,
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: const Color(0xFF6B7280),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

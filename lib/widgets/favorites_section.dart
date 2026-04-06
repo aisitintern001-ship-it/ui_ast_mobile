@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
@@ -8,6 +9,17 @@ import '../screens/team_leave_requests_screen.dart';
 import '../screens/expense_claim_screen.dart';
 import '../screens/attendance_screen.dart';
 import '../screens/product_library_screen.dart';
+import '../screens/supplier_request_screen.dart';
+import '../screens/customer_request_screen.dart';
+import '../screens/team_management_screen.dart';
+import '../screens/face_registration_screen.dart';
+import '../screens/personal_leave_screen.dart';
+import '../screens/team_members_screen.dart';
+import '../screens/member_timesheet_screen.dart';
+import '../screens/data_integration_screen.dart';
+import '../screens/profile_info_screen.dart';
+import '../modals/signature_modal.dart';
+import 'animations/page_transitions.dart';
 
 class FavoritesSection extends StatelessWidget {
   final VoidCallback? onViewAll;
@@ -33,7 +45,7 @@ class FavoritesSection extends StatelessWidget {
                 'Favorites',
                 style: GoogleFonts.inter(
                   fontSize: 15,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                 ),
               ),
@@ -43,8 +55,8 @@ class FavoritesSection extends StatelessWidget {
                 child: Text(
                   'View All',
                   style: GoogleFonts.inter(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
                     color: headerColor,
                   ),
                 ),
@@ -141,63 +153,188 @@ class _FavoritesGrid extends StatelessWidget {
   }
 }
 
-class _FavoriteIconItem extends StatelessWidget {
+class _FavoriteIconItem extends StatefulWidget {
   final FavoriteItem item;
   final Color? themeColor;
   final double width;
+  final int index;
 
   const _FavoriteIconItem({
     required this.item,
     this.themeColor,
     required this.width,
+    this.index = 0,
   });
 
   @override
-  Widget build(BuildContext context) {
-    final color = themeColor ?? item.color;
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        Widget? screen;
-        switch (item.id) {
-          case 'leave_request':
-            screen = const TeamLeaveRequestsScreen();
-            break;
-          case 'expense_claim':
-            screen = const ExpenseClaimScreen();
-            break;
-          case 'attendance':
-            screen = const AttendanceScreen();
-            break;
-          case 'product':
-            screen = const ProductLibraryScreen();
-            break;
-        }
-        if (screen != null) {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => screen!),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Opening ${item.title}...'),
-              duration: const Duration(seconds: 1),
-              behavior: SnackBarBehavior.floating,
+  State<_FavoriteIconItem> createState() => _FavoriteIconItemState();
+}
+
+class _FavoriteIconItemState extends State<_FavoriteIconItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.92).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    _controller.forward();
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    _controller.reverse();
+    HapticFeedback.lightImpact();
+    _navigateToScreen();
+  }
+
+  void _onTapCancel() {
+    _controller.reverse();
+  }
+
+  void _navigateToScreen() {
+    Widget? screen;
+    switch (widget.item.id) {
+      // Attendance category
+      case 'attendance':
+        screen = const AttendanceScreen();
+        break;
+      case 'payslip':
+        // Show coming soon for payslip
+        _showComingSoon('Payslip');
+        return;
+      case 'leave_request':
+        screen = const TeamLeaveRequestsScreen();
+        break;
+      case 'team_management':
+        screen = const TeamManagementScreen();
+        break;
+      
+      // Product Library category
+      case 'product':
+        screen = const ProductLibraryScreen();
+        break;
+      
+      // Company Forms category
+      case 'supplier_request':
+        screen = const SupplierRequestScreen();
+        break;
+      case 'customer_request':
+        screen = const CustomerRequestScreen();
+        break;
+      
+      // Expense Claim category
+      case 'expense_claim':
+        screen = const ExpenseClaimScreen();
+        break;
+      
+      // Management Console category
+      case 'employee':
+        screen = const TeamMembersScreen();
+        break;
+      case 'signature':
+        _showSignatureModal();
+        return;
+      case 'face_registration':
+        screen = const FaceRegistrationScreen();
+        break;
+      
+      // Additional menu items
+      case 'personal_leave':
+        screen = const PersonalLeaveScreen();
+        break;
+      case 'team_members':
+        screen = const TeamMembersScreen();
+        break;
+      case 'member_timesheet':
+        screen = const MemberTimesheetScreen();
+        break;
+      case 'data_integration':
+        screen = const DataIntegrationScreen();
+        break;
+      case 'profile':
+        screen = const ProfileInfoScreen();
+        break;
+      
+      default:
+        _showComingSoon(widget.item.title);
+        return;
+    }
+    
+    if (screen != null) {
+      Navigator.of(context).push(
+        AppPageTransitions.slideLeft(screen),
+      );
+    }
+  }
+
+  void _showComingSoon(String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.info_outline, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                '$feature - Coming Soon!',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+              ),
             ),
-          );
-        }
-      },
-      child: Container(
-        width: width,
-        height: 70,
-        padding: const EdgeInsets.all(6),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFEFF1F5)),
-          boxShadow: const [
-            BoxShadow(
-              color: AppColors.dashboardCardShadow,
+          ],
+        ),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF6366F1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  void _showSignatureModal() {
+    showDialog(
+      context: context,
+      builder: (context) => const SignatureModal(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = widget.themeColor ?? widget.item.color;
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      behavior: HitTestBehavior.opaque,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Container(
+          width: widget.width,
+          height: 70,
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFEFF1F5)),
+            boxShadow: const [
+              BoxShadow(
+                color: AppColors.dashboardCardShadow,
               blurRadius: 6,
               offset: Offset(0, 2),
             ),
@@ -214,11 +351,11 @@ class _FavoriteIconItem extends StatelessWidget {
                 color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(item.icon, color: color, size: 16),
+              child: Icon(widget.item.icon, color: color, size: 16),
             ),
             const SizedBox(height: 4),
             Text(
-              item.title,
+              widget.item.title,
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -231,6 +368,7 @@ class _FavoriteIconItem extends StatelessWidget {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -296,15 +434,41 @@ class FavoritesManagementSheet extends StatefulWidget {
   State<FavoritesManagementSheet> createState() => _FavoritesManagementSheetState();
 }
 
-class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
+class _FavoritesManagementSheetState extends State<FavoritesManagementSheet>
+    with TickerProviderStateMixin {
   bool _showOptions = false;
   bool _initialized = false;
   final List<FavoriteItem> _selected = [];
+  
+  // Animation controllers for each favorite item
+  final Map<String, AnimationController> _itemAnimations = {};
+  
+  @override
+  void dispose() {
+    for (final controller in _itemAnimations.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  AnimationController _getOrCreateController(String id) {
+    if (!_itemAnimations.containsKey(id)) {
+      _itemAnimations[id] = AnimationController(
+        duration: const Duration(milliseconds: 300),
+        vsync: this,
+      )..forward();
+    }
+    return _itemAnimations[id]!;
+  }
 
   void _initFromState(AppState state) {
     if (!_initialized) {
       _selected.clear();
       _selected.addAll(state.favorites);
+      // Initialize animations for existing favorites
+      for (final item in _selected) {
+        _getOrCreateController(item.id);
+      }
       _initialized = true;
     }
   }
@@ -314,11 +478,28 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
   void _add(FavoriteItem item) {
     if (_selected.length >= AppState.maxFavorites) return;
     if (_selected.any((f) => f.id == item.id)) return;
+    
+    final controller = _getOrCreateController(item.id);
+    controller.forward(from: 0.0);
+    
     setState(() => _selected.add(item));
   }
 
   void _remove(String id) {
-    setState(() => _selected.removeWhere((f) => f.id == id));
+    final controller = _itemAnimations[id];
+    if (controller != null) {
+      controller.reverse().then((_) {
+        if (mounted) {
+          setState(() {
+            _selected.removeWhere((f) => f.id == id);
+          });
+          controller.dispose();
+          _itemAnimations.remove(id);
+        }
+      });
+    } else {
+      setState(() => _selected.removeWhere((f) => f.id == id));
+    }
   }
 
   void _save() {
@@ -383,7 +564,7 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
                               '${_selected.length}/${AppState.maxFavorites}',
                               style: GoogleFonts.inter(
                                 fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w800,
                                 color: isAtMax ? themeColor : AppColors.textSecondary,
                               ),
                             ),
@@ -424,7 +605,7 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
                           'My Favorites',
                           style: GoogleFonts.inter(
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w800,
                             color: AppColors.textPrimary,
                           ),
                         ),
@@ -435,7 +616,7 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
                             _showOptions ? 'Cancel' : 'Edit',
                             style: GoogleFonts.inter(
                               fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w800,
                               color: themeColor,
                             ),
                           ),
@@ -444,19 +625,46 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
                     ),
                     const SizedBox(height: 12),
 
-                    // Selected favorites + Add button - LEFT ALIGNED
+                    // Selected favorites + Add button - LEFT ALIGNED with animations
                     Wrap(
                       alignment: WrapAlignment.start,
                       spacing: 8,
                       runSpacing: 12,
                       children: [
-                        ..._selected.map((item) => _FavoriteChip(
+                        ..._selected.map((item) {
+                          final controller = _itemAnimations[item.id];
+                          if (controller == null) {
+                            return _FavoriteChip(
                               item: item,
                               themeColor: themeColor,
                               onRemove: () => _remove(item.id),
                               showRemove: true,
                               isFavorited: true,
-                            )),
+                            );
+                          }
+                          return AnimatedBuilder(
+                            animation: controller,
+                            builder: (context, child) {
+                              final scaleValue = Curves.elasticOut.transform(
+                                controller.value.clamp(0.0, 1.0),
+                              );
+                              return Transform.scale(
+                                scale: scaleValue,
+                                child: Opacity(
+                                  opacity: controller.value.clamp(0.0, 1.0),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: _FavoriteChip(
+                              item: item,
+                              themeColor: themeColor,
+                              onRemove: () => _remove(item.id),
+                              showRemove: true,
+                              isFavorited: true,
+                            ),
+                          );
+                        }),
                         // Only show Add button if not at max
                         if (!isAtMax)
                           _AddButton(
@@ -500,57 +708,67 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
 
                     // Category options (when + or Edit clicked) - LEFT ALIGNED
                     // Items already in favorites are hidden from these lists
-                    if (_showOptions) ...[
-                      const SizedBox(height: 20),
-                      ...categories.map<Widget>((cat) {
-                        final label = cat['label'] as String;
-                        final allItems = cat['items'] as List<FavoriteItem>;
-                        // Filter out items that are already in favorites
-                        final availableItems = allItems
-                            .where((item) => !_selected.any((f) => f.id == item.id))
-                            .toList();
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      child: _showOptions
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 20),
+                                ...categories.map<Widget>((cat) {
+                                  final label = cat['label'] as String;
+                                  final allItems = cat['items'] as List<FavoriteItem>;
+                                  // Filter out items that are already in favorites
+                                  final availableItems = allItems
+                                      .where((item) => !_selected.any((f) => f.id == item.id))
+                                      .toList();
 
-                        // Don't show category if all items are already favorited
-                        if (availableItems.isEmpty) {
-                          return const SizedBox.shrink();
-                        }
+                                  // Don't show category if all items are already favorited
+                                  if (availableItems.isEmpty) {
+                                    return const SizedBox.shrink();
+                                  }
 
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                label,
-                                style: GoogleFonts.inter(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Wrap(
-                                alignment: WrapAlignment.start,
-                                spacing: 8,
-                                runSpacing: 12,
-                                children: availableItems.map((item) {
-                                  return Opacity(
-                                    opacity: isAtMax ? 0.5 : 1.0,
-                                    child: _FavoriteChip(
-                                      item: item,
-                                      themeColor: themeColor,
-                                      onTap: isAtMax ? null : () => _add(item),
-                                      showRemove: false,
-                                      isFavorited: false,
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 16),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          label,
+                                          style: GoogleFonts.inter(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w800,
+                                            color: AppColors.textPrimary,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Wrap(
+                                          alignment: WrapAlignment.start,
+                                          spacing: 8,
+                                          runSpacing: 12,
+                                          children: availableItems.map((item) {
+                                            return AnimatedOpacity(
+                                              duration: const Duration(milliseconds: 200),
+                                              opacity: isAtMax ? 0.5 : 1.0,
+                                              child: _AnimatedFavoriteChip(
+                                                item: item,
+                                                themeColor: themeColor,
+                                                onTap: isAtMax ? null : () => _add(item),
+                                                showRemove: false,
+                                                isFavorited: false,
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ],
                                     ),
                                   );
-                                }).toList(),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
-                    ],
+                                }),
+                              ],
+                            )
+                          : const SizedBox.shrink(),
+                    ),
                   ],
                 ),
               ),
@@ -570,7 +788,7 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet> {
                 ),
                 child: Text(
                   'Save Favorites',
-                  style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
+                  style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w800),
                 ),
               ),
             ),
@@ -679,6 +897,154 @@ class _FavoriteChip extends StatelessWidget {
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Animated version of _FavoriteChip with tap scale animation
+class _AnimatedFavoriteChip extends StatefulWidget {
+  final FavoriteItem item;
+  final Color themeColor;
+  final VoidCallback? onTap;
+  final VoidCallback? onRemove;
+  final bool showRemove;
+  final bool isFavorited;
+
+  const _AnimatedFavoriteChip({
+    required this.item,
+    required this.themeColor,
+    this.onTap,
+    this.onRemove,
+    this.showRemove = false,
+    this.isFavorited = false,
+  });
+
+  @override
+  State<_AnimatedFavoriteChip> createState() => _AnimatedFavoriteChipState();
+}
+
+class _AnimatedFavoriteChipState extends State<_AnimatedFavoriteChip>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 150),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    if (widget.onTap == null) return;
+    _controller.forward().then((_) {
+      _controller.reverse();
+      widget.onTap?.call();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final iconColor = widget.isFavorited ? widget.themeColor : const Color(0xFF9CA3AF);
+    final bgColor = widget.isFavorited
+        ? widget.themeColor.withValues(alpha: 0.12)
+        : const Color(0xFFF3F4F6);
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _handleTap,
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: child,
+          );
+        },
+        child: SizedBox(
+          width: 56,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Column(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: bgColor,
+                      borderRadius: BorderRadius.circular(10),
+                      border: widget.isFavorited
+                          ? null
+                          : Border.all(color: const Color(0xFFE5E7EB)),
+                    ),
+                    child: Icon(
+                      widget.item.icon,
+                      color: iconColor,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    height: 26,
+                    child: Text(
+                      widget.item.title,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      softWrap: true,
+                      overflow: TextOverflow.clip,
+                      style: GoogleFonts.inter(
+                        fontSize: 8,
+                        fontWeight: FontWeight.w500,
+                        color: widget.isFavorited
+                            ? AppColors.textSecondary
+                            : const Color(0xFF9CA3AF),
+                        height: 1.3,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (widget.showRemove && widget.onRemove != null)
+                Positioned(
+                  top: -3,
+                  right: -2,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: widget.onRemove,
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: widget.themeColor,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: widget.themeColor.withValues(alpha: 0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.check_rounded, size: 10, color: Colors.white),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

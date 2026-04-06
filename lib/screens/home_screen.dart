@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:ui_ast_mobile/screens/expense_claim_screen.dart';
@@ -10,6 +11,7 @@ import '../widgets/favorites_section.dart';
 import '../widgets/dashboard_section.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/news_modal.dart';
+import '../widgets/animations/page_transitions.dart';
 import '../modals/signature_modal.dart';
 import 'team_leave_requests_screen.dart';
 import 'attendance_screen.dart';
@@ -18,6 +20,8 @@ import 'supplier_request_screen.dart';
 import 'customer_request_screen.dart';
 import 'team_management_screen.dart';
 import 'product_library_screen.dart';
+import 'team_members_screen.dart';
+import 'personal_leave_screen.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 
@@ -557,74 +561,98 @@ class _MainMenuSectionState extends State<_MainMenuSection>
               final id = it['id'] as String;
               return SizedBox(
                 width: itemWidth,
-                child: GestureDetector(
-                  onTap: () {
-                    if (id == 'attendance') {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const AttendanceScreen(),
-                        ),
-                      );
-                    } else if (id == 'leave') {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const TeamLeaveRequestsScreen(),
-                        ),
-                      );
-                    } else if (id == 'expense') {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ExpenseClaimScreen(),
-                        ),
-                      );
-                    } else if (id == 'team') {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const TeamManagementScreen(),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Opening ${it['title']}...'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    }
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: accent.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          it['icon'] as IconData,
-                          color: accent,
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        it['title'] as String,
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
+                child: _AnimatedMenuTile(
+                  id: id,
+                  title: it['title'] as String,
+                  icon: it['icon'] as IconData,
+                  accent: accent,
+                  onTap: () => _handleMenuTap(context, id, it['title'] as String),
                 ),
               );
             }).toList(),
           );
         },
+      ),
+    );
+  }
+
+  void _handleMenuTap(BuildContext context, String id, String title) {
+    HapticFeedback.lightImpact();
+    Widget? screen;
+    
+    switch (id) {
+      case 'attendance':
+        screen = const AttendanceScreen();
+        break;
+      case 'leave':
+      case 'leave_request':
+        screen = const TeamLeaveRequestsScreen();
+        break;
+      case 'expense':
+      case 'expense_claim':
+        screen = const ExpenseClaimScreen();
+        break;
+      case 'team':
+      case 'team_management':
+        screen = const TeamManagementScreen();
+        break;
+      case 'payslip':
+        _showComingSoon(context, 'Payslip');
+        return;
+      case 'signature':
+        showDialog(context: context, builder: (_) => const SignatureModal());
+        return;
+      case 'faceReg':
+      case 'face_registration':
+        screen = const FaceRegistrationScreen();
+        break;
+      case 'supplierRequest':
+      case 'supplier_request':
+        screen = const SupplierRequestScreen();
+        break;
+      case 'customerRequest':
+      case 'customer_request':
+        screen = const CustomerRequestScreen();
+        break;
+      case 'product':
+        screen = const ProductLibraryScreen();
+        break;
+      case 'employee':
+        screen = const TeamMembersScreen();
+        break;
+      case 'personal_leave':
+        screen = const PersonalLeaveScreen();
+        break;
+      default:
+        _showComingSoon(context, title);
+        return;
+    }
+    
+    if (screen != null) {
+      Navigator.of(context).push(AppPageTransitions.slideLeft(screen));
+    }
+  }
+
+  void _showComingSoon(BuildContext context, String feature) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.info_outline, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                '$feature - Coming Soon!',
+                style: GoogleFonts.inter(fontWeight: FontWeight.w500),
+              ),
+            ),
+          ],
+        ),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: const Color(0xFF6366F1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
       ),
     );
   }
@@ -650,71 +678,12 @@ class _MainMenuSectionState extends State<_MainMenuSection>
             children: items.map((it) {
               return SizedBox(
                 width: itemWidth,
-                child: GestureDetector(
-                  onTap: () {
-                    if (it['id'] == 'signature') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const SignatureModal()),
-                      );
-                    } else if (it['id'] == 'faceReg') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const FaceRegistrationScreen()),
-                      );
-                    } else if (it['id'] == 'supplierRequest') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const SupplierRequestScreen()),
-                      );
-                    } else if (it['id'] == 'customerRequest') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const CustomerRequestScreen()),
-                      );
-                    } else if (it['id'] == 'product') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const ProductLibraryScreen()),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Opening ${it['title']}...'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    }
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: accent.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          it['icon'] as IconData,
-                          color: accent,
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        it['title'] as String,
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
+                child: _AnimatedMenuTile(
+                  id: it['id'] as String,
+                  title: it['title'] as String,
+                  icon: it['icon'] as IconData,
+                  accent: accent,
+                  onTap: () => _handleMenuTap(context, it['id'] as String, it['title'] as String),
                 ),
               );
             }).toList(),
@@ -947,6 +916,104 @@ class _MainMenuSectionState extends State<_MainMenuSection>
             showChevron: false,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Animated menu tile with press feedback
+class _AnimatedMenuTile extends StatefulWidget {
+  final String id;
+  final String title;
+  final IconData icon;
+  final Color accent;
+  final VoidCallback onTap;
+
+  const _AnimatedMenuTile({
+    required this.id,
+    required this.title,
+    required this.icon,
+    required this.accent,
+    required this.onTap,
+  });
+
+  @override
+  State<_AnimatedMenuTile> createState() => _AnimatedMenuTileState();
+}
+
+class _AnimatedMenuTileState extends State<_AnimatedMenuTile>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    _controller.forward();
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    _controller.reverse();
+    widget.onTap();
+  }
+
+  void _onTapCancel() {
+    _controller.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: widget.accent.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                widget.icon,
+                color: widget.accent,
+                size: 22,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              widget.title,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

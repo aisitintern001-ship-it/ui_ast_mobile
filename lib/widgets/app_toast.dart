@@ -16,9 +16,9 @@ class AppToast {
     String? title,
     Duration duration = const Duration(seconds: 3),
   }) {
-    final overlay = Overlay.of(context);
+    final overlay = Overlay.of(context, rootOverlay: true);
+    if (overlay == null) return;
     late final OverlayEntry entry;
-
     entry = OverlayEntry(
       builder: (context) => _ToastWidget(
         type: type,
@@ -28,7 +28,6 @@ class AppToast {
         onDismiss: () => entry.remove(),
       ),
     );
-
     overlay.insert(entry);
   }
 }

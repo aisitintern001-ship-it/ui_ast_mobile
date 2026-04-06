@@ -8,6 +8,7 @@ import 'screens/home_screen.dart';
 import 'screens/company_selection_screen.dart';
 import 'screens/attendance_screen.dart';
 import 'screens/settings_screen.dart';
+import 'widgets/animations/page_transitions.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,13 +57,13 @@ class ASTDashboardApp extends StatelessWidget {
       onGenerateRoute: (settings) {
         switch (settings.name) {
           case '/login':
-            return MaterialPageRoute(builder: (_) => const LoginScreen());
+            return AppPageTransitions.fadeThrough(const LoginScreen());
           case '/home':
-            return MaterialPageRoute(builder: (_) => const MainShell());
+            return AppPageTransitions.fadeScale(const MainShell());
           case '/company-selection':
-            return MaterialPageRoute(builder: (_) => const CompanySelectionScreen());
+            return AppPageTransitions.slideUp(const CompanySelectionScreen());
           default:
-            return MaterialPageRoute(builder: (_) => const LoginScreen());
+            return AppPageTransitions.fadeThrough(const LoginScreen());
         }
       },
     );

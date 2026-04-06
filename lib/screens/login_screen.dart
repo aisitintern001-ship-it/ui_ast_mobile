@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/text_input.dart';
+import '../widgets/animations/animations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,24 +16,76 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
   final _emailController = TextEditingController(
     text: 'mac.llanes@company.com',
   );
   final _passwordController = TextEditingController(text: 'password123');
   final _orgIdController = TextEditingController(
     text: '3',
-  ); // <-- new controller for org ID
+  );
   bool _obscurePassword = true;
+  
+  late AnimationController _logoController;
+  late AnimationController _cardController;
+  late Animation<double> _logoScale;
+  late Animation<double> _logoOpacity;
+  late Animation<Offset> _cardSlide;
+  late Animation<double> _cardOpacity;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Logo animation
+    _logoController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _logoScale = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
+    );
+    _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _logoController, 
+        curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+      ),
+    );
+    
+    // Card animation
+    _cardController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _cardSlide = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _cardController,
+      curve: Curves.easeOutCubic,
+    ));
+    _cardOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _cardController, curve: Curves.easeOut),
+    );
+    
+    // Start animations
+    _logoController.forward();
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) _cardController.forward();
+    });
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _logoController.dispose();
+    _cardController.dispose();
     super.dispose();
   }
 
   Future<void> _handleLogin() async {
+    HapticFeedback.mediumImpact();
     final state = context.read<AppState>();
     final success = await state.login(
       _emailController.text,
@@ -55,25 +109,39 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 50),
-              SvgPicture.asset(
-                'assets/AST2.svg',
-                // colorFilter: const ColorFilter.mode(Color.fromARGB(255, 67, 81, 143), BlendMode.srcIn),
-                width: 80,
-                height: 80,
-              ),
-
-              const Text(
-                'AUSTRALIA SOFTWARE TECHNOLOGY',
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 75, 106, 139),
+              // Animated logo
+              ScaleTransition(
+                scale: _logoScale,
+                child: FadeTransition(
+                  opacity: _logoOpacity,
+                  child: Column(
+                    children: [
+                      SvgPicture.asset(
+                        'assets/AST2.svg',
+                        width: 80,
+                        height: 80,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'AUSTRALIA SOFTWARE TECHNOLOGY',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 75, 106, 139),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 50),
-              // Welcome card
-              Container(
-                width: size.width > 480 ? 400 : size.width * 0.9,
+              // Animated welcome card
+              SlideTransition(
+                position: _cardSlide,
+                child: FadeTransition(
+                  opacity: _cardOpacity,
+                  child: Container(
+                    width: size.width > 480 ? 400 : size.width * 0.9,
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -281,44 +349,50 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           const SizedBox(height: 24),
 
-                          // Sign in button
-                          SizedBox(
-                            height: 48,
-                            child: ElevatedButton(
-                              onPressed: state.isLoading ? null : _handleLogin,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromARGB(
-                                  255,
-                                  117,
-                                  97,
-                                  219,
+                          // Animated Sign in button
+                          TapBounceButton(
+                            onTap: state.isLoading ? null : _handleLogin,
+                            child: Container(
+                              height: 48,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color.fromARGB(255, 130, 110, 230),
+                                    Color.fromARGB(255, 105, 85, 200),
+                                  ],
                                 ),
-                                foregroundColor: Colors.white,
-                                elevation: 0,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                                borderRadius: BorderRadius.circular(8),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color.fromARGB(255, 117, 97, 219)
+                                        .withValues(alpha: 0.4),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
                               ),
-                              child: state.isLoading
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
+                              child: Center(
+                                child: state.isLoading
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      )
+                                    : Text(
+                                        'LOGIN',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
                                       ),
-                                    )
-                                  : Text(
-                                      'LOGIN',
-                                      style: GoogleFonts.inter(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 170),
@@ -374,6 +448,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
+            ),
+            ),
             ],
           ),
         ),

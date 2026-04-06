@@ -8,7 +8,10 @@ import '../theme/app_theme.dart';
 import '../widgets/app_toast.dart';
 import '../widgets/status_pill.dart';
 import '../widgets/bottom_nav.dart';
-import '../widgets/offline_tab_widget.dart'; // <-- ADDED
+import '../widgets/offline_tab_widget.dart';
+import '../widgets/history_offline_tabs.dart';
+import 'attendance_history.dart';
+import 'attendance_offline.dart';
 import 'face_recognition_screen.dart';
 import 'home_screen.dart';
 
@@ -27,7 +30,7 @@ class AttendanceScreen extends StatefulWidget {
 }
 
 class _AttendanceScreenState extends State<AttendanceScreen> {
-  bool _hasCurrentTimeIn = false;
+  // Remove local state, use AppState
   String? _lastAction; // 'Time In' or 'Time Out'
   bool _showFailed = false; // true when attendance fails
   String? _failedAction; // which action failed
@@ -56,7 +59,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     if (result == true) {
       setState(() {
         _lastAction = action;
-        _hasCurrentTimeIn = action == 'Time In';
+        context.read<AppState>().setHasCurrentTimeIn(action == 'Time In');
         _showFailed = false;
         _failedAction = null;
       });
@@ -195,6 +198,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final headerColor = state.headerColor;
+    final hasCurrentTimeIn = state.hasCurrentTimeIn;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -243,29 +247,47 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     children: [
                       Icon(LucideIcons.clock, size: 40, color: headerColor),
                       const SizedBox(height: 8),
-                      Text(_hasCurrentTimeIn ? 'You are currently timed in' : 'No Current Time In', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                      Text(hasCurrentTimeIn ? 'You are currently timed in' : 'No Current Time In', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                       const SizedBox(height: 4),
-                      Text('Started at 0:00 AM', style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted)),
+                      Text('Started at 0:00 AM', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.textMuted)),
                       const SizedBox(height: 16),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () => _handleFaceAction('Time In'),
-                              icon: const Icon(Icons.access_time_rounded, size: 18),
-                              label: Text('Time In', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                          if (!hasCurrentTimeIn)
+                            SizedBox(
+                              width: 160,
+                              child: ElevatedButton.icon(
+                                onPressed: () => _handleFaceAction('Time In'),
+                                icon: const Icon(LucideIcons.clock, size: 16),
+                                label: Text('Time In', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  minimumSize: const Size(0, 36),
+                                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () => _handleFaceAction('Time Out'),
-                              icon: const Icon(Icons.access_time_rounded, size: 18),
-                              label: Text('Time Out', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                          if (hasCurrentTimeIn)
+                            SizedBox(
+                              width: 160,
+                              child: ElevatedButton.icon(
+                                onPressed: () => _handleFaceAction('Time Out'),
+                                icon: const Icon(Icons.access_time_rounded, size: 16),
+                                label: Text('Time Out', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  minimumSize: const Size(0, 36),
+                                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 0),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                                ),
+                              ),
                             ),
-                          ),
                         ],
                       ),
                       if (_showFailed) ...[
@@ -310,198 +332,37 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // History / Offline toggle
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(color: const Color(0xFFE5E7EB), borderRadius: BorderRadius.circular(8)),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _showHistory = true),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(color: _showHistory ? Colors.white : Colors.transparent, borderRadius: BorderRadius.circular(6)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.history_rounded, size: 16, color: _showHistory ? AppColors.textPrimary : AppColors.textMuted),
-                                const SizedBox(width: 6),
-                                Text('History', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: _showHistory ? AppColors.textPrimary : AppColors.textSecondary)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _showHistory = false),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(color: !_showHistory ? Colors.white : Colors.transparent, borderRadius: BorderRadius.circular(6)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.wifi_off_rounded, size: 16, color: !_showHistory ? AppColors.textPrimary : AppColors.textMuted),
-                                const SizedBox(width: 6),
-                                Text('Offline', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: !_showHistory ? AppColors.textPrimary : AppColors.textSecondary)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                // History / Offline toggle (Unified)
+                HistoryOfflineTabs(
+                  showHistory: _showHistory,
+                  onChanged: (val) => setState(() => _showHistory = val),
+                  backgroundColor: Colors.grey.shade200,
+                  activeColor: Colors.white,
+                  inactiveColor: Colors.transparent,
+                  borderRadius: 25,
                 ),
                 const SizedBox(height: 12),
 
                 if (_showHistory)
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.divider)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Attendance History', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8, runSpacing: 8,
-                          children: [
-                            GestureDetector(onTap: () => setState(() { _range = '7'; _customRange = null; }), child: _HistoryChip(label: 'Last 7 Days', selected: _range == '7', color: headerColor)),
-                            GestureDetector(onTap: () => setState(() { _range = '30'; _customRange = null; }), child: _HistoryChip(label: 'Last 30 Days', selected: _range == '30', color: headerColor)),
-                            GestureDetector(onTap: () => setState(() => _range = 'custom'), child: _HistoryChip(label: 'Custom', selected: _range == 'custom', color: headerColor)),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        if (_selectedStatuses.isNotEmpty) ...[
-                          Wrap(
-                            spacing: 4, runSpacing: 4,
-                            children: _selectedStatuses.map((s) {
-                              return Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(color: const Color(0xFFE5F2FF), borderRadius: BorderRadius.circular(999)),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(s, style: GoogleFonts.inter(fontSize: 11, color: AppColors.textPrimary)),
-                                    const SizedBox(width: 4),
-                                    GestureDetector(onTap: () => setState(() => _selectedStatuses.remove(s)), child: const Icon(Icons.close_rounded, size: 14, color: AppColors.textMuted)),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                          const SizedBox(height: 8),
-                        ],
-                        Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTapDown: (details) => _openStatusFilter(context, details),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                  decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.divider)),
-                                  child: Row(
-                                    children: [
-                                      const Icon(Icons.filter_list_rounded, size: 16, color: AppColors.textMuted),
-                                      const SizedBox(width: 8),
-                                      Expanded(child: Text('Filter Status', style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary), overflow: TextOverflow.ellipsis)),
-                                      const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.textMuted),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            if (_range == 'custom') ...[
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => _pickCustomRange(context),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                    decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.divider)),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.textMuted),
-                                        const SizedBox(width: 6),
-                                        Expanded(child: Text(_customRange == null ? 'Date From' : '${_customRange!.start.toLocal()}'.split(' ')[0], style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted), overflow: TextOverflow.ellipsis)),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () => _pickCustomRange(context),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                                    decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.divider)),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.textMuted),
-                                        const SizedBox(width: 6),
-                                        Expanded(child: Text(_customRange == null ? 'Date To' : '${_customRange!.end.toLocal()}'.split(' ')[0], style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted), overflow: TextOverflow.ellipsis)),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
-                        if (_range == 'custom') ...[
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton(
-                                  onPressed: () => setState(() { _customRange = null; _selectedStatuses.clear(); }),
-                                  style: OutlinedButton.styleFrom(foregroundColor: AppColors.textSecondary, side: const BorderSide(color: AppColors.divider), padding: const EdgeInsets.symmetric(vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                                  child: Text('Clear Filter', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w500)),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () => setState(() {}),
-                                  style: ElevatedButton.styleFrom(backgroundColor: headerColor, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                                  child: Text('Apply Filter', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600)),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                        if (_filteredRecords.isEmpty)
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(12)),
-                            child: Text('No records found in this section yet', style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted)),
-                          )
-                        else
-                          Column(
-                            children: _filteredRecords.map((r) => Padding(padding: const EdgeInsets.only(bottom: 12), child: _HistoryRecordCard(record: r))).toList(),
-                          ),
-                      ],
-                    ),
+                  AttendanceHistory(
+                    headerColor: headerColor,
+                    range: _range,
+                    customRange: _customRange,
+                    selectedStatuses: _selectedStatuses,
+                    filteredRecords: _filteredRecords,
+                    onClearFilter: () => setState(() { _customRange = null; _selectedStatuses.clear(); }),
+                    onApplyFilter: () => setState(() {}),
+                    onOpenStatusFilter: _openStatusFilter,
+                    onPickCustomRange: _pickCustomRange,
                   )
                 else
-                  // --- CALL TO OUR NEW REUSABLE OFFLINE WIDGET ---
-                  SizedBox(
-                    height: 400, // Fixed height to allow scrolling inner area if needed
-                    child: OfflineTabWidget(
-                      key: const ValueKey("offline"),
-                      items: [
-                        OfflineRecordItem(title: "2025-12-26", subtitle: "In: 07:22 AM", status: "Pending Sync", statusColor: Colors.amber.shade700),
-                        OfflineRecordItem(title: "2025-12-29", subtitle: "In: 08:02 AM", status: "Pending Sync", statusColor: Colors.amber.shade700),
-                      ],
-                      onSyncAll: () {},
-                      onDeleteRange: () {},
-                    ),
+                  AttendanceOffline(
+                    items: [
+                      OfflineRecordItem(title: "2025-12-26", subtitle: "In: 07:22 AM", status: "Pending Sync", statusColor: Colors.amber.shade700),
+                      OfflineRecordItem(title: "2025-12-29", subtitle: "In: 08:02 AM", status: "Pending Sync", statusColor: Colors.amber.shade700),
+                    ],
+                    onSyncAll: () {},
+                    onDeleteRange: () {},
                   ),
               ],
             ),

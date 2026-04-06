@@ -128,7 +128,7 @@ class FormRadioOption extends StatelessWidget {
 /// Status toggle button - pill-shaped toggle for status selection
 /// Unselected: outlined with gray border and gray text
 /// Selected: blue background with white text
-class StatusToggleButton extends StatelessWidget {
+class StatusToggleButton extends StatefulWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
@@ -143,26 +143,89 @@ class StatusToggleButton extends StatelessWidget {
   });
 
   @override
+  State<StatusToggleButton> createState() => _StatusToggleButtonState();
+}
+
+class _StatusToggleButtonState extends State<StatusToggleButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    _controller.forward();
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    _controller.reverse();
+    widget.onTap();
+  }
+
+  void _handleTapCancel() {
+    _controller.reverse();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? _selectedColor : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? _selectedColor : Colors.grey.shade300,
-            width: 1,
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTapCancel: _handleTapCancel,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: child,
+          );
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: widget.isSelected ? StatusToggleButton._selectedColor : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: widget.isSelected ? StatusToggleButton._selectedColor : Colors.grey.shade300,
+              width: 1,
+            ),
+            boxShadow: widget.isSelected
+                ? [
+                    BoxShadow(
+                      color: StatusToggleButton._selectedColor.withValues(alpha: 0.25),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: isSelected ? Colors.white : Colors.grey.shade600,
+          child: AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 200),
+            style: GoogleFonts.inter(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: widget.isSelected ? Colors.white : Colors.grey.shade600,
+            ),
+            child: Text(widget.label),
           ),
         ),
       ),
@@ -612,7 +675,7 @@ class FormTabBar extends StatelessWidget {
 
 /// Reusable request list widgets ──────────────────────────────────────────
 
-/// History / Offline tab toggle
+/// History / Offline tab toggle with sliding animation
 class RequestTabToggle extends StatelessWidget {
   final int currentTab;
   final ValueChanged<int> onTabChanged;
@@ -632,11 +695,45 @@ class RequestTabToggle extends StatelessWidget {
         color: Colors.grey.shade200,
         borderRadius: BorderRadius.circular(25),
       ),
-      child: Row(
-        children: [
-          _tab("History", Icons.history, 0),
-          _tab("Offline", Icons.wifi_off, 1),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final tabWidth = (constraints.maxWidth - 8) / 2;
+          return Stack(
+            children: [
+              // Animated sliding indicator
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                left: currentTab == 0 ? 0 : tabWidth + 4,
+                top: 0,
+                bottom: 0,
+                width: tabWidth,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Tab buttons
+              Row(
+                children: [
+                  _tab("History", Icons.history, 0),
+                  const SizedBox(width: 4),
+                  _tab("Offline", Icons.wifi_off, 1),
+                ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -646,38 +743,30 @@ class RequestTabToggle extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         onTap: () => onTabChanged(index),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+        behavior: HitTestBehavior.opaque,
+        child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : [],
-          ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 16,
-                color: isSelected ? Colors.black87 : Colors.grey.shade500,
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  icon,
+                  key: ValueKey('$index-$isSelected'),
+                  size: 16,
+                  color: isSelected ? Colors.black87 : Colors.grey.shade500,
+                ),
               ),
               const SizedBox(width: 6),
-              Text(
-                title,
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                   color: isSelected ? Colors.black87 : Colors.grey.shade500,
                 ),
+                child: Text(title),
               ),
             ],
           ),
