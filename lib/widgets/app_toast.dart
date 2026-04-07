@@ -17,6 +17,7 @@ class AppToast {
     Duration duration = const Duration(seconds: 3),
   }) {
     final overlay = Overlay.of(context, rootOverlay: true);
+    if (overlay == null) return;
     late final OverlayEntry entry;
     entry = OverlayEntry(
       builder: (context) => _ToastWidget(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'approve_decline_buttons.dart';
 
 class LeaveRequestCard extends StatefulWidget {
   final Map<String, dynamic> request;
@@ -182,30 +181,33 @@ class _LeaveRequestCardState extends State<LeaveRequestCard> {
                           // ignore: deprecated_member_use
                           decoration: BoxDecoration(color: Colors.amber.withOpacity(0.1), border: Border.all(color: Colors.amber), borderRadius: BorderRadius.circular(8)),
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text("Friday, Dec 26, 2025", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                                    const SizedBox(height: 6),
-                                    Wrap(
-                                      spacing: 6,
-                                      runSpacing: 4,
-                                      children: [
-                                        Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)), child: const Text("Full Day", style: TextStyle(fontSize: 9))),
-                                        // ignore: deprecated_member_use
-                                        Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.amber.withOpacity(0.2), borderRadius: BorderRadius.circular(10)), child: const Text("Pending", style: TextStyle(fontSize: 9, color: Colors.amber))),
-                                        const Text("8:00 AM - 5:00 PM", style: TextStyle(fontSize: 9, color: Colors.grey)),
-                                      ],
-                                    )
-                                  ],
-                                ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text("Friday, Dec 26, 2025", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    children: [
+                                      Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)), child: const Text("Full Day", style: TextStyle(fontSize: 9))),
+                                      const SizedBox(width: 6),
+                                      // ignore: deprecated_member_use
+                                      Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.amber.withOpacity(0.2), borderRadius: BorderRadius.circular(10)), child: const Text("Pending", style: TextStyle(fontSize: 9, color: Colors.amber))),
+                                      const SizedBox(width: 6),
+                                      const Text("8:00 AM - 5:00 PM", style: TextStyle(fontSize: 9, color: Colors.grey)),
+                                    ],
+                                  )
+                                ],
                               ),
-                              const SizedBox(width: 8),
-                              const ApproveDeclineIconButtons(
-                                onApprove: null,
-                                onDecline: null,
+                              Row(
+                                children: [
+                                  // ignore: deprecated_member_use
+                                  Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Colors.teal.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.check, size: 14, color: Colors.teal)),
+                                  const SizedBox(width: 8),
+                                  // ignore: deprecated_member_use
+                                  Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), shape: BoxShape.circle), child: const Icon(Icons.close, size: 14, color: Colors.red)),
+                                ],
                               )
                             ],
                           ),
@@ -214,9 +216,26 @@ class _LeaveRequestCardState extends State<LeaveRequestCard> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const ApproveDeclineButtons(
-                    onApprove: null,
-                    onDecline: null,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white, elevation: 0),
+                          onPressed: () {},
+                          icon: const Icon(Icons.check, size: 16),
+                          label: const Text("Approve All"),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, foregroundColor: Colors.white, elevation: 0),
+                          onPressed: () {},
+                          icon: const Icon(Icons.close, size: 16),
+                          label: const Text("Deny All"),
+                        ),
+                      )
+                    ],
                   )
                 ]
               ],

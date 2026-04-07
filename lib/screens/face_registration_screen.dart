@@ -1,12 +1,9 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:camera/camera.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/bottom_nav.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class FaceRegistrationScreen extends StatefulWidget {
   const FaceRegistrationScreen({super.key});
@@ -15,357 +12,26 @@ class FaceRegistrationScreen extends StatefulWidget {
   State<FaceRegistrationScreen> createState() => _FaceRegistrationScreenState();
 }
 
-class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
-    with WidgetsBindingObserver {
+class _FaceRegistrationScreenState extends State<FaceRegistrationScreen> {
   int _currentStep = 0; // 0 = Take Selfie, 1 = Confirm Photo, 2 = Account Info
+
   final List<String> _stepLabels = ['Take Selfie', 'Confirm Photo', 'Account Info'];
 
-  // Camera related
-  CameraController? _cameraController;
-  List<CameraDescription>? _cameras;
-  bool _isCameraInitialized = false;
-  bool _isCameraError = false;
-  String? _cameraErrorMessage;
-  bool _showCameraView = false;
-  String? _capturedImagePath;
-
-  // Account info controllers
-  final TextEditingController _nameController = TextEditingController(text: 'Edward Peter');
-  final TextEditingController _mobileController = TextEditingController(text: '+63 912 345 6789');
-  final TextEditingController _emailController = TextEditingController(text: 'edward.peter@company.com');
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _cameraController?.dispose();
-    _nameController.dispose();
-    _mobileController.dispose();
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    final controller = _cameraController;
-    if (controller == null || !controller.value.isInitialized) {
-      return;
-    }
-
-    if (state == AppLifecycleState.inactive) {
-      controller.dispose();
-    } else if (state == AppLifecycleState.resumed && _showCameraView) {
-      _initializeCamera();
+  void _nextStep() {
+    if (_currentStep < 2) {
+      setState(() => _currentStep++);
     }
   }
 
-  Future<void> _initializeCamera() async {
-    try {
-      _cameras = await availableCameras();
-
-      if (_cameras == null || _cameras!.isEmpty) {
-        setState(() {
-          _isCameraError = true;
-          _cameraErrorMessage = 'No cameras available on this device';
-        });
-        return;
-      }
-
-      // Find front camera for face registration
-      CameraDescription? frontCamera;
-      for (final camera in _cameras!) {
-        if (camera.lensDirection == CameraLensDirection.front) {
-          frontCamera = camera;
-          break;
-        }
-      }
-
-      final selectedCamera = frontCamera ?? _cameras!.first;
-
-      _cameraController = CameraController(
-        selectedCamera,
-        ResolutionPreset.high,
-        enableAudio: false,
-        imageFormatGroup: ImageFormatGroup.jpeg,
-      );
-
-      await _cameraController!.initialize();
-
-      if (mounted) {
-        setState(() {
-          _isCameraInitialized = true;
-          _isCameraError = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isCameraError = true;
-          _cameraErrorMessage = 'Failed to initialize camera: ${e.toString()}';
-        });
-      }
+  void _previousStep() {
+    if (_currentStep > 0) {
+      setState(() => _currentStep--);
     }
-  }
-
-  Future<void> _capturePhoto() async {
-    if (_cameraController == null || !_cameraController!.value.isInitialized) {
-      return;
-    }
-
-    try {
-      final XFile photo = await _cameraController!.takePicture();
-      setState(() {
-        _capturedImagePath = photo.path;
-        _showCameraView = false;
-        _currentStep = 1; // Move to confirm step
-      });
-
-      // Dispose camera after capturing
-      await _cameraController?.dispose();
-      _cameraController = null;
-      _isCameraInitialized = false;
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to capture photo: $e')),
-      );
-    }
-  }
-
-  void _startCamera() {
-    setState(() {
-      _showCameraView = true;
-    });
-    _initializeCamera();
-  }
-
-  void _retakePhoto() {
-    setState(() {
-      _capturedImagePath = null;
-      _currentStep = 0;
-    });
-  }
-
-  void _showConfirmationDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          backgroundColor: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Icon
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2181FF).withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.help_outline,
-                    color: Color(0xFF2181FF),
-                    size: 32,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Title
-                Text(
-                  'Confirm Registration',
-                  style: GoogleFonts.inter(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Message
-                Text(
-                  'Are you sure you want to proceed with the face registration? You can update your account information in the next step.',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: AppColors.textSecondary,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        height: 44,
-                        child: OutlinedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.grey.shade700,
-                            side: BorderSide(color: Colors.grey.shade300),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: Text(
-                            'Cancel',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: SizedBox(
-                        height: 44,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            setState(() => _currentStep = 2);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2181FF),
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          child: Text(
-                            'Proceed',
-                            style: GoogleFonts.inter(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          backgroundColor: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Success Icon
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF10B981),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 40,
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Title
-                Text(
-                  'Registration Successful!',
-                  style: GoogleFonts.inter(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Message
-                Text(
-                  'Your face has been registered successfully. You can now use face recognition for attendance.',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    color: AppColors.textSecondary,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Done Button
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop(true);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF10B981),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Text(
-                      'Done',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     final headerColor = context.watch<AppState>().headerColor;
-
-    // Show camera view fullscreen
-    if (_showCameraView) {
-      return _buildCameraView(headerColor);
-    }
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
@@ -376,11 +42,7 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
           icon: const Icon(Icons.arrow_back_ios_new, size: 18),
           onPressed: () {
             if (_currentStep > 0) {
-              if (_currentStep == 1) {
-                _retakePhoto();
-              } else {
-                setState(() => _currentStep--);
-              }
+              _previousStep();
             } else {
               Navigator.pop(context);
             }
@@ -472,174 +134,6 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
     );
   }
 
-  Widget _buildCameraView(Color headerColor) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: headerColor,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-          onPressed: () {
-            _cameraController?.dispose();
-            _cameraController = null;
-            setState(() {
-              _showCameraView = false;
-              _isCameraInitialized = false;
-            });
-          },
-        ),
-        title: Text(
-          'Take a Selfie',
-          style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Camera preview
-                if (_isCameraInitialized && _cameraController != null)
-                  SizedBox(
-                    width: double.infinity,
-                    height: double.infinity,
-                    child: CameraPreview(_cameraController!),
-                  )
-                else if (_isCameraError)
-                  Container(
-                    width: double.infinity,
-                    color: Colors.black,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                         LucideIcons.camera,
-                          size: 64,
-                          color: Colors.white54,
-                        ),
-                        const SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32),
-                          child: Text(
-                            _cameraErrorMessage ?? 'Camera not available',
-                            style: GoogleFonts.inter(
-                              fontSize: 14,
-                              color: Colors.white70,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: _initializeCamera,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: headerColor,
-                            foregroundColor: Colors.white,
-                          ),
-                          child: Text(
-                            'Retry',
-                            style: GoogleFonts.inter(fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  Container(
-                    width: double.infinity,
-                    color: Colors.black,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const CircularProgressIndicator(color: Colors.white),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Initializing camera...',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                // Face guide overlay
-                Container(
-                  width: 260,
-                  height: 260,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(130),
-                    border: Border.all(
-                      color: _isCameraInitialized ? Colors.white : Colors.white54,
-                      width: 3,
-                    ),
-                  ),
-                ),
-
-                // Instructions
-                Positioned(
-                  bottom: 20,
-                  left: 20,
-                  right: 20,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      'Position your face within the circle',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Capture button
-          Container(
-            width: double.infinity,
-            color: Colors.white,
-            padding: const EdgeInsets.all(20),
-            child: SizedBox(
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: _isCameraInitialized ? _capturePhoto : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2181FF),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  disabledBackgroundColor: Colors.grey.shade300,
-                ),
-                icon: const Icon(Icons.camera_alt, size: 22),
-                label: Text(
-                  'Capture Photo',
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildStepContent() {
     switch (_currentStep) {
       case 0:
@@ -723,7 +217,7 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
             width: double.infinity,
             height: 48,
             child: ElevatedButton.icon(
-              onPressed: _startCamera,
+              onPressed: _nextStep,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2181FF),
                 foregroundColor: Colors.white,
@@ -795,38 +289,20 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // Show captured image or placeholder
-                            if (_capturedImagePath != null)
-                              Container(
-                                width: 140,
-                                height: 140,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppColors.statusApproved,
-                                    width: 3,
-                                  ),
-                                  image: DecorationImage(
-                                    image: FileImage(File(_capturedImagePath!)),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              )
-                            else
-                              Container(
-                                width: 140,
-                                height: 140,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.grey.shade300,
-                                ),
-                                child: Icon(
-                                  Icons.person,
-                                  size: 80,
-                                  color: Colors.grey.shade500,
-                                ),
+                            Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.grey.shade300,
                               ),
-                            const SizedBox(height: 16),
+                              child: Icon(
+                                Icons.person,
+                                size: 60,
+                                color: Colors.grey.shade500,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
@@ -872,7 +348,7 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
                 child: SizedBox(
                   height: 48,
                   child: OutlinedButton.icon(
-                    onPressed: _retakePhoto,
+                    onPressed: _previousStep,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.grey.shade700,
                       side: BorderSide(color: Colors.grey.shade300),
@@ -882,7 +358,7 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
                     ),
                     icon: const Icon(Icons.refresh, size: 18),
                     label: Text(
-                      'Retake Photo',
+                      'Retake',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
@@ -896,7 +372,7 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
                 child: SizedBox(
                   height: 48,
                   child: ElevatedButton.icon(
-                    onPressed: _showConfirmationDialog,
+                    onPressed: _nextStep,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF2181FF),
                       foregroundColor: Colors.white,
@@ -905,9 +381,9 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    icon: const Icon(Icons.arrow_forward, size: 18),
+                    icon: const Icon(Icons.check, size: 18),
                     label: Text(
-                      'Proceed',
+                      'Confirm',
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w600,
                         fontSize: 15,
@@ -923,7 +399,7 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
     );
   }
 
-  // ─── STEP 3: Account Info (Editable) ────────────────────────────────
+  // ─── STEP 3: Account Info ────────────────────────────────────────────
 
   Widget _buildAccountInfoStep() {
     return Padding(
@@ -945,7 +421,7 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
                   children: [
                     Center(
                       child: Text(
-                        'Account Information',
+                        'Account Info',
                         style: GoogleFonts.inter(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -956,7 +432,7 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
                     const SizedBox(height: 4),
                     Center(
                       child: Text(
-                        'Update your account details if needed.',
+                        'Confirm the employee details for face registration.',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.inter(
                           fontSize: 13,
@@ -965,32 +441,11 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
                       ),
                     ),
                     const SizedBox(height: 24),
-
-                    // Profile picture preview
-                    if (_capturedImagePath != null)
-                      Center(
-                        child: Container(
-                          width: 80,
-                          height: 80,
-                          margin: const EdgeInsets.only(bottom: 20),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: AppColors.statusApproved,
-                              width: 2,
-                            ),
-                            image: DecorationImage(
-                              image: FileImage(File(_capturedImagePath!)),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                    _buildEditableField('Name', _nameController, Icons.person_outline),
-                    _buildEditableField('Mobile Number', _mobileController, Icons.phone_outlined),
-                    _buildEditableField('Email', _emailController, Icons.email_outlined),
-
+                    _buildInfoField('Employee Name', 'Edward Peter'),
+                    _buildInfoField('Employee ID', 'EMP-2024-0012'),
+                    _buildInfoField('Department', 'Engineering'),
+                    _buildInfoField('Position', 'Software Developer'),
+                    _buildInfoField('Email', 'edward.peter@company.com'),
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -1032,9 +487,21 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
             width: double.infinity,
             height: 48,
             child: ElevatedButton.icon(
-              onPressed: _showSuccessDialog,
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Face registered successfully!',
+                      style: GoogleFonts.inter(),
+                    ),
+                    backgroundColor: AppColors.statusApproved,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+                Navigator.pop(context, true);
+              },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF10B981),
+                backgroundColor: AppColors.statusApproved,
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
@@ -1043,7 +510,7 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
               ),
               icon: const Icon(Icons.check_circle_outline, size: 18),
               label: Text(
-                'Complete Registration',
+                'Submit Registration',
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w600,
                   fontSize: 15,
@@ -1056,7 +523,7 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
     );
   }
 
-  Widget _buildEditableField(String label, TextEditingController controller, IconData icon) {
+  Widget _buildInfoField(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -1071,28 +538,19 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
             ),
           ),
           const SizedBox(height: 6),
-          TextFormField(
-            controller: controller,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: AppColors.textPrimary,
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8F9FA),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade200),
             ),
-            decoration: InputDecoration(
-              prefixIcon: Icon(icon, size: 20, color: AppColors.textMuted),
-              filled: true,
-              fillColor: const Color(0xFFF8F9FA),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade200),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade200),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Color(0xFF2181FF), width: 1.5),
+            child: Text(
+              value,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: AppColors.textPrimary,
               ),
             ),
           ),

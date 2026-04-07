@@ -185,7 +185,7 @@ class _HistoryChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: selected ? color.withValues(alpha: 0.15) : Colors.transparent,
+        color: selected ? color.withOpacity(0.15) : Colors.transparent,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: selected ? color : AppColors.divider),
       ),

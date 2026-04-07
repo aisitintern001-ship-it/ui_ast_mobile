@@ -6,7 +6,7 @@ import '../theme/app_theme.dart';
 import '../widgets/bottom_nav.dart';
 import 'team_members_screen.dart';
 import 'member_timesheet_screen.dart';
-import 'leave_request_screen.dart';
+import 'team_leave_requests_screen.dart';
 import 'expense_claim_screen.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -37,7 +37,7 @@ class TeamManagementScreen extends StatelessWidget {
         'iconColor': AppColors.headerOrange,
         'title': 'Leave',
         'subtitle': 'Manage team leave requests',
-        'screen': const LeaveRequestScreen(),
+        'screen': const TeamLeaveRequestsScreen(),
       },
       {
         'icon': LucideIcons.dollarSign,

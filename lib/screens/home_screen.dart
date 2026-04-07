@@ -13,7 +13,7 @@ import '../widgets/bottom_nav.dart';
 import '../widgets/news_modal.dart';
 import '../widgets/animations/page_transitions.dart';
 import '../modals/signature_modal.dart';
-import 'leave_request_screen.dart';
+import 'team_leave_requests_screen.dart';
 import 'attendance_screen.dart';
 import 'face_registration_screen.dart';
 import 'supplier_request_screen.dart';
@@ -578,7 +578,7 @@ class _MainMenuSectionState extends State<_MainMenuSection>
 
   void _handleMenuTap(BuildContext context, String id, String title) {
     HapticFeedback.lightImpact();
-    late final Widget screen;
+    Widget? screen;
     
     switch (id) {
       case 'attendance':
@@ -586,7 +586,7 @@ class _MainMenuSectionState extends State<_MainMenuSection>
         break;
       case 'leave':
       case 'leave_request':
-        screen = const LeaveRequestScreen();
+        screen = const TeamLeaveRequestsScreen();
         break;
       case 'expense':
       case 'expense_claim':
@@ -628,7 +628,9 @@ class _MainMenuSectionState extends State<_MainMenuSection>
         return;
     }
     
-    Navigator.of(context).push(AppPageTransitions.slideLeft(screen));
+    if (screen != null) {
+      Navigator.of(context).push(AppPageTransitions.slideLeft(screen));
+    }
   }
 
   void _showComingSoon(BuildContext context, String feature) {

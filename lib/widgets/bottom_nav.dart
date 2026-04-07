@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
@@ -19,7 +20,7 @@ class AppBottomNavBar extends StatelessWidget {
     final headerColor = state.headerColor;
 
     final items = [
-      {'icon': LucideIcons.calendar, 'label': 'Attendance'},
+      {'icon': Icons.calendar_month_rounded, 'label': 'Attendance'},
       {'icon': LucideIcons.house, 'label': 'Home'},
       {'icon': LucideIcons.settings, 'label': 'Settings'},
     ];
@@ -36,15 +37,19 @@ class AppBottomNavBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: List.generate(items.length, (index) {
           final isSelected = state.currentNavIndex == index;
-          return GestureDetector(
+          return _AnimatedNavItem(
+            icon: items[index]['icon'] as IconData,
+            label: items[index]['label'] as String,
+            isSelected: isSelected,
+            headerColor: headerColor,
             onTap: () {
-              // 1. Do nothing if the user clicks the tab they are already on
               if (isSelected) return;
+              
+              // Haptic feedback
+              HapticFeedback.lightImpact();
 
-              // 2. Update the state so the icon changes color instantly
               state.setNavIndex(index);
 
-              // 3. Determine which screen to open based on the index
               Widget nextScreen;
               if (index == 0) {
                 nextScreen = const AttendanceScreen();
@@ -54,52 +59,150 @@ class AppBottomNavBar extends StatelessWidget {
                 nextScreen = const SettingsScreen();
               }
 
-              // 4. Navigate to the new screen without the "slide" animation so it feels like a tab switch
+              // Smooth fade transition between tabs
               Navigator.pushReplacement(
                 context,
                 PageRouteBuilder(
-                  pageBuilder: (context, animation1, animation2) => nextScreen,
-                  transitionDuration: Duration.zero,
-                  reverseTransitionDuration: Duration.zero,
+                  pageBuilder: (context, animation, secondaryAnimation) => nextScreen,
+                  transitionDuration: const Duration(milliseconds: 200),
+                  reverseTransitionDuration: const Duration(milliseconds: 150),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(
+                      opacity: CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeOut,
+                      ),
+                      child: child,
+                    );
+                  },
                 ),
               );
             },
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    items[index]['icon'] as IconData,
-                    size: 24,
-                    color: isSelected ? headerColor : AppColors.textMuted,
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    items[index]['label'] as String,
-                    style: GoogleFonts.inter(
-                      fontSize: 10,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                      color: isSelected ? headerColor : AppColors.textMuted,
-                    ),
-                    textScaler: TextScaler.noScaling,
-                  ),
-                  const SizedBox(height: 2),
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: isSelected ? 20 : 0,
-                    height: 2,
-                    decoration: BoxDecoration(
-                      color: headerColor,
-                      borderRadius: BorderRadius.circular(1),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           );
         }),
+      ),
+    );
+  }
+}
+
+class _AnimatedNavItem extends StatefulWidget {
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final Color headerColor;
+  final VoidCallback onTap;
+
+  const _AnimatedNavItem({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.headerColor,
+    required this.onTap,
+  });
+
+  @override
+  State<_AnimatedNavItem> createState() => _AnimatedNavItemState();
+}
+
+class _AnimatedNavItemState extends State<_AnimatedNavItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    _controller.forward();
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    _controller.reverse();
+    widget.onTap();
+  }
+
+  void _onTapCancel() {
+    _controller.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      behavior: HitTestBehavior.opaque,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Animated icon
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: widget.isSelected ? 1.0 : 0.0),
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                builder: (context, value, child) {
+                  return Transform.scale(
+                    scale: 1.0 + (value * 0.1),
+                    child: Icon(
+                      widget.icon,
+                      size: 24,
+                      color: Color.lerp(
+                        AppColors.textMuted,
+                        widget.headerColor,
+                        value,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 3),
+              // Animated label
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color: widget.isSelected ? widget.headerColor : AppColors.textMuted,
+                ),
+                child: Text(
+                  widget.label,
+                  textScaler: TextScaler.noScaling,
+                ),
+              ),
+              const SizedBox(height: 2),
+              // Animated indicator
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutCubic,
+                width: widget.isSelected ? 20 : 0,
+                height: 2,
+                decoration: BoxDecoration(
+                  color: widget.headerColor,
+                  borderRadius: BorderRadius.circular(1),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

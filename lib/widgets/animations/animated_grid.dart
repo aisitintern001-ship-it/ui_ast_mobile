@@ -152,7 +152,7 @@ class AnimatedHorizontalList extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: padding,
         itemCount: itemCount,
-        separatorBuilder: (_, _) => SizedBox(width: spacing),
+        separatorBuilder: (_, __) => SizedBox(width: spacing),
         itemBuilder: (context, index) {
           return _AnimatedHorizontalItem(
             index: index,

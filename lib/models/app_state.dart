@@ -19,10 +19,6 @@ class AppState extends ChangeNotifier {
   final UserModel _currentUser = MockData.currentUser;
   UserModel get currentUser => _currentUser;
 
-  // Check if user is admin
-  bool get isAdmin => _currentUser.role.toLowerCase() == 'administrator' ||
-                      _currentUser.role.toLowerCase() == 'admin';
-
   // Selected company
   CompanyModel? _selectedCompany;
   CompanyModel? get selectedCompany => _selectedCompany;
