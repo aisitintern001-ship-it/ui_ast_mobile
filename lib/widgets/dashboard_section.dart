@@ -175,16 +175,16 @@ class _StatusChipsRow extends StatelessWidget {
               ),
                const SizedBox(height: 6),
                FractionallySizedBox(
-                  widthFactor: isSelected ? 1.0 : 0.0,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    height: 2,
-                    decoration: BoxDecoration(
-                      color: headerColor,
-                      borderRadius: BorderRadius.circular(1),
-                    ),
-                  ),
-                ),
+                 widthFactor: isSelected ? 1.0 : 0.0,
+                 child: AnimatedContainer(
+                   duration: const Duration(milliseconds: 200),
+                   height: 2,
+                   decoration: BoxDecoration(
+                     color: headerColor,
+                     borderRadius: BorderRadius.circular(1),
+                   ),
+                 ),
+               ),
              ],
            ),
         ),
@@ -272,7 +272,16 @@ class _AnimatedDashboardItemTileState extends State<_AnimatedDashboardItemTile>
             onTapCancel: () => setState(() => _isPressed = false),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 100),
+<<<<<<< Updated upstream
               transform: Matrix4.identity()..scale(_isPressed ? 0.98 : 1.0),
+=======
+              // --- UPDATED THIS LINE TO USE scale() ---
+             transform: Matrix4.diagonal3Values(
+  _isPressed ? 0.98 : 1.0, // X scale
+  _isPressed ? 0.98 : 1.0, // Y scale
+  1.0,                     // Z scale (keep at 1.0 for 2D)
+),
+>>>>>>> Stashed changes
               transformAlignment: Alignment.center,
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
