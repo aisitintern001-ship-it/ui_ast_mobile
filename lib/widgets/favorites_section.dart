@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
-import '../screens/team_leave_requests_screen.dart';
+import '../screens/leave_request_screen.dart';
 import '../screens/expense_claim_screen.dart';
 import '../screens/attendance_screen.dart';
 import '../screens/product_library_screen.dart';
@@ -157,13 +157,11 @@ class _FavoriteIconItem extends StatefulWidget {
   final FavoriteItem item;
   final Color? themeColor;
   final double width;
-  final int index;
 
   const _FavoriteIconItem({
     required this.item,
     this.themeColor,
     required this.width,
-    this.index = 0,
   });
 
   @override
@@ -208,7 +206,7 @@ class _FavoriteIconItemState extends State<_FavoriteIconItem>
   }
 
   void _navigateToScreen() {
-    Widget? screen;
+    late final Widget screen;
     switch (widget.item.id) {
       // Attendance category
       case 'attendance':
@@ -219,7 +217,7 @@ class _FavoriteIconItemState extends State<_FavoriteIconItem>
         _showComingSoon('Payslip');
         return;
       case 'leave_request':
-        screen = const TeamLeaveRequestsScreen();
+        screen = const LeaveRequestScreen();
         break;
       case 'team_management':
         screen = const TeamManagementScreen();
@@ -276,11 +274,9 @@ class _FavoriteIconItemState extends State<_FavoriteIconItem>
         return;
     }
     
-    if (screen != null) {
-      Navigator.of(context).push(
-        AppPageTransitions.slideLeft(screen),
-      );
-    }
+    Navigator.of(context).push(
+      AppPageTransitions.slideLeft(screen),
+    );
   }
 
   void _showComingSoon(String feature) {
@@ -802,7 +798,6 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet>
 class _FavoriteChip extends StatelessWidget {
   final FavoriteItem item;
   final Color themeColor;
-  final VoidCallback? onTap;
   final VoidCallback? onRemove;
   final bool showRemove;
   final bool isFavorited;
@@ -810,7 +805,6 @@ class _FavoriteChip extends StatelessWidget {
   const _FavoriteChip({
     required this.item,
     required this.themeColor,
-    this.onTap,
     this.onRemove,
     this.showRemove = false,
     this.isFavorited = false,
@@ -826,7 +820,6 @@ class _FavoriteChip extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: onTap,
       child: SizedBox(
         width: 56,
         child: Stack(
@@ -908,7 +901,6 @@ class _AnimatedFavoriteChip extends StatefulWidget {
   final FavoriteItem item;
   final Color themeColor;
   final VoidCallback? onTap;
-  final VoidCallback? onRemove;
   final bool showRemove;
   final bool isFavorited;
 
@@ -916,7 +908,6 @@ class _AnimatedFavoriteChip extends StatefulWidget {
     required this.item,
     required this.themeColor,
     this.onTap,
-    this.onRemove,
     this.showRemove = false,
     this.isFavorited = false,
   });
@@ -1018,31 +1009,6 @@ class _AnimatedFavoriteChipState extends State<_AnimatedFavoriteChip>
                   ),
                 ],
               ),
-              if (widget.showRemove && widget.onRemove != null)
-                Positioned(
-                  top: -3,
-                  right: -2,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: widget.onRemove,
-                    child: Container(
-                      width: 16,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: widget.themeColor,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: widget.themeColor.withValues(alpha: 0.3),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(Icons.check_rounded, size: 10, color: Colors.white),
-                    ),
-                  ),
-                ),
             ],
           ),
         ),

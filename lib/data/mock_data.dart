@@ -9,7 +9,7 @@ class MockData {
     name: 'Mae Jezriel Llanes',
     email: 'mac.llanes@company.com',
     initials: 'M',
-    role: 'Administrator',
+    role: 'Employee',
     companyId: '2', // Australia Farm Innovations
   );
 
