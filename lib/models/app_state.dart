@@ -4,19 +4,20 @@ import '../data/mock_data.dart';
 import '../theme/app_theme.dart';
 
 class AppState extends ChangeNotifier {
-    // Attendance: persistent time-in state
-    bool _hasCurrentTimeIn = false;
-    bool get hasCurrentTimeIn => _hasCurrentTimeIn;
-    void setHasCurrentTimeIn(bool value) {
-      _hasCurrentTimeIn = value;
-      notifyListeners();
-    }
+  // Attendance: persistent time-in state
+  bool _hasCurrentTimeIn = false;
+  bool get hasCurrentTimeIn => _hasCurrentTimeIn;
+  void setHasCurrentTimeIn(bool value) {
+    _hasCurrentTimeIn = value;
+    notifyListeners();
+  }
+
   // Theme color for header
   Color _headerColor = const Color(0xFF2563EB);
   Color get headerColor => _headerColor;
 
-  // Current user
-  final UserModel _currentUser = MockData.currentUser;
+  // Current user (Removed 'final' so we can change it on login)
+  UserModel _currentUser = MockData.currentUser;
   UserModel get currentUser => _currentUser;
 
   // Check if user is admin
@@ -121,8 +122,6 @@ class AppState extends ChangeNotifier {
       );
     }
     return null;
-
-    
   }
 
   void setHeaderColor(Color color) {
@@ -169,10 +168,37 @@ class AppState extends ChangeNotifier {
 
     await Future.delayed(const Duration(milliseconds: 1200));
 
+    final normalizedEmail = email.trim().toLowerCase();
+    final normalizedPassword = password.trim();
+
+    UserModel? matchedUser;
+    for (final user in MockData.loginUsers) {
+      if (user.email.toLowerCase() == normalizedEmail) {
+        matchedUser = user;
+        break;
+      }
+    }
+
+    final expectedPassword = MockData.loginPasswordsByEmail[normalizedEmail];
+    final isValidLogin =
+        matchedUser != null &&
+        expectedPassword != null &&
+        normalizedPassword == expectedPassword;
+
+    if (!isValidLogin) {
+      _isLoading = false;
+      _isAuthenticated = false;
+      notifyListeners();
+      return false;
+    }
+
+    _currentUser = matchedUser;
     _isLoading = false;
     _isAuthenticated = true;
+
     // Set selected company from user's account (e.g. from database)
     final companyId = _currentUser.companyId;
+    _selectedCompany = null;
     if (companyId != null) {
       for (final c in companies) {
         if (c.id == companyId) {

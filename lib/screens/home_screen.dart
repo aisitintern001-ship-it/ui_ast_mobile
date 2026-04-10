@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:ui_ast_mobile/screens/expense_claim_screen.dart';
 import '../models/app_state.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
@@ -13,7 +12,10 @@ import '../widgets/bottom_nav.dart';
 import '../widgets/news_modal.dart';
 import '../widgets/animations/page_transitions.dart';
 import '../modals/signature_modal.dart';
-import 'leave_request_screen.dart';
+import 'expense_claim_admin.dart';
+import 'expense_claim_employee.dart';
+import 'leave_request_admin.dart';
+import 'leave_request_employee.dart';
 import 'attendance_screen.dart';
 import 'face_registration_screen.dart';
 import 'supplier_request_screen.dart';
@@ -578,19 +580,20 @@ class _MainMenuSectionState extends State<_MainMenuSection>
 
   void _handleMenuTap(BuildContext context, String id, String title) {
     HapticFeedback.lightImpact();
+    final isAdmin = context.read<AppState>().isAdmin;
     late final Widget screen;
-    
+
     switch (id) {
       case 'attendance':
         screen = const AttendanceScreen();
         break;
       case 'leave':
       case 'leave_request':
-        screen = const LeaveRequestScreen();
+        screen = isAdmin ? const LeaveRequestAdminScreen() : const LeaveRequestEmployeeScreen();
         break;
       case 'expense':
       case 'expense_claim':
-        screen = const ExpenseClaimScreen();
+        screen = isAdmin ? const ExpenseClaimAdminScreen() : const ExpenseClaimEmployeeScreen();
         break;
       case 'team':
       case 'team_management':

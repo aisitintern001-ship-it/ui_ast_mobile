@@ -5,8 +5,10 @@ import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
-import '../screens/leave_request_screen.dart';
-import '../screens/expense_claim_screen.dart';
+import '../screens/leave_request_admin.dart';
+import '../screens/leave_request_employee.dart';
+import '../screens/expense_claim_admin.dart';
+import '../screens/expense_claim_employee.dart';
 import '../screens/attendance_screen.dart';
 import '../screens/product_library_screen.dart';
 import '../screens/supplier_request_screen.dart';
@@ -206,6 +208,7 @@ class _FavoriteIconItemState extends State<_FavoriteIconItem>
   }
 
   void _navigateToScreen() {
+    final isAdmin = context.read<AppState>().isAdmin;
     late final Widget screen;
     switch (widget.item.id) {
       // Attendance category
@@ -217,17 +220,17 @@ class _FavoriteIconItemState extends State<_FavoriteIconItem>
         _showComingSoon('Payslip');
         return;
       case 'leave_request':
-        screen = const LeaveRequestScreen();
+        screen = isAdmin ? const LeaveRequestAdminScreen() : const LeaveRequestEmployeeScreen();
         break;
       case 'team_management':
         screen = const TeamManagementScreen();
         break;
-      
+
       // Product Library category
       case 'product':
         screen = const ProductLibraryScreen();
         break;
-      
+
       // Company Forms category
       case 'supplier_request':
         screen = const SupplierRequestScreen();
@@ -235,10 +238,10 @@ class _FavoriteIconItemState extends State<_FavoriteIconItem>
       case 'customer_request':
         screen = const CustomerRequestScreen();
         break;
-      
+
       // Expense Claim category
       case 'expense_claim':
-        screen = const ExpenseClaimScreen();
+        screen = isAdmin ? const ExpenseClaimAdminScreen() : const ExpenseClaimEmployeeScreen();
         break;
       
       // Management Console category

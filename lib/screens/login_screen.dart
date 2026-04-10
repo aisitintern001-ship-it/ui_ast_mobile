@@ -18,7 +18,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin {
   final _emailController = TextEditingController(
-    text: 'mac.llanes@company.com',
+    text: 'kversoza@afi.com.ph',
   );
   final _passwordController = TextEditingController(text: 'password123');
   final _orgIdController = TextEditingController(

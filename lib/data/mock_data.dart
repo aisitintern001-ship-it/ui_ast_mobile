@@ -6,12 +6,31 @@ import '../theme/app_theme.dart';
 class MockData {
   /// Current user (e.g. from database). companyId sets which company is selected on login.
   static const UserModel currentUser = UserModel(
-    name: 'Mae Jezriel Llanes',
-    email: 'mac.llanes@company.com',
-    initials: 'M',
-    role: 'Employee',
+    name: 'Knowell Lucky Versoza',
+    email: 'kversoza@afi.com.ph',
+    initials: 'K',
+    role: 'Administrator',
     companyId: '2', // Australia Farm Innovations
   );
+
+  static const UserModel employeeUser = UserModel(
+    name: 'John Mel Haniba',
+    email: 'jhaniba@ast.com.ph',
+    initials: 'J',
+    role: 'Employee',
+    companyId: '3',
+  );
+
+  static const Map<String, String> loginPasswordsByEmail = {
+    'kversoza@afi.com.ph': 'password123',
+    'jhaniba@ast.com.ph': 'password123',
+  };
+
+  static const List<UserModel> loginUsers = [
+    currentUser,
+    employeeUser,
+  ];
+
 
   static const List<CompanyModel> companies = [
     CompanyModel(

@@ -27,7 +27,6 @@ class AttendanceScreen extends StatefulWidget {
 }
 
 class _AttendanceScreenState extends State<AttendanceScreen> {
-  bool _hasCurrentTimeIn = false;
   String? _lastAction; // 'Time In' or 'Time Out'
   bool _showFailed = false; // true when attendance fails
   String? _failedAction; // which action failed
@@ -54,9 +53,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     final result = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => FaceRecognitionScreen(mode: action)));
     if (!mounted) return;
     if (result == true) {
+      final hasCurrentTimeIn = action == 'Time In';
+      context.read<AppState>().setHasCurrentTimeIn(hasCurrentTimeIn);
       setState(() {
         _lastAction = action;
-        _hasCurrentTimeIn = action == 'Time In';
         _showFailed = false;
         _failedAction = null;
       });
@@ -195,6 +195,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final headerColor = state.headerColor;
+    final hasCurrentTimeIn = state.hasCurrentTimeIn;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -243,29 +244,32 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                     children: [
                       Icon(LucideIcons.clock, size: 40, color: headerColor),
                       const SizedBox(height: 8),
-                      Text(_hasCurrentTimeIn ? 'You are currently timed in' : 'No Current Time In', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+                      Text(hasCurrentTimeIn ? 'You are currently timed in' : 'No Current Time In', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                       const SizedBox(height: 4),
                       Text('Started at 0:00 AM', style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted)),
                       const SizedBox(height: 16),
                       Row(
                         children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () => _handleFaceAction('Time In'),
-                              icon: const Icon(Icons.access_time_rounded, size: 18),
-                              label: Text('Time In', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                          // Show Time In button only when not timed in
+                          if (!hasCurrentTimeIn)
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () => _handleFaceAction('Time In'),
+                                icon: const Icon(Icons.access_time_rounded, size: 18),
+                                label: Text('Time In', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () => _handleFaceAction('Time Out'),
-                              icon: const Icon(Icons.access_time_rounded, size: 18),
-                              label: Text('Time Out', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                          // Show Time Out button only when already timed in
+                          if (hasCurrentTimeIn)
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: () => _handleFaceAction('Time Out'),
+                                icon: const Icon(Icons.access_time_rounded, size: 18),
+                                label: Text('Time Out', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                              ),
                             ),
-                          ),
                         ],
                       ),
                       if (_showFailed) ...[

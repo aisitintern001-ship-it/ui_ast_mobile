@@ -272,7 +272,11 @@ class _AnimatedDashboardItemTileState extends State<_AnimatedDashboardItemTile>
             onTapCancel: () => setState(() => _isPressed = false),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 100),
-              transform: Matrix4.identity()..scaleByDouble(_isPressed ? 0.98 : 1.0),
+             transform: Matrix4.diagonal3Values(
+  _isPressed ? 0.98 : 1.0, // X scale
+  _isPressed ? 0.98 : 1.0, // Y scale
+  1.0,                     // Z scale (keep at 1.0 for 2D)
+),
               transformAlignment: Alignment.center,
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
