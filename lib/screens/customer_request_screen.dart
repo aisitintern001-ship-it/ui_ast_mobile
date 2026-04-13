@@ -9,6 +9,7 @@ import '../widgets/expandable_status_filter.dart';
 import '../widgets/request_form_widgets.dart';
 import '../widgets/offline_tab_widget.dart';
 import '../widgets/add_button_widget.dart'; // <-- IMPORT REUSABLE BUTTON
+import '../widgets/filter_tabs.dart';
 import 'customer_request/customer_request_screen.dart';
 
 class CustomerRequestScreen extends StatefulWidget {
@@ -82,7 +83,10 @@ class _CustomerRequestScreenState extends State<CustomerRequestScreen> {
               children: [
                 AppTextInput(hintText: 'Search Records', hintStyle: GoogleFonts.inter(color: Colors.grey.shade400, fontSize: 13), prefixIcon: Icon(Icons.search, color: Colors.grey.shade400, size: 20), contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16), border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300))),
                 const SizedBox(height: 16),
-                Row(children: [ _buildFilterChip("Last 7 Days", "7"), const SizedBox(width: 8), _buildFilterChip("Last 30 Days", "30"), const SizedBox(width: 8), _buildFilterChip("Custom", "custom") ]),
+                FilterTabs(
+                  selected: selectedFilter,
+                  onChanged: (value) => setState(() => selectedFilter = value),
+                ),
                 const SizedBox(height: 12),
                 ExpandableStatusFilter(statuses: _customerStatuses, selectedStatus: selectedStatus, onChanged: (v) => setState(() => selectedStatus = v ?? 'All')),
                 const SizedBox(height: 12),
@@ -138,17 +142,4 @@ class _CustomerRequestScreenState extends State<CustomerRequestScreen> {
     );
   }
 
-  Widget _buildFilterChip(String label, String value) {
-    bool isSelected = selectedFilter == value;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => selectedFilter = value),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 36), alignment: Alignment.center,
-          decoration: BoxDecoration(color: isSelected ? const Color(0xFF2181FF) : Colors.white, border: isSelected ? null : Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(8)),
-          child: Text(label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: isSelected ? Colors.white : Colors.grey.shade700)),
-        ),
-      ),
-    );
-  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
@@ -15,6 +16,8 @@ class _MemberData {
   final String status; // 'Active', 'On Leave'
   final String email;
   final String phone;
+  final String dateHired;
+  final String location;
 
   const _MemberData({
     required this.name,
@@ -25,6 +28,8 @@ class _MemberData {
     required this.status,
     required this.email,
     required this.phone,
+    required this.dateHired,
+    required this.location,
   });
 }
 
@@ -36,8 +41,10 @@ final List<_MemberData> _mockMembers = [
     position: 'Senior Software Engineer',
     department: 'IT Development',
     status: 'Active',
-    email: 'edward.peter@company.com',
-    phone: '+63 912 345 6789',
+    email: 'epeter@ast.com.ph',
+    phone: '+63 917 12 4567',
+    dateHired: 'Mar 15, 2021',
+    location: 'Makati City, Philippines',
   ),
   _MemberData(
     name: 'Daniel Gray',
@@ -46,8 +53,10 @@ final List<_MemberData> _mockMembers = [
     position: 'Software Engineer',
     department: 'IT Development',
     status: 'Active',
-    email: 'daniel.gray@company.com',
-    phone: '+63 912 345 6790',
+    email: 'dgray@ast.com.ph',
+    phone: '+63 917 12 4567',
+    dateHired: 'Mar 15, 2021',
+    location: 'Makati City, Philippines',
   ),
   _MemberData(
     name: 'Amanda Roberts',
@@ -56,8 +65,10 @@ final List<_MemberData> _mockMembers = [
     position: 'Junior Developer',
     department: 'IT Development',
     status: 'On Leave',
-    email: 'amanda.roberts@company.com',
-    phone: '+63 912 345 6791',
+    email: 'aroberts@ast.com.ph',
+    phone: '+63 917 12 4567',
+    dateHired: 'Jul 12, 2022',
+    location: 'Makati City, Philippines',
   ),
   _MemberData(
     name: 'Maria Dela Rosa',
@@ -66,8 +77,10 @@ final List<_MemberData> _mockMembers = [
     position: 'UI/UX Designer',
     department: 'Design',
     status: 'Active',
-    email: 'maria.delarosa@company.com',
-    phone: '+63 912 345 6792',
+    email: 'mdelarosa@ast.com.ph',
+    phone: '+63 917 12 4567',
+    dateHired: 'Feb 01, 2023',
+    location: 'Makati City, Philippines',
   ),
   _MemberData(
     name: 'Michael Chen',
@@ -76,8 +89,10 @@ final List<_MemberData> _mockMembers = [
     position: 'Operations Manager',
     department: 'Operations',
     status: 'Active',
-    email: 'michael.chen@company.com',
-    phone: '+63 912 345 6793',
+    email: 'mchen@ast.com.ph',
+    phone: '+63 917 12 4567',
+    dateHired: 'Jan 10, 2020',
+    location: 'Makati City, Philippines',
   ),
   _MemberData(
     name: 'Anika Carder',
@@ -86,8 +101,10 @@ final List<_MemberData> _mockMembers = [
     position: 'Operations Coordinator',
     department: 'Operations',
     status: 'On Leave',
-    email: 'anika.carder@company.com',
-    phone: '+63 912 345 6794',
+    email: 'acarder@ast.com.ph',
+    phone: '+63 917 12 4567',
+    dateHired: 'Oct 05, 2021',
+    location: 'Makati City, Philippines',
   ),
   _MemberData(
     name: 'John Rivera',
@@ -96,8 +113,10 @@ final List<_MemberData> _mockMembers = [
     position: 'QA Analyst',
     department: 'Quality Assurance',
     status: 'Active',
-    email: 'john.rivera@company.com',
-    phone: '+63 912 345 6795',
+    email: 'jrivera@ast.com.ph',
+    phone: '+63 917 12 4567',
+    dateHired: 'Apr 21, 2022',
+    location: 'Makati City, Philippines',
   ),
 ];
 
@@ -115,6 +134,10 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
   String _selectedTeam = 'All';
   String _selectedReporting = 'All';
   int? _expandedIndex;
+  bool get _hasActiveFilters =>
+      _selectedDepartment != 'All' ||
+      _selectedTeam != 'All' ||
+      _selectedReporting != 'All';
 
   List<_MemberData> get _filteredMembers {
     var members = _mockMembers;
@@ -253,7 +276,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
-                      Icons.tune,
+                      LucideIcons.slidersHorizontal,
                       size: 18,
                       color: _showFilters
                           ? Colors.white
@@ -273,6 +296,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                 children: [
                   _FilterDropdown(
                     label: 'Department',
+                    icon: Icons.apartment_outlined,
                     value: _selectedDepartment,
                     items: const [
                       'All',
@@ -289,6 +313,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                   const SizedBox(height: 8),
                   _FilterDropdown(
                     label: 'Team',
+                    icon: Icons.groups_2_outlined,
                     value: _selectedTeam,
                     items: const ['All', 'Team Alpha', 'Team Beta'],
                     onChanged: (v) =>
@@ -297,6 +322,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                   const SizedBox(height: 8),
                   _FilterDropdown(
                     label: 'Reporting To',
+                    icon: Icons.person_outline,
                     value: _selectedReporting,
                     items: const ['All', 'Edward Peter', 'Michael Chen'],
                     onChanged: (v) =>
@@ -307,10 +333,12 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
                     width: double.infinity,
                     height: 36,
                     child: ElevatedButton(
-                      onPressed: () => setState(() {}),
+                      onPressed: _hasActiveFilters ? () => setState(() {}) : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.headerOrange,
+                        backgroundColor: const Color(0xFF2181FF),
+                        disabledBackgroundColor: const Color(0xFFDCE7F5),
                         foregroundColor: Colors.white,
+                        disabledForegroundColor: const Color(0xFFB7C5D8),
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -450,12 +478,14 @@ class _StatPill extends StatelessWidget {
 }
 
 class _FilterDropdown extends StatelessWidget {
+  final IconData icon;
   final String label;
   final String value;
   final List<String> items;
   final ValueChanged<String?> onChanged;
 
   const _FilterDropdown({
+    required this.icon,
     required this.label,
     required this.value,
     required this.items,
@@ -464,47 +494,144 @@ class _FilterDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return _FilterField(
+      icon: icon,
+      label: label,
+      value: value,
+      items: items,
+      onChanged: onChanged,
+    );
+  }
+}
+
+class _FilterField extends StatefulWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final List<String> items;
+  final ValueChanged<String?> onChanged;
+
+  const _FilterField({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.items,
+    required this.onChanged,
+  });
+
+  @override
+  State<_FilterField> createState() => _FilterFieldState();
+}
+
+class _FilterFieldState extends State<_FilterField> {
+  Future<void> _openMenu() async {
+    final box = context.findRenderObject() as RenderBox;
+    final topLeft = box.localToGlobal(Offset.zero);
+    final selected = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        topLeft.dx,
+        topLeft.dy + box.size.height + 4,
+        topLeft.dx + box.size.width - 220,
+        topLeft.dy,
+      ),
+      items: [
+        for (final item in widget.items.where((e) => e != 'All'))
+          PopupMenuItem<String>(
+            value: item,
+            height: 40,
+            child: Row(
+              children: [
+                Icon(
+                  widget.value == item
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  size: 16,
+                  color: const Color(0xFF10B981),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  item,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: const Color(0xFF1F2937),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+    if (selected != null) widget.onChanged(selected);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasSelection = widget.value != 'All';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: AppColors.textSecondary,
+        if (hasSelection) ...[
+          Wrap(
+            spacing: 6,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  border: Border.all(color: const Color(0xFFD1D5DB)),
+                  borderRadius: BorderRadius.circular(14),
+                  color: Colors.white,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(widget.icon, size: 13, color: const Color(0xFF6B7280)),
+                    const SizedBox(width: 6),
+                    Text(
+                      widget.value,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: const Color(0xFF374151),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: () => widget.onChanged('All'),
+                      child: const Icon(Icons.close, size: 14, color: Color(0xFF6B7280)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(height: 4),
-        SizedBox(
-          height: 38,
-          child: DropdownButtonFormField<String>(
-            initialValue: value,
-            items: items
-                .map(
-                  (e) => DropdownMenuItem(
-                    value: e,
-                    child: Text(e, style: GoogleFonts.inter(fontSize: 13)),
-                  ),
-                )
-                .toList(),
-            onChanged: onChanged,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 0,
-              ),
-              filled: true,
-              fillColor: const Color(0xFFF3F4F6),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
+          const SizedBox(height: 8),
+        ],
+        InkWell(
+          onTap: _openMenu,
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            height: 42,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF9FAFB),
+              border: Border.all(color: const Color(0xFFE5E7EB)),
+              borderRadius: BorderRadius.circular(10),
             ),
-            icon: const Icon(Icons.keyboard_arrow_down, size: 18),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: AppColors.textPrimary,
+            child: Row(
+              children: [
+                Icon(widget.icon, size: 18, color: const Color(0xFF9CA3AF)),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    widget.label,
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: const Color(0xFF9CA3AF),
+                    ),
+                  ),
+                ),
+                const Icon(Icons.keyboard_arrow_down, size: 18, color: Color(0xFF9CA3AF)),
+              ],
             ),
           ),
         ),
@@ -526,7 +653,15 @@ class _MemberCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isActive = member.status == 'Active';
+    final safeName = _safeText(member.name);
+    final safePosition = _safeText(member.position);
+    final safeDepartment = _safeText(member.department);
+    final safeStatus = _safeText(member.status, fallback: 'Active');
+    final safeEmail = _safeText(member.email);
+    final safePhone = _safeText(member.phone);
+    final safeDateHired = _safeText(member.dateHired);
+    final safeLocation = _safeText(member.location);
+    final isActive = safeStatus == 'Active';
     final statusColor = isActive
         ? const Color(0xFF10B981)
         : const Color(0xFFF59E0B);
@@ -557,8 +692,8 @@ class _MemberCard extends StatelessWidget {
                         backgroundColor: member.avatarColor.withValues(
                           alpha: 0.15,
                         ),
-                        child: Text(
-                          member.initials,
+                               child: Text(
+                            _safeText(member.initials, fallback: '--'),
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -566,20 +701,19 @@ class _MemberCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (isActive)
-                        Positioned(
-                          right: 0,
-                          bottom: 0,
-                          child: Container(
-                            width: 12,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF10B981),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: 11,
+                          height: 11,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF14B8A6),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
                           ),
                         ),
+                      ),
                     ],
                   ),
                   const SizedBox(width: 12),
@@ -590,8 +724,8 @@ class _MemberCard extends StatelessWidget {
                         Row(
                           children: [
                             Expanded(
-                              child: Text(
-                                member.name,
+                               child: Text(
+                                safeName,
                                 style: GoogleFonts.inter(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -608,8 +742,8 @@ class _MemberCard extends StatelessWidget {
                                 color: statusBg,
                                 borderRadius: BorderRadius.circular(25),
                               ),
-                              child: Text(
-                                member.status,
+                               child: Text(
+                                safeStatus,
                                 style: GoogleFonts.inter(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
@@ -621,14 +755,14 @@ class _MemberCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          member.position,
+                          safePosition,
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             color: AppColors.textSecondary,
                           ),
                         ),
                         Text(
-                          member.department,
+                          safeDepartment,
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             color: AppColors.textMuted,
@@ -653,20 +787,76 @@ class _MemberCard extends StatelessWidget {
           if (isExpanded) ...[
             const Divider(height: 1, color: AppColors.divider),
             Padding(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _detailRow(Icons.email_outlined, 'Email', member.email),
-                  const SizedBox(height: 8),
-                  _detailRow(Icons.phone_outlined, 'Phone', member.phone),
-                  const SizedBox(height: 8),
-                  _detailRow(
-                    Icons.business_outlined,
-                    'Department',
-                    member.department,
+                  Text(
+                    'CONTACT INFORMATION',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF9CA3AF),
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  _detailRow(Icons.work_outline, 'Position', member.position),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _infoTile(
+                          icon: Icons.mail_outline,
+                          title: 'Email',
+                          value: safeEmail,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _infoTile(
+                          icon: Icons.call_outlined,
+                          title: 'Phone',
+                          value: safePhone,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    'WORK INFORMATION',
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF9CA3AF),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _infoTile(
+                          icon: Icons.work_outline,
+                          title: 'Job Title',
+                          value: safePosition,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _infoTile(
+                          icon: Icons.event_outlined,
+                          title: 'Date Hired',
+                          value: safeDateHired,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width - 52) / 2,
+                    child: _infoTile(
+                      icon: Icons.location_on_outlined,
+                      title: 'Location',
+                      value: safeLocation,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -676,29 +866,63 @@ class _MemberCard extends StatelessWidget {
     );
   }
 
-  Widget _detailRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: AppColors.textMuted),
-        const SizedBox(width: 10),
-        SizedBox(
-          width: 80,
-          child: Text(
-            label,
-            style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
+  Widget _infoTile({
+    required IconData icon,
+    required String title,
+    required String value,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFAFAFA),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 24,
+            height: 24,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFDEDE8),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, size: 14, color: const Color(0xFFEF532A)),
           ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textPrimary,
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    color: const Color(0xFF9CA3AF),
+                  ),
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  value,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF1F2937),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  String _safeText(String? value, {String fallback = '-'}) {
+    final text = value?.trim();
+    if (text == null || text.isEmpty) return fallback;
+    return text;
   }
 }

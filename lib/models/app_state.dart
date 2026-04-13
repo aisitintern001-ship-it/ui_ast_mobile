@@ -6,9 +6,29 @@ import '../theme/app_theme.dart';
 class AppState extends ChangeNotifier {
   // Attendance: persistent time-in state
   bool _hasCurrentTimeIn = false;
+  DateTime? _currentTimeInAt;
   bool get hasCurrentTimeIn => _hasCurrentTimeIn;
+  DateTime? get currentTimeInAt => _currentTimeInAt;
+
   void setHasCurrentTimeIn(bool value) {
     _hasCurrentTimeIn = value;
+    if (value) {
+      _currentTimeInAt ??= DateTime.now();
+    } else {
+      _currentTimeInAt = null;
+    }
+    notifyListeners();
+  }
+
+  void markTimeIn([DateTime? at]) {
+    _hasCurrentTimeIn = true;
+    _currentTimeInAt = at ?? DateTime.now();
+    notifyListeners();
+  }
+
+  void markTimeOut() {
+    _hasCurrentTimeIn = false;
+    _currentTimeInAt = null;
     notifyListeners();
   }
 
@@ -214,6 +234,8 @@ class AppState extends ChangeNotifier {
   void logout() {
     _isAuthenticated = false;
     _selectedCompany = null;
+    _hasCurrentTimeIn = false;
+    _currentTimeInAt = null;
     notifyListeners();
   }
 

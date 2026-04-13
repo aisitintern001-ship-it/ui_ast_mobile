@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
@@ -242,7 +243,7 @@ class MemberTimesheetScreen extends StatefulWidget {
 }
 
 class _MemberTimesheetScreenState extends State<MemberTimesheetScreen> {
-  String _selectedEmployee = 'All';
+  String? _employeeQuery;
   String? _selectedStatus;
   String _selectedDateFilter = '7';
   int? _expandedCard;
@@ -256,10 +257,61 @@ class _MemberTimesheetScreenState extends State<MemberTimesheetScreen> {
 
   List<_EmployeeTimesheet> get _filtered {
     var list = _mockTimesheets;
-    if (_selectedEmployee != 'All') {
-      list = list.where((e) => e.name == _selectedEmployee).toList();
+    final query = (_employeeQuery ?? '').trim().toLowerCase();
+    if (query.isNotEmpty) {
+      list = list.where((e) => e.name.toLowerCase().contains(query)).toList();
     }
     return list;
+  }
+
+  String _expandDateLabel(String value) {
+    const dayMap = {
+      'Mon': 'Monday',
+      'Tue': 'Tuesday',
+      'Wed': 'Wednesday',
+      'Thu': 'Thursday',
+      'Fri': 'Friday',
+      'Sat': 'Saturday',
+      'Sun': 'Sunday',
+    };
+    final parts = value.split(', ');
+    if (parts.length != 2) return value;
+    final longDay = dayMap[parts.first] ?? parts.first;
+    final monthDayYear = parts.last.split(' ');
+    if (monthDayYear.length != 3) return '$longDay, ${parts.last}';
+    return '$longDay, ${monthDayYear[0]} ${monthDayYear[1]}, ${monthDayYear[2]}';
+  }
+
+  void _openAddTimesheetSheet(String employeeName, _DayEntry entry) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (_) => FractionallySizedBox(
+            heightFactor: 0.88,
+            child: _AddTimesheetSheet(
+              employeeName: employeeName,
+              dateLabel: _expandDateLabel(entry.date),
+            ),
+          ),
+    );
+  }
+
+  void _openAddAllowanceSheet(String employeeName, _DayEntry entry) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (_) => FractionallySizedBox(
+            heightFactor: 0.88,
+            child: _AddAllowanceSheet(
+              employeeName: employeeName,
+              dateLabel: _expandDateLabel(entry.date),
+            ),
+          ),
+    );
   }
 
   @override
@@ -296,15 +348,10 @@ class _MemberTimesheetScreenState extends State<MemberTimesheetScreen> {
           // Filter row
           Container(
             color: Colors.white,
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
-            child: Column(
-              children: [
-                _buildDropdown(
-                  'Search Employee',
-                  _selectedEmployee,
-                  ['All', ..._mockTimesheets.map((e) => e.name)],
-                  (v) => setState(() => _selectedEmployee = v ?? 'All'),
-                ),
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+              child: Column(
+                children: [
+                  _buildEmployeeSearchBar(),
                 const SizedBox(height: 8),
                 ExpandableStatusFilter(
                   statuses: _timesheetStatuses,
@@ -318,7 +365,7 @@ class _MemberTimesheetScreenState extends State<MemberTimesheetScreen> {
                   child: ElevatedButton(
                     onPressed: () => setState(() {}),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.headerOrange,
+                      backgroundColor: const Color(0xFF2181FF),
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -349,6 +396,8 @@ class _MemberTimesheetScreenState extends State<MemberTimesheetScreen> {
                   employee: emp,
                   isExpanded: isExpanded,
                   expandedDays: _expandedDays,
+                  onAddTimesheet: _openAddTimesheetSheet,
+                  onAddAllowance: _openAddAllowanceSheet,
                   onToggle: () {
                     setState(() {
                       _expandedCard = isExpanded ? null : index;
@@ -369,58 +418,31 @@ class _MemberTimesheetScreenState extends State<MemberTimesheetScreen> {
     );
   }
 
-  Widget _buildDropdown(
-    String label,
-    String value,
-    List<String> items,
-    ValueChanged<String?> onChanged,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.inter(
+  Widget _buildEmployeeSearchBar() {
+    return SizedBox(
+      height: 38,
+      child: TextField(
+        onChanged: (value) => setState(() => _employeeQuery = value),
+        style: GoogleFonts.inter(
+          fontSize: 12,
+          color: AppColors.textPrimary,
+        ),
+        decoration: InputDecoration(
+          hintText: 'Search Employee',
+          hintStyle: GoogleFonts.inter(
             fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: AppColors.textSecondary,
+            color: AppColors.textMuted,
+          ),
+          prefixIcon: const Icon(Icons.search, size: 18, color: Color(0xFF9CA3AF)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+          filled: true,
+          fillColor: const Color(0xFFF3F4F6),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
           ),
         ),
-        const SizedBox(height: 4),
-        SizedBox(
-          height: 38,
-          child: DropdownButtonFormField<String>(
-            initialValue: value,
-            items:
-                items
-                    .map(
-                      (e) => DropdownMenuItem(
-                        value: e,
-                        child: Text(e, style: GoogleFonts.inter(fontSize: 13)),
-                      ),
-                    )
-                    .toList(),
-            onChanged: onChanged,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 0,
-              ),
-              filled: true,
-              fillColor: const Color(0xFFF3F4F6),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-            ),
-            icon: const Icon(Icons.keyboard_arrow_down, size: 18),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: AppColors.textPrimary,
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -431,6 +453,8 @@ class _TimesheetCard extends StatelessWidget {
   final _EmployeeTimesheet employee;
   final bool isExpanded;
   final Map<String, bool> expandedDays;
+  final void Function(String employeeName, _DayEntry entry) onAddTimesheet;
+  final void Function(String employeeName, _DayEntry entry) onAddAllowance;
   final VoidCallback onToggle;
   final ValueChanged<String> onToggleDay;
 
@@ -438,6 +462,8 @@ class _TimesheetCard extends StatelessWidget {
     required this.employee,
     required this.isExpanded,
     required this.expandedDays,
+    required this.onAddTimesheet,
+    required this.onAddAllowance,
     required this.onToggle,
     required this.onToggleDay,
   });
@@ -561,6 +587,10 @@ class _TimesheetCard extends StatelessWidget {
                       dayKey: '${employee.name}_$i',
                       isExpanded:
                           expandedDays['${employee.name}_$i'] ?? false,
+                      onOpenTimesheet:
+                          () => onAddTimesheet(employee.name, employee.days[i]),
+                      onOpenAllowance:
+                          () => onAddAllowance(employee.name, employee.days[i]),
                       onToggle: () => onToggleDay('${employee.name}_$i'),
                     ),
                   ],
@@ -580,12 +610,16 @@ class _DayEntryTile extends StatelessWidget {
   final _DayEntry entry;
   final String dayKey;
   final bool isExpanded;
+  final VoidCallback onOpenTimesheet;
+  final VoidCallback onOpenAllowance;
   final VoidCallback onToggle;
 
   const _DayEntryTile({
     required this.entry,
     required this.dayKey,
     required this.isExpanded,
+    required this.onOpenTimesheet,
+    required this.onOpenAllowance,
     required this.onToggle,
   });
 
@@ -596,7 +630,7 @@ class _DayEntryTile extends StatelessWidget {
       case 'Mngr. Pending':
         return const Color(0xFFF59E0B);
       default:
-        return const Color(0xFF9CA3AF);
+        return const Color(0xFF6B7280);
     }
   }
 
@@ -607,7 +641,7 @@ class _DayEntryTile extends StatelessWidget {
       case 'Mngr. Pending':
         return const Color(0xFFF59E0B).withValues(alpha: 0.1);
       default:
-        return const Color(0xFF9CA3AF).withValues(alpha: 0.1);
+        return const Color(0xFFF3F4F6);
     }
   }
 
@@ -617,7 +651,7 @@ class _DayEntryTile extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: isNoAttendance ? const Color(0xFFFCF8EB) : const Color(0xFFF9FAFB),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppColors.divider),
       ),
@@ -626,92 +660,122 @@ class _DayEntryTile extends StatelessWidget {
           InkWell(
             onTap: onToggle,
             borderRadius: BorderRadius.circular(8),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
               child: Row(
                 children: [
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          entry.date,
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _statusBg,
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          child: Text(
-                            entry.status,
-                            style: GoogleFonts.inter(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: _statusColor,
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                entry.date,
+                                style: GoogleFonts.inter(
+                                  fontSize: 22 / 2,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 1.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _statusBg,
+                                borderRadius: BorderRadius.circular(25),
+                                border: Border.all(
+                                  color: _statusColor.withValues(alpha: 0.35),
+                                ),
+                              ),
+                              child: Text(
+                                entry.status,
+                                style: GoogleFonts.inter(
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: _statusColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 7),
+                        Row(
+                          children: [
+                            if (isNoAttendance) ...[
+                              _actionButton(
+                                icon: Icons.access_time_filled_rounded,
+                                backgroundColor: const Color(0xFFF59E0B),
+                                onTap: onOpenTimesheet,
+                              ),
+                              const SizedBox(width: 6),
+                            ] else ...[
+                              _actionButton(
+                                icon: Icons.check_rounded,
+                                backgroundColor: const Color(0xFF10B981),
+                              ),
+                              const SizedBox(width: 6),
+                            ],
+                            _actionButton(
+                              icon: Icons.add_rounded,
+                              backgroundColor: const Color(0xFF2181FF),
+                              onTap: onOpenTimesheet,
+                            ),
+                            const SizedBox(width: 6),
+                            _actionButton(
+                              icon: LucideIcons.handCoins,
+                              backgroundColor: const Color(0xFFEF532A),
+                              onTap: onOpenAllowance,
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  // Action icons
-                  if (!isNoAttendance) ...[
-                    _actionIcon(Icons.check_circle_outline, const Color(0xFF10B981)),
-                    const SizedBox(width: 6),
-                    _actionIcon(Icons.add_circle_outline, const Color(0xFF2563EB)),
-                    const SizedBox(width: 6),
-                    _actionIcon(Icons.cancel_outlined, AppColors.dangerRed),
-                  ] else
-                    _actionIcon(Icons.add_circle_outline, const Color(0xFF2563EB)),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 6),
                   Icon(
-                    isExpanded
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
-                    size: 18,
-                    color: AppColors.textMuted,
+                    isExpanded ? Icons.expand_less : Icons.expand_more,
+                    size: 17,
+                    color: const Color(0xFF7C8793),
                   ),
                 ],
               ),
             ),
           ),
+          if (!isNoAttendance) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 2, 10, 10),
+              child: _metricsGrid(),
+            ),
+          ],
           if (isExpanded) ...[
             const Divider(height: 1, color: AppColors.divider),
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child:
                   isNoAttendance
-                      ? Row(
+                      ? Column(
                         children: [
-                          const Icon(
-                            Icons.info_outline,
-                            size: 14,
-                            color: AppColors.textMuted,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
+                          const Divider(height: 1, color: AppColors.divider),
+                          const SizedBox(height: 10),
+                          Center(
                             child: Text(
                               'No time entries for this day. Click + to add a manual entry.',
+                              textAlign: TextAlign.center,
                               style: GoogleFonts.inter(
-                                fontSize: 11,
+                                fontSize: 10.5,
                                 color: AppColors.textMuted,
-                                fontStyle: FontStyle.italic,
                               ),
                             ),
                           ),
                         ],
                       )
-                      : _metricsGrid(),
+                      : _expandedEntryDetails(),
             ),
           ],
         ],
@@ -719,8 +783,24 @@ class _DayEntryTile extends StatelessWidget {
     );
   }
 
-  Widget _actionIcon(IconData icon, Color color) {
-    return Icon(icon, size: 20, color: color);
+  Widget _actionButton({
+    required IconData icon,
+    required Color backgroundColor,
+    VoidCallback? onTap,
+  }) {
+    return Material(
+      color: backgroundColor,
+      borderRadius: BorderRadius.circular(4),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(4),
+        child: SizedBox(
+          width: 18,
+          height: 18,
+          child: Icon(icon, size: 11.5, color: Colors.white),
+        ),
+      ),
+    );
   }
 
   Widget _metricsGrid() {
@@ -732,21 +812,21 @@ class _DayEntryTile extends StatelessWidget {
             _metricCell('Overtime Hours', entry.overtimeHours),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 7),
         Row(
           children: [
             _metricCell('Tardy Minutes', entry.tardyMinutes),
             _metricCell('Night Differential', entry.nightDifferential),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 7),
         Row(
           children: [
             _metricCell('Under Time', entry.underTime),
             _metricCell('Paid Leave', entry.paidLeave),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 7),
         Row(
           children: [
             _metricCell('Total Allowance', entry.totalAllowance),
@@ -757,6 +837,111 @@ class _DayEntryTile extends StatelessWidget {
     );
   }
 
+  Widget _expandedEntryDetails() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _legendDot(const Color(0xFF2181FF)),
+            const SizedBox(width: 3),
+            Text(
+              'Actual',
+              style: GoogleFonts.inter(fontSize: 9.5, color: const Color(0xFF374151)),
+            ),
+            const SizedBox(width: 8),
+            _legendDot(const Color(0xFFF59E0B)),
+            const SizedBox(width: 3),
+            Text(
+              'Manual',
+              style: GoogleFonts.inter(fontSize: 9.5, color: const Color(0xFF374151)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        const Divider(height: 1, color: AppColors.divider),
+        const SizedBox(height: 7),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'ACTUAL',
+                style: GoogleFonts.inter(
+                  fontSize: 8.5,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF9CA3AF),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Text(
+                'CALCULATED',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 8.5,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF9CA3AF),
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 62,
+              child: Text(
+                'ACTIONS',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(
+                  fontSize: 8.5,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF9CA3AF),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 7),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                '08:15 AM - 5:30 PM',
+                style: GoogleFonts.inter(fontSize: 9.5, color: const Color(0xFF374151)),
+              ),
+            ),
+            Expanded(
+              child: Text(
+                '08:00 AM - 5:00 PM',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.inter(fontSize: 9.5, color: const Color(0xFF374151)),
+              ),
+            ),
+            SizedBox(
+              width: 62,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(LucideIcons.squarePen, size: 11, color: const Color(0xFFF59E0B)),
+                  const SizedBox(width: 7),
+                  Icon(LucideIcons.trash2, size: 11, color: const Color(0xFFEF4444)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _legendDot(Color color) {
+    return Container(
+      width: 5,
+      height: 5,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+
   Widget _metricCell(String label, double value) {
     return Expanded(
       child: Column(
@@ -764,22 +949,370 @@ class _DayEntryTile extends StatelessWidget {
         children: [
           Text(
             label,
-            style: GoogleFonts.inter(
-              fontSize: 10,
-              color: AppColors.textMuted,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: AppColors.textMuted,
+              ),
             ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            value.toStringAsFixed(value == value.roundToDouble() ? 0 : 1),
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+            const SizedBox(height: 2),
+            Text(
+              value.toStringAsFixed(value == value.roundToDouble() ? 0 : 1),
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF1677FF),
+              ),
             ),
-          ),
         ],
       ),
     );
   }
+}
+
+class _AddTimesheetSheet extends StatefulWidget {
+  final String employeeName;
+  final String dateLabel;
+
+  const _AddTimesheetSheet({
+    required this.employeeName,
+    required this.dateLabel,
+  });
+
+  @override
+  State<_AddTimesheetSheet> createState() => _AddTimesheetSheetState();
+}
+
+class _AddTimesheetSheetState extends State<_AddTimesheetSheet> {
+  bool _isNextDay = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 22,
+            right: 22,
+            top: 10,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: 46,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE5E7EB),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                'Add Timesheet',
+                style: GoogleFonts.inter(
+                  fontSize: 31 / 2,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1F2937),
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                widget.dateLabel,
+                style: GoogleFonts.inter(fontSize: 11, color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                widget.employeeName,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF111827),
+                ),
+              ),
+              const SizedBox(height: 14),
+              const Divider(height: 1, color: AppColors.divider),
+              const SizedBox(height: 18),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'New Entry',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1F2937),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        'Time In',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF374151),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      _sheetInput(
+                        hint: 'In',
+                        prefixIcon: Icons.access_time,
+                      ),
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _isNextDay,
+                            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                            onChanged: (v) => setState(() => _isNextDay = v ?? false),
+                          ),
+                          Text(
+                            'Does time out next day?',
+                            style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF374151)),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Time Out',
+                        style: GoogleFonts.inter(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF374151),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      _sheetInput(
+                        hint: 'Out',
+                        prefixIcon: Icons.access_time,
+                      ),
+                      const SizedBox(height: 10),
+                      _sheetInput(
+                        hint: 'Enter a Reason',
+                        maxLines: 7,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    backgroundColor: const Color(0xFF2181FF),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: Text(
+                    'Submit',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AddAllowanceSheet extends StatelessWidget {
+  final String employeeName;
+  final String dateLabel;
+
+  const _AddAllowanceSheet({
+    required this.employeeName,
+    required this.dateLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 22,
+            right: 22,
+            top: 10,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: 46,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE5E7EB),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                'Add Allowance',
+                style: GoogleFonts.inter(
+                  fontSize: 31 / 2,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF1F2937),
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                dateLabel,
+                style: GoogleFonts.inter(fontSize: 11, color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                employeeName,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF111827),
+                ),
+              ),
+              const SizedBox(height: 14),
+              const Divider(height: 1, color: AppColors.divider),
+              const SizedBox(height: 16),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AppColors.divider),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'New Entry',
+                              style: GoogleFonts.inter(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF1F2937),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            _sheetInput(hint: 'Value'),
+                            const SizedBox(height: 10),
+                            _sheetInput(hint: 'Enter a Reason', maxLines: 8),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: SizedBox(
+                          height: 36,
+                          child: ElevatedButton.icon(
+                            onPressed: () {},
+                            icon: const Icon(Icons.add_rounded, size: 16, color: Colors.white),
+                            label: Text(
+                              'Add Allowance',
+                              style: GoogleFonts.inter(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(horizontal: 14),
+                              backgroundColor: const Color(0xFF2181FF),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(22),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    backgroundColor: const Color(0xFF2181FF),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: Text(
+                    'Submit',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Widget _sheetInput({
+  required String hint,
+  IconData? prefixIcon,
+  int maxLines = 1,
+}) {
+  return TextFormField(
+    maxLines: maxLines,
+    decoration: InputDecoration(
+      hintText: hint,
+      hintStyle: GoogleFonts.inter(
+        fontSize: 11,
+        color: const Color(0xFF9CA3AF),
+      ),
+      prefixIcon:
+          prefixIcon == null
+              ? null
+              : Icon(prefixIcon, size: 16, color: const Color(0xFF9CA3AF)),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: 12,
+        vertical: maxLines == 1 ? 10 : 12,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(6),
+        borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(6),
+        borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(6),
+        borderSide: const BorderSide(color: Color(0xFF2181FF)),
+      ),
+    ),
+    style: GoogleFonts.inter(fontSize: 12, color: const Color(0xFF111827)),
+  );
 }

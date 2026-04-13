@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../widgets/status_pill.dart';
+import '../widgets/filter_tabs.dart';
 
 class AttendanceHistory extends StatelessWidget {
   final Color headerColor;
@@ -11,6 +12,7 @@ class AttendanceHistory extends StatelessWidget {
   final List<dynamic> filteredRecords;
   final VoidCallback onClearFilter;
   final VoidCallback onApplyFilter;
+  final ValueChanged<String>? onRangeChanged;
   final Function(BuildContext, TapDownDetails) onOpenStatusFilter;
   final Function(BuildContext) onPickCustomRange;
 
@@ -23,6 +25,7 @@ class AttendanceHistory extends StatelessWidget {
     required this.filteredRecords,
     required this.onClearFilter,
     required this.onApplyFilter,
+    this.onRangeChanged,
     required this.onOpenStatusFilter,
     required this.onPickCustomRange,
   });
@@ -41,22 +44,15 @@ class AttendanceHistory extends StatelessWidget {
         children: [
           Text('Attendance History', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8, runSpacing: 8,
-            children: [
-              GestureDetector(
-                onTap: () => onApplyFilter(),
-                child: _HistoryChip(label: 'Last 7 Days', selected: range == '7', color: headerColor),
-              ),
-              GestureDetector(
-                onTap: () => onApplyFilter(),
-                child: _HistoryChip(label: 'Last 30 Days', selected: range == '30', color: headerColor),
-              ),
-              GestureDetector(
-                onTap: () => onApplyFilter(),
-                child: _HistoryChip(label: 'Custom', selected: range == 'custom', color: headerColor),
-              ),
-            ],
+          FilterTabs(
+            selected: range,
+            onChanged: (value) {
+              if (onRangeChanged != null) {
+                onRangeChanged!(value);
+              } else {
+                onApplyFilter();
+              }
+            },
           ),
           const SizedBox(height: 12),
           if (selectedStatuses.isNotEmpty) ...[
@@ -171,25 +167,6 @@ class AttendanceHistory extends StatelessWidget {
             ),
         ],
       ),
-    );
-  }
-}
-
-class _HistoryChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final Color color;
-  const _HistoryChip({required this.label, required this.selected, required this.color});
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: selected ? color.withValues(alpha: 0.15) : Colors.transparent,
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: selected ? color : AppColors.divider),
-      ),
-      child: Text(label, style: GoogleFonts.inter(fontSize: 12, color: selected ? color : AppColors.textSecondary)),
     );
   }
 }

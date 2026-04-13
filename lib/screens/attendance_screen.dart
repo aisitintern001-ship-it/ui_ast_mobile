@@ -9,8 +9,26 @@ import '../widgets/app_toast.dart';
 import '../widgets/status_pill.dart';
 import '../widgets/bottom_nav.dart';
 import '../widgets/offline_tab_widget.dart'; // <-- ADDED
+import '../widgets/history_offline_tabs.dart';
+import '../widgets/filter_tabs.dart';
 import 'face_recognition_screen.dart';
 import 'home_screen.dart';
+
+final Expando<DateTime> _attendanceTimeInAt = Expando<DateTime>('attendanceTimeInAt');
+
+extension AppStateAttendanceTimerCompat on AppState {
+  DateTime? get currentTimeInAt => _attendanceTimeInAt[this];
+
+  void markTimeIn([DateTime? at]) {
+    _attendanceTimeInAt[this] = at ?? DateTime.now();
+    setHasCurrentTimeIn(true);
+  }
+
+  void markTimeOut() {
+    _attendanceTimeInAt[this] = null;
+    setHasCurrentTimeIn(false);
+  }
+}
 
 class AttendanceScreen extends StatefulWidget {
   final bool initialShowHistory;
@@ -53,8 +71,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     final result = await Navigator.of(context).push<bool>(MaterialPageRoute(builder: (_) => FaceRecognitionScreen(mode: action)));
     if (!mounted) return;
     if (result == true) {
-      final hasCurrentTimeIn = action == 'Time In';
-      context.read<AppState>().setHasCurrentTimeIn(hasCurrentTimeIn);
+      if (action == 'Time In') {
+        context.read<AppState>().markTimeIn();
+      } else {
+        context.read<AppState>().markTimeOut();
+      }
       setState(() {
         _lastAction = action;
         _showFailed = false;
@@ -196,6 +217,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     final state = context.watch<AppState>();
     final headerColor = state.headerColor;
     final hasCurrentTimeIn = state.hasCurrentTimeIn;
+    final timeInAt = state.currentTimeInAt;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -246,7 +268,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       const SizedBox(height: 8),
                       Text(hasCurrentTimeIn ? 'You are currently timed in' : 'No Current Time In', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                       const SizedBox(height: 4),
-                      Text('Started at 0:00 AM', style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted)),
+                      _ActiveTimerText(timeInAt: timeInAt, hasCurrentTimeIn: hasCurrentTimeIn),
                       const SizedBox(height: 16),
                       Row(
                         children: [
@@ -314,51 +336,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // History / Offline toggle
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24), border: Border.all(color: AppColors.divider)),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _showHistory = true),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(color: _showHistory ? headerColor : Colors.transparent, borderRadius: BorderRadius.circular(20)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.history_rounded, size: 16, color: _showHistory ? Colors.white : AppColors.textMuted),
-                                const SizedBox(width: 6),
-                                Text('History', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: _showHistory ? Colors.white : AppColors.textSecondary)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => _showHistory = false),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            decoration: BoxDecoration(color: !_showHistory ? headerColor : Colors.transparent, borderRadius: BorderRadius.circular(20)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.wifi_off_rounded, size: 16, color: !_showHistory ? Colors.white : AppColors.textMuted),
-                                const SizedBox(width: 6),
-                                Text('Offline', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: !_showHistory ? Colors.white : AppColors.textSecondary)),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                // History / Offline toggle (shared style with Leave Request)
+                HistoryOfflineTabs(
+                  showHistory: _showHistory,
+                  onChanged: (val) => setState(() => _showHistory = val),
+                  backgroundColor: Colors.grey.shade200,
+                  activeColor: Colors.white,
+                  inactiveColor: Colors.transparent,
+                  borderRadius: 25,
                 ),
                 const SizedBox(height: 12),
 
@@ -371,13 +356,12 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       children: [
                         Text('Attendance History', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
                         const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8, runSpacing: 8,
-                          children: [
-                            GestureDetector(onTap: () => setState(() { _range = '7'; _customRange = null; }), child: _HistoryChip(label: 'Last 7 Days', selected: _range == '7', color: headerColor)),
-                            GestureDetector(onTap: () => setState(() { _range = '30'; _customRange = null; }), child: _HistoryChip(label: 'Last 30 Days', selected: _range == '30', color: headerColor)),
-                            GestureDetector(onTap: () => setState(() => _range = 'custom'), child: _HistoryChip(label: 'Custom', selected: _range == 'custom', color: headerColor)),
-                          ],
+                        FilterTabs(
+                          selected: _range,
+                          onChanged: (value) => setState(() {
+                            _range = value;
+                            if (value != 'custom') _customRange = null;
+                          }),
                         ),
                         const SizedBox(height: 12),
                         if (_selectedStatuses.isNotEmpty) ...[
@@ -576,21 +560,53 @@ class _MetricRow extends StatelessWidget {
   }
 }
 
-class _HistoryChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final Color color;
-  const _HistoryChip({required this.label, required this.selected, required this.color});
+class _ActiveTimerText extends StatelessWidget {
+  final DateTime? timeInAt;
+  final bool hasCurrentTimeIn;
+
+  const _ActiveTimerText({
+    required this.timeInAt,
+    required this.hasCurrentTimeIn,
+  });
+
+  String _formatTimeOfDay(DateTime dt) {
+    final hour = dt.hour % 12 == 0 ? 12 : dt.hour % 12;
+    final minute = dt.minute.toString().padLeft(2, '0');
+    final suffix = dt.hour >= 12 ? 'PM' : 'AM';
+    return '$hour:$minute $suffix';
+  }
+
+  String _formatElapsed(Duration duration) {
+    final hours = duration.inHours.toString().padLeft(2, '0');
+    final minutes = (duration.inMinutes % 60).toString().padLeft(2, '0');
+    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
+    return '$hours:$minutes:$seconds';
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: selected ? color.withValues(alpha: 0.12) : const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(20),
-        border: selected ? Border.all(color: color, width: 1) : null,
+    if (!hasCurrentTimeIn || timeInAt == null) {
+      return Text(
+        'Not timed in',
+        style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
+      );
+    }
+
+    return StreamBuilder<DateTime>(
+      stream: Stream<DateTime>.periodic(
+        const Duration(seconds: 1),
+        (_) => DateTime.now(),
       ),
-      child: Text(label, style: GoogleFonts.inter(fontSize: 11, fontWeight: selected ? FontWeight.w600 : FontWeight.w500, color: selected ? color : AppColors.textSecondary)),
+      initialData: DateTime.now(),
+      builder: (context, snapshot) {
+        final now = snapshot.data ?? DateTime.now();
+        final elapsed = now.difference(timeInAt!);
+        final safeElapsed = elapsed.isNegative ? Duration.zero : elapsed;
+        return Text(
+          'Started at ${_formatTimeOfDay(timeInAt!)} • Active ${_formatElapsed(safeElapsed)}',
+          style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
+        );
+      },
     );
   }
 }

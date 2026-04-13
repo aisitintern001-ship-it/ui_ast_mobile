@@ -7,6 +7,7 @@ import '../widgets/expandable_status_filter.dart';
 import '../widgets/add_button_widget.dart';
 import '../modals/create_leave_modal.dart';
 import '../widgets/bottom_nav.dart';
+import '../widgets/filter_tabs.dart';
 import 'home_screen.dart';
 
 /// Employee Leave Request Screen - Can see their own leave requests with status history
@@ -126,14 +127,9 @@ class _LeaveRequestEmployeeScreenState extends State<LeaveRequestEmployeeScreen>
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    _buildFilterChip("Last 7 Days", "7"),
-                    const SizedBox(width: 8),
-                    _buildFilterChip("Last 30 Days", "30"),
-                    const SizedBox(width: 8),
-                    _buildFilterChip("Custom", "custom"),
-                  ],
+                FilterTabs(
+                  selected: selectedFilter,
+                  onChanged: (value) => setState(() => selectedFilter = value),
                 ),
                 const SizedBox(height: 12),
                 ExpandableStatusFilter(
@@ -179,30 +175,4 @@ class _LeaveRequestEmployeeScreenState extends State<LeaveRequestEmployeeScreen>
     );
   }
 
-  Widget _buildFilterChip(String label, String value) {
-    bool isSelected = selectedFilter == value;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => setState(() => selectedFilter = value),
-        child: Container(
-          height: 36,
-          constraints: const BoxConstraints(minHeight: 36),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isSelected ? const Color(0xFF2181FF) : Colors.white,
-            border: isSelected ? null : Border.all(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: isSelected ? Colors.white : Colors.grey.shade700,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

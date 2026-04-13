@@ -94,37 +94,42 @@ class _AdminExpenseClaimCardState extends State<AdminExpenseClaimCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header row with employee name and status
+                // Header with employee name, status and edit action
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Flexible(
-                      child: Text(
-                        c['employeeName'] ?? '',
-                        style: GoogleFonts.inter(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                        overflow: TextOverflow.ellipsis,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            c['employeeName'] ?? '',
+                            style: GoogleFonts.inter(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: statusColor),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              c['status'] ?? 'Pending',
+                              style: GoogleFonts.inter(
+                                color: statusColor,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: statusColor),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        c['status'] ?? 'Pending',
-                        style: GoogleFonts.inter(
-                          color: statusColor,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const Spacer(),
                     GestureDetector(
                       onTap: widget.onEdit,
                       child: Icon(
