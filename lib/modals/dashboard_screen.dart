@@ -6,6 +6,7 @@ import '../theme/app_theme.dart';
 import '../widgets/header_widgets.dart';
 import '../widgets/dashboard_section.dart';
 import '../widgets/bottom_nav.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -41,21 +42,21 @@ class DashboardScreen extends StatelessWidget {
                       label: 'Pending',
                       count: state.pendingCount,
                       color: AppColors.statusPending,
-                      icon: Icons.hourglass_empty_rounded,
+                      icon: LucideIcons.hourglass,
                     ),
                     const SizedBox(width: 10),
                     _StatCard(
                       label: 'Approved',
                       count: state.approvedCount,
                       color: AppColors.statusApproved,
-                      icon: Icons.check_circle_rounded,
+                      icon: LucideIcons.circleCheckBig,
                     ),
                     const SizedBox(width: 10),
                     _StatCard(
                       label: 'In Review',
                       count: state.sentForReviewCount,
                       color: AppColors.statusSentReview,
-                      icon: Icons.rate_review_rounded,
+                      icon: LucideIcons.notebookPen,
                     ),
                   ],
                 ),

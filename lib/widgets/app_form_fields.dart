@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 /// Text field with hint text inside and optional required indicator
 class AppTextField extends StatelessWidget {
@@ -213,7 +214,7 @@ class AppDropdownField extends StatelessWidget {
                 hint,
                 style: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
               ),
-              icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+              icon: Icon(LucideIcons.chevronDown, color: Colors.grey.shade500),
               style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
               items: items
                   .map((i) => DropdownMenuItem(value: i, child: Text(i)))
@@ -367,7 +368,7 @@ class AppBottomSheetPicker extends StatelessWidget {
                     ),
                   ),
                 ),
-                Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+                Icon(LucideIcons.chevronDown, color: Colors.grey.shade500),
               ],
             ),
           ),
@@ -446,7 +447,7 @@ class AppMultiSelectPicker extends StatelessWidget {
                     ),
                   ),
                 ),
-                Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+                Icon(LucideIcons.chevronDown, color: Colors.grey.shade500),
               ],
             ),
           ),
@@ -479,7 +480,7 @@ class AppMultiSelectPicker extends StatelessWidget {
                     GestureDetector(
                       onTap: () => _removeTag(tag),
                       child: const Icon(
-                        Icons.close,
+                        LucideIcons.x,
                         size: 16,
                         color: Colors.white,
                       ),

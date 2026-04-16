@@ -8,6 +8,7 @@ import '../widgets/advance_filter_widget.dart';
 import '../widgets/text_input.dart';
 import '../widgets/bottom_nav.dart';
 import '../data/product_mock_data.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ProductLibraryScreen extends StatefulWidget {
   const ProductLibraryScreen({super.key});
@@ -494,7 +495,7 @@ class _ProductLibraryScreenState extends State<ProductLibraryScreen> {
                   Icon(
                     isExpanded
                         ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
+                        : LucideIcons.chevronDown,
                     size: 20,
                     color: Colors.grey.shade500,
                   ),

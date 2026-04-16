@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'models.dart';
 import '../data/mock_data.dart';
 import '../theme/app_theme.dart';
 
 class AppState extends ChangeNotifier {
-  // Attendance: persistent time-in state
-  bool _hasCurrentTimeIn = false;
+    // Attendance: persistent time-in state
+    bool _hasCurrentTimeIn = false;
   DateTime? _currentTimeInAt;
-  bool get hasCurrentTimeIn => _hasCurrentTimeIn;
+    bool get hasCurrentTimeIn => _hasCurrentTimeIn;
   DateTime? get currentTimeInAt => _currentTimeInAt;
-
-  void setHasCurrentTimeIn(bool value) {
-    _hasCurrentTimeIn = value;
+    void setHasCurrentTimeIn(bool value) {
+      _hasCurrentTimeIn = value;
     if (value) {
       _currentTimeInAt ??= DateTime.now();
     } else {
@@ -29,16 +29,40 @@ class AppState extends ChangeNotifier {
   void markTimeOut() {
     _hasCurrentTimeIn = false;
     _currentTimeInAt = null;
-    notifyListeners();
-  }
-
+      notifyListeners();
+    }
   // Theme color for header
   Color _headerColor = const Color(0xFF2563EB);
   Color get headerColor => _headerColor;
 
-  // Current user (Removed 'final' so we can change it on login)
+  // Current user
   UserModel _currentUser = MockData.currentUser;
   UserModel get currentUser => _currentUser;
+  String _activeAccountKey = MockData.currentUser.email;
+
+  static const String _profileNameKey = 'profile_name';
+  static const String _profileEmailKey = 'profile_email';
+  static const String _profilePhoneKey = 'profile_phone';
+  static const String _profileJobTitleKey = 'profile_job_title';
+  static const String _profileDepartmentKey = 'profile_department';
+  static const String _profileLocationKey = 'profile_location';
+  static const String _profilePhotoBase64Key = 'profile_photo_base64';
+
+  String _profileName = MockData.currentUser.name;
+  String _profileEmail = MockData.currentUser.email;
+  String _profilePhone = '+61 400 123 456';
+  String _profileJobTitle = 'Farm Manager';
+  String _profileDepartment = 'Operations';
+  String _profileLocation = 'Sydney, Australia';
+  String? _profilePhotoBase64;
+
+  String get profileName => _profileName;
+  String get profileEmail => _profileEmail;
+  String get profilePhone => _profilePhone;
+  String get profileJobTitle => _profileJobTitle;
+  String get profileDepartment => _profileDepartment;
+  String get profileLocation => _profileLocation;
+  String? get profilePhotoBase64 => _profilePhotoBase64;
 
   // Check if user is admin
   bool get isAdmin => _currentUser.role.toLowerCase() == 'administrator' ||
@@ -86,6 +110,137 @@ class AppState extends ChangeNotifier {
   // Loading
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  AppState() {
+    _loadProfileFromPrefs();
+  }
+
+  String _initialsFromName(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return 'U';
+    final parts = trimmed.split(RegExp(r'\s+'));
+    if (parts.length > 1) {
+      return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+    }
+    return parts.first[0].toUpperCase();
+  }
+
+  String _profileKeyForUser(String baseKey, String email) {
+    final normalized = email.trim().toLowerCase();
+    return '${baseKey}_$normalized';
+  }
+
+  Future<void> _loadProfileFromPrefs({bool shouldNotify = true}) async {
+    final accountEmail = _activeAccountKey;
+    final prefs = await SharedPreferences.getInstance();
+    final savedName = prefs.getString(
+      _profileKeyForUser(_profileNameKey, accountEmail),
+    );
+    final savedEmail = prefs.getString(
+      _profileKeyForUser(_profileEmailKey, accountEmail),
+    );
+
+    _profileName = _currentUser.name;
+    _profileEmail = _currentUser.email;
+    _profilePhone = '+61 400 123 456';
+    _profileJobTitle = 'Farm Manager';
+    _profileDepartment = 'Operations';
+    _profileLocation = 'Sydney, Australia';
+    _profilePhotoBase64 = null;
+
+    _profileName = (savedName ?? _profileName).trim();
+    _profileEmail = (savedEmail ?? _profileEmail).trim();
+    _profilePhone =
+        prefs.getString(_profileKeyForUser(_profilePhoneKey, accountEmail)) ??
+        _profilePhone;
+    _profileJobTitle =
+        prefs.getString(_profileKeyForUser(_profileJobTitleKey, accountEmail)) ??
+        _profileJobTitle;
+    _profileDepartment =
+        prefs.getString(_profileKeyForUser(_profileDepartmentKey, accountEmail)) ??
+        _profileDepartment;
+    _profileLocation =
+        prefs.getString(_profileKeyForUser(_profileLocationKey, accountEmail)) ??
+        _profileLocation;
+    _profilePhotoBase64 = prefs.getString(
+      _profileKeyForUser(_profilePhotoBase64Key, accountEmail),
+    );
+
+    _currentUser = _currentUser.copyWith(
+      name: _profileName,
+      email: _profileEmail,
+      initials: _initialsFromName(_profileName),
+    );
+    if (shouldNotify) {
+      notifyListeners();
+    }
+  }
+
+  Future<void> saveProfileInfo({
+    required String name,
+    required String email,
+    required String phone,
+    required String jobTitle,
+    required String department,
+    required String location,
+  }) async {
+    final accountEmail = _activeAccountKey;
+    _profileName = name.trim().isEmpty ? _profileName : name.trim();
+    _profileEmail = email.trim().isEmpty ? _profileEmail : email.trim();
+    _profilePhone = phone.trim();
+    _profileJobTitle = jobTitle.trim();
+    _profileDepartment = department.trim();
+    _profileLocation = location.trim();
+
+    _currentUser = _currentUser.copyWith(
+      name: _profileName,
+      email: _profileEmail,
+      initials: _initialsFromName(_profileName),
+    );
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _profileKeyForUser(_profileNameKey, accountEmail),
+      _profileName,
+    );
+    await prefs.setString(
+      _profileKeyForUser(_profileEmailKey, accountEmail),
+      _profileEmail,
+    );
+    await prefs.setString(
+      _profileKeyForUser(_profilePhoneKey, accountEmail),
+      _profilePhone,
+    );
+    await prefs.setString(
+      _profileKeyForUser(_profileJobTitleKey, accountEmail),
+      _profileJobTitle,
+    );
+    await prefs.setString(
+      _profileKeyForUser(_profileDepartmentKey, accountEmail),
+      _profileDepartment,
+    );
+    await prefs.setString(
+      _profileKeyForUser(_profileLocationKey, accountEmail),
+      _profileLocation,
+    );
+  }
+
+  Future<void> setProfilePhotoBase64(String? photoBase64) async {
+    final accountEmail = _activeAccountKey;
+    _profilePhotoBase64 = photoBase64;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    if (photoBase64 == null || photoBase64.isEmpty) {
+      await prefs.remove(_profileKeyForUser(_profilePhotoBase64Key, accountEmail));
+      return;
+    }
+    await prefs.setString(
+      _profileKeyForUser(_profilePhotoBase64Key, accountEmail),
+      photoBase64,
+    );
+  }
 
   Color companyColor(CompanyModel company) {
     switch (company.id) {
@@ -142,6 +297,8 @@ class AppState extends ChangeNotifier {
       );
     }
     return null;
+
+    
   }
 
   void setHeaderColor(Color color) {
@@ -213,9 +370,11 @@ class AppState extends ChangeNotifier {
     }
 
     _currentUser = matchedUser;
+    _activeAccountKey = normalizedEmail;
+    await _loadProfileFromPrefs(shouldNotify: false);
+
     _isLoading = false;
     _isAuthenticated = true;
-
     // Set selected company from user's account (e.g. from database)
     final companyId = _currentUser.companyId;
     _selectedCompany = null;

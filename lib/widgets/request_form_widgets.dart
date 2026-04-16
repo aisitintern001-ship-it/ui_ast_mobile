@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'text_input.dart';
 import '../theme/app_theme.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  REUSABLE FORM WIDGETS for Supplier / Customer Request screens
@@ -346,7 +347,7 @@ class FormDropdownField extends StatelessWidget {
                   : null,
             ),
           ),
-          icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+          icon: Icon(LucideIcons.chevronDown, color: Colors.grey.shade500),
           style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
           items: items
               .map((i) => DropdownMenuItem(value: i, child: Text(i)))
@@ -841,7 +842,7 @@ class StatusFilterDropdown extends StatelessWidget {
                   GestureDetector(
                     onTap: () => onChanged('All'),
                     child: Icon(
-                      Icons.close,
+                      LucideIcons.x,
                       size: 14,
                       color: _dotColor(selectedStatus),
                     ),
@@ -860,7 +861,7 @@ class StatusFilterDropdown extends StatelessWidget {
           const Spacer(),
           PopupMenuButton<String>(
             padding: EdgeInsets.zero,
-            icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+            icon: Icon(LucideIcons.chevronDown, color: Colors.grey.shade500),
             onSelected: onChanged,
             itemBuilder: (_) => statuses.map((s) {
               final isSelected = s == selectedStatus;
@@ -942,7 +943,7 @@ class AdvanceFilterDropdown extends StatelessWidget {
             hint,
             style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade400),
           ),
-          icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+          icon: Icon(LucideIcons.chevronDown, color: Colors.grey.shade500),
           style: GoogleFonts.inter(fontSize: 13, color: AppColors.textPrimary),
           items: items
               .map((i) => DropdownMenuItem(value: i, child: Text(i)))

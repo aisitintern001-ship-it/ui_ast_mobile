@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
 import '../widgets/text_input.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class EditLeaveModal extends StatefulWidget {
   const EditLeaveModal({super.key});
@@ -154,7 +155,7 @@ class _EditLeaveModalState extends State<EditLeaveModal> {
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
           iconSize: 24,
-          icon: const Icon(Icons.close, color: Colors.black87),
+          icon: const Icon(LucideIcons.x, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
       ],
@@ -230,7 +231,7 @@ class _EditLeaveModalState extends State<EditLeaveModal> {
         child: DropdownButton<String>(
           value: _selectedDropdown,
           isExpanded: true,
-          icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+          icon: Icon(LucideIcons.chevronDown, color: Colors.grey.shade500),
           style: GoogleFonts.inter(
             fontSize: 13,
             color: const Color(0xFF4A5568),
@@ -257,7 +258,7 @@ class _EditLeaveModalState extends State<EditLeaveModal> {
       child: Row(
         children: [
           Icon(
-            Icons.calendar_today_outlined,
+            LucideIcons.calendar,
             size: 18,
             color: Colors.grey.shade600,
           ),
@@ -307,7 +308,7 @@ class _EditLeaveModalState extends State<EditLeaveModal> {
                     setState(() => _dateEntries.removeAt(index));
                   }
                 },
-                child: Icon(Icons.close, size: 18, color: Colors.grey.shade500),
+                child: Icon(LucideIcons.x, size: 18, color: Colors.grey.shade500),
               ),
             ],
           ),
@@ -524,7 +525,7 @@ class _EditLeaveModalState extends State<EditLeaveModal> {
             onTap: () {
               setState(() => _attachedFiles.remove(file));
             },
-            child: Icon(Icons.close, size: 18, color: Colors.grey.shade500),
+            child: Icon(LucideIcons.x, size: 18, color: Colors.grey.shade500),
           ),
         ],
       ),

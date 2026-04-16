@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/text_input.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 /// Admin Edit Expense Modal - Simplified modal for admins to edit expense claims.
 /// Includes Employee selection field that employees don't see.
@@ -108,7 +109,7 @@ class _AdminEditExpenseModalState extends State<AdminEditExpenseModal> {
                         minHeight: 32,
                       ),
                       iconSize: 18,
-                      icon: Icon(Icons.close, color: Colors.grey.shade600),
+                      icon: Icon(LucideIcons.x, color: Colors.grey.shade600),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ),
@@ -314,7 +315,7 @@ class _AdminEditExpenseModalState extends State<AdminEditExpenseModal> {
             ),
           ),
           isExpanded: true,
-          icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+          icon: Icon(LucideIcons.chevronDown, color: Colors.grey.shade500),
           style: GoogleFonts.inter(
             color: Colors.grey.shade700,
             fontSize: 13,

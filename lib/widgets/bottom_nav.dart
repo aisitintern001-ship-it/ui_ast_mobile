@@ -66,20 +66,20 @@ class AppBottomNavBar extends StatelessWidget {
             },
             behavior: HitTestBehavior.opaque,
             child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 14),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     items[index]['icon'] as IconData,
-                    size: 24,
+                    size: 20,
                     color: isSelected ? headerColor : AppColors.textMuted,
                   ),
                   const SizedBox(height: 3),
                   Text(
                     items[index]['label'] as String,
                     style: GoogleFonts.inter(
-                      fontSize: 10,
+                      fontSize: 8.5,
                       fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                       color: isSelected ? headerColor : AppColors.textMuted,
                     ),
@@ -88,7 +88,7 @@ class AppBottomNavBar extends StatelessWidget {
                   const SizedBox(height: 2),
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    width: isSelected ? 20 : 0,
+                    width: isSelected ? 16 : 0,
                     height: 2,
                     decoration: BoxDecoration(
                       color: headerColor,

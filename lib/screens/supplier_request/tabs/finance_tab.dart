@@ -4,6 +4,7 @@ import '../../../widgets/app_form_fields.dart';
 import '../../../theme/app_theme.dart';
 import '../../../data/currency_data.dart';
 import '../../../data/finance_data.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class SupplierFinanceTab extends StatefulWidget {
   const SupplierFinanceTab({super.key});
@@ -572,7 +573,7 @@ class SupplierFinanceTabState extends State<SupplierFinanceTab>
             '+63',
             style: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
           ),
-          icon: Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.grey.shade500),
+          icon: Icon(LucideIcons.chevronDown, size: 20, color: Colors.grey.shade500),
           style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
           items: FinanceData.countryCodes
               .map((code) => DropdownMenuItem(
@@ -608,7 +609,7 @@ class SupplierFinanceTabState extends State<SupplierFinanceTab>
             hint,
             style: GoogleFonts.inter(fontSize: 14, color: AppColors.textMuted),
           ),
-          icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+          icon: Icon(LucideIcons.chevronDown, color: Colors.grey.shade500),
           style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary),
           items: items
               .map((item) => DropdownMenuItem(

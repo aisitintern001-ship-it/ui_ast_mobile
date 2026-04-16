@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 /// Reusable approve/decline buttons widget for admin approval workflows.
 /// Can be used for leave requests, expense claims, and other approval flows.
@@ -107,7 +108,7 @@ class ApproveDeclineButtons extends StatelessWidget {
           mainAxisSize: expanded ? MainAxisSize.max : MainAxisSize.min,
           children: [
             if (showIcons) ...[
-              const Icon(Icons.close, size: 16),
+              const Icon(LucideIcons.x, size: 16),
               const SizedBox(width: 6),
             ],
             Text(
@@ -172,7 +173,7 @@ class ApproveDeclineIconButtons extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.close,
+              LucideIcons.x,
               size: size * 0.5,
               color: declineColor,
             ),

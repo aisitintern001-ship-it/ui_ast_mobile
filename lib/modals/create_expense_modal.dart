@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../widgets/text_input.dart';
 
 class CreateExpenseModal extends StatefulWidget {
@@ -72,7 +73,7 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
                         minHeight: 32,
                       ),
                       iconSize: 18,
-                      icon: Icon(Icons.close, color: Colors.grey.shade600),
+                      icon: Icon(LucideIcons.x, color: Colors.grey.shade600),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ),
@@ -150,7 +151,7 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
                       ),
                       onPressed: () {},
                       icon: const Icon(
-                        Icons.document_scanner_outlined,
+                        LucideIcons.scanLine,
                         size: 16,
                       ),
                       label: Text(
@@ -166,7 +167,7 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
                     // Item Form Fields
                     _buildTextField(
                       "Date Expense Incurred",
-                      icon: Icons.calendar_today,
+                      icon: LucideIcons.calendar,
                       value: widget.isEdit ? "Dec 20, 2025" : null,
                     ),
                     const SizedBox(height: 12),
@@ -234,7 +235,7 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
                     ),
                   ),
                   onPressed: () {},
-                  icon: const Icon(Icons.add, size: 16),
+                  icon: const Icon(LucideIcons.plus, size: 16),
                   label: Text(
                     "Add Item",
                     style: GoogleFonts.inter(
@@ -371,7 +372,7 @@ class _CreateExpenseModalState extends State<CreateExpenseModal> {
             ),
           ),
           Icon(
-            Icons.keyboard_arrow_down,
+            LucideIcons.chevronDown,
             color: Colors.grey.shade500,
             size: 18,
           ),

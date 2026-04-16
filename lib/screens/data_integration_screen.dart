@@ -6,6 +6,7 @@ import '../models/app_state.dart';
 import '../widgets/bottom_nav.dart';
 import '../screens/attendance_screen.dart';
 import '../screens/personal_leave_screen.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class DataIntegrationScreen extends StatelessWidget {
   const DataIntegrationScreen({super.key});
@@ -40,35 +41,35 @@ class DataIntegrationScreen extends StatelessWidget {
           children: [
             // 1. Product Integration
             _buildIntegrationCard(
-              icon: Icons.inventory_2_outlined,
+              icon: LucideIcons.package2,
               iconColor: headerColor, // Matches company color
               brandColor: headerColor,
               title: 'Product Integration',
               subtitle: 'Product Sync\nLast sync: 3 hours ago',
-              actionIcon: Icons.sync_rounded,
+              actionIcon: LucideIcons.refreshCcw,
             ),
             const SizedBox(height: 12),
 
             // 2. Product Image
             _buildIntegrationCard(
-              icon: Icons.image_outlined,
+              icon: LucideIcons.image,
               iconColor: headerColor,
               brandColor: headerColor,
               title: 'Product Image',
               subtitle: '0 base images out of 0',
-              actionIcon: Icons.file_download_outlined,
+              actionIcon: LucideIcons.download,
               showProgressBar: true, 
             ),
             const SizedBox(height: 12),
 
             // 3. Attendance Records (Clickable)
             _buildIntegrationCard(
-              icon: Icons.assignment_outlined,
+              icon: LucideIcons.notepadText,
               iconColor: const Color(0xFF10B981), // Green
               brandColor: headerColor,
               title: 'Attendance Records',
               subtitle: 'Sync offline attendance',
-              actionIcon: Icons.sync_rounded,
+              actionIcon: LucideIcons.refreshCcw,
               pendingCount: '5 Pending',
               onTap: () {
                 Navigator.push(
@@ -86,12 +87,12 @@ class DataIntegrationScreen extends StatelessWidget {
 
             // 4. Leave Records (Clickable)
             _buildIntegrationCard(
-              icon: Icons.access_time_rounded,
+              icon: LucideIcons.clock,
               iconColor: const Color(0xFF8B5CF6), // Purple
               brandColor: headerColor,
               title: 'Leave Records',
               subtitle: 'Sync offline leave records request',
-              actionIcon: Icons.sync_rounded,
+              actionIcon: LucideIcons.refreshCcw,
               pendingCount: '5 Pending',
               onTap: () {
                 Navigator.push(
@@ -116,7 +117,7 @@ class DataIntegrationScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline_rounded, size: 16, color: Colors.grey),
+                  const Icon(LucideIcons.info, size: 16, color: Colors.grey),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(

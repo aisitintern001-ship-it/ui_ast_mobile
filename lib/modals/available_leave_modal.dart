@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class AvailableLeaveModal extends StatelessWidget {
   const AvailableLeaveModal({super.key});
@@ -30,7 +31,7 @@ class AvailableLeaveModal extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                  icon: const Icon(LucideIcons.x, color: Colors.grey, size: 20),
                 ),
               ],
             ),
@@ -45,7 +46,7 @@ class AvailableLeaveModal extends StatelessWidget {
             _buildLeaveRow(
               "Service Incentive Leave", 
               "0.00", 
-              Icons.notification_add_rounded, // Matches the tree icon in wireframe
+              LucideIcons.treePalm, // Matches the tree icon in wireframe
               const Color(0xFFE0F2FE),
               const Color(0xFF0284C7),
             ),
@@ -53,7 +54,7 @@ class AvailableLeaveModal extends StatelessWidget {
             _buildLeaveRow(
               "Leave Without Pay", 
               "0.12", 
-              Icons.coffee_outlined, // Matches the coffee cup icon in wireframe
+              LucideIcons.coffee, // Matches the coffee cup icon in wireframe
               const Color(0xFFF0F9FF),
               const Color(0xFF0369A1),
             ),

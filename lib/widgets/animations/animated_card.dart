@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 /// An animated card with press feedback and optional entrance animation
 class AnimatedCard extends StatefulWidget {
@@ -493,7 +494,7 @@ class _AnimatedExpandableState extends State<AnimatedExpandable>
               Expanded(child: widget.header),
               RotationTransition(
                 turns: _rotateAnimation,
-                child: const Icon(Icons.keyboard_arrow_down),
+                child: const Icon(LucideIcons.chevronDown),
               ),
             ],
           ),

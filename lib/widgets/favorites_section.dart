@@ -22,6 +22,7 @@ import '../screens/data_integration_screen.dart';
 import '../screens/profile_info_screen.dart';
 import '../modals/signature_modal.dart';
 import 'animations/page_transitions.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class FavoritesSection extends StatelessWidget {
   final VoidCallback? onViewAll;
@@ -685,7 +686,7 @@ class _FavoritesManagementSheetState extends State<FavoritesManagementSheet>
                           ),
                           child: Row(
                             children: [
-                              Icon(Icons.info_outline_rounded,
+                              Icon(LucideIcons.info,
                                 size: 16,
                                 color: themeColor,
                               ),

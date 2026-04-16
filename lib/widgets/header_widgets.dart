@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class DashboardHeader extends StatefulWidget {
   final VoidCallback? onAvatarTap;
@@ -198,7 +199,7 @@ class _DashboardHeaderState extends State<DashboardHeader>
                             return Transform.rotate(
                               angle: _chevronAnimation.value * 3.14159,
                               child: const Icon(
-                                Icons.keyboard_arrow_down_rounded,
+                                LucideIcons.chevronDown,
                                 color: Colors.white,
                                 size: 20,
                               ),
@@ -287,7 +288,7 @@ class CompanyNameSection extends StatelessWidget {
                   ],
                 ),
                 icon: const Icon(
-                  Icons.keyboard_arrow_down_rounded,
+                  LucideIcons.chevronDown,
                   color: AppColors.textMuted,
                 ),
                 items: companies.map((c) {

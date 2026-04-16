@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../modals/admin_edit_expense_modal.dart';
@@ -77,7 +78,7 @@ class _ExpenseClaimAdminScreenState extends State<ExpenseClaimAdminScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          icon: const Icon(LucideIcons.chevronLeft, size: 18),
           onPressed: () {
             context.read<AppState>().setNavIndex(1);
             Navigator.pushAndRemoveUntil(

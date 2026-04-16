@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'approve_decline_buttons.dart';
-
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 class LeaveRequestCard extends StatefulWidget {
   final Map<String, dynamic> request;
 
@@ -159,7 +159,7 @@ class _LeaveRequestCardState extends State<LeaveRequestCard> {
                             ],
                           ),
                         ),
-                        Icon(expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down, color: Colors.grey.shade600)
+                        Icon(expanded ? Icons.keyboard_arrow_up : LucideIcons.chevronDown, color: Colors.grey.shade600)
                       ],
                     ),
                   ),

@@ -55,7 +55,7 @@ class TeamManagementScreen extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          icon: const Icon(LucideIcons.chevronLeft, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(

@@ -325,7 +325,7 @@ class _MemberTimesheetScreenState extends State<MemberTimesheetScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          icon: const Icon(LucideIcons.chevronLeft, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -565,7 +565,7 @@ class _TimesheetCard extends StatelessWidget {
                   Icon(
                     isExpanded
                         ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
+                        : LucideIcons.chevronDown,
                     size: 20,
                     color: AppColors.textMuted,
                   ),

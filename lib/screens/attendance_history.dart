@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../widgets/status_pill.dart';
 import '../widgets/filter_tabs.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class AttendanceHistory extends StatelessWidget {
   final Color headerColor;
@@ -67,7 +68,7 @@ class AttendanceHistory extends StatelessWidget {
                     children: [
                       Text(s, style: GoogleFonts.inter(fontSize: 11, color: AppColors.textPrimary)),
                       const SizedBox(width: 4),
-                      GestureDetector(onTap: onClearFilter, child: const Icon(Icons.close_rounded, size: 14, color: AppColors.textMuted)),
+                      GestureDetector(onTap: onClearFilter, child: const Icon(LucideIcons.x, size: 14, color: AppColors.textMuted)),
                     ],
                   ),
                 );
@@ -89,7 +90,7 @@ class AttendanceHistory extends StatelessWidget {
                         const Icon(Icons.filter_list_rounded, size: 16, color: AppColors.textMuted),
                         const SizedBox(width: 8),
                         Expanded(child: Text('Filter Status', style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary), overflow: TextOverflow.ellipsis)),
-                        const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.textMuted),
+                        const Icon(LucideIcons.chevronDown, size: 18, color: AppColors.textMuted),
                       ],
                     ),
                   ),

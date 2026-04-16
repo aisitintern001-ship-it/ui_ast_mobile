@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dotted_border/dotted_border.dart';
 import '../widgets/text_input.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class CreateLeaveModal extends StatefulWidget {
   const CreateLeaveModal({super.key});
@@ -131,7 +132,7 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
           iconSize: 24,
-          icon: const Icon(Icons.close, color: Colors.black87),
+          icon: const Icon(LucideIcons.x, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
       ],
@@ -211,7 +212,7 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
             'Select Leave Type',
             style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade500),
           ),
-          icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+          icon: Icon(LucideIcons.chevronDown, color: Colors.grey.shade500),
           style: GoogleFonts.inter(
             fontSize: 13,
             color: const Color(0xFF4A5568),
@@ -238,7 +239,7 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
       child: Row(
         children: [
           Icon(
-            Icons.calendar_today_outlined,
+           LucideIcons.calendar,
             size: 18,
             color: Colors.grey.shade600,
           ),
@@ -294,7 +295,7 @@ class _CreateLeaveModalState extends State<CreateLeaveModal> {
         child: Column(
           children: [
             Icon(
-              Icons.file_upload_outlined,
+              LucideIcons.arrowUpFromLine,
               size: 28,
               color: Colors.grey.shade600,
             ),

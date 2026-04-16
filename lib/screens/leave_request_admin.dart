@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../widgets/filter_tabs.dart';
@@ -85,7 +86,7 @@ class _LeaveRequestAdminScreenState extends State<LeaveRequestAdminScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 16),
+          icon: const Icon(LucideIcons.chevronLeft, size: 16),
           onPressed: () {
             if (widget.fromDataIntegration) {
               Navigator.pop(context);

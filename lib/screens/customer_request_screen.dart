@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../widgets/bottom_nav.dart';
@@ -50,7 +51,7 @@ class _CustomerRequestScreenState extends State<CustomerRequestScreen> {
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         backgroundColor: headerColor, foregroundColor: Colors.white, elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new, size: 18), onPressed: () => Navigator.pop(context)),
+        leading: IconButton(icon: const Icon(LucideIcons.chevronLeft, size: 18), onPressed: () => Navigator.pop(context)),
         title: Text('Customer Request', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold)),
       ),
       body: Column(

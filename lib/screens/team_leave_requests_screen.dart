@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../widgets/filter_tabs.dart';
@@ -78,7 +79,7 @@ class _TeamLeaveRequestsScreenState extends State<TeamLeaveRequestsScreen> {
         elevation: 0,
         // --- UPDATED LEADING PROPERTY ---
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 16),
+          icon: const Icon(LucideIcons.chevronLeft, size: 16),
           onPressed: () {
             Navigator.pop(context);
           },

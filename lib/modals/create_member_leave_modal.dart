@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 import '../widgets/text_input.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class CreateMemberLeaveModal extends StatelessWidget {
   const CreateMemberLeaveModal({super.key});
@@ -56,7 +57,7 @@ class CreateMemberLeaveModal extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                     iconSize: 24,
-                    icon: const Icon(Icons.close, color: Colors.black87),
+                    icon: const Icon(LucideIcons.x, color: Colors.black87),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -82,7 +83,7 @@ class CreateMemberLeaveModal extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.calendar_today_outlined,
+                      LucideIcons.calendar,
                       size: 18,
                       color: Colors.grey.shade600,
                     ),

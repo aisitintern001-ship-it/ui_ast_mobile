@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 import '../widgets/bottom_nav.dart';
@@ -61,7 +62,7 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          icon: const Icon(LucideIcons.chevronLeft, size: 18),
           onPressed: () {
             if (widget.fromDataIntegration) {
               Navigator.pop(context);
@@ -207,7 +208,7 @@ class _PersonalLeaveScreenState extends State<PersonalLeaveScreen> {
                         padding: EdgeInsets.zero, icon: const Icon(Icons.more_vert, size: 20, color: Colors.black87), onSelected: (val) { if (val == 'edit') _openEditModal(); },
                         itemBuilder: (context) => [
                           PopupMenuItem(value: 'edit', child: Row(children: [const Icon(Icons.edit_outlined, color: Colors.amber, size: 18), const SizedBox(width: 8), Text("Edit", style: GoogleFonts.inter(fontSize: 13))])),
-                          PopupMenuItem(value: 'cancel', child: Row(children: [const Icon(Icons.close, color: Colors.red, size: 18), const SizedBox(width: 8), Text("Cancel", style: GoogleFonts.inter(fontSize: 13))])),
+                          PopupMenuItem(value: 'cancel', child: Row(children: [const Icon(LucideIcons.x, color: Colors.red, size: 18), const SizedBox(width: 8), Text("Cancel", style: GoogleFonts.inter(fontSize: 13))])),
                         ],
                       ),
                     )

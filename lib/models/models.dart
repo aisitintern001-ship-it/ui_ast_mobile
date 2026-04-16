@@ -15,6 +15,22 @@ class UserModel {
     required this.role,
     this.companyId,
   });
+
+  UserModel copyWith({
+    String? name,
+    String? email,
+    String? initials,
+    String? role,
+    String? companyId,
+  }) {
+    return UserModel(
+      name: name ?? this.name,
+      email: email ?? this.email,
+      initials: initials ?? this.initials,
+      role: role ?? this.role,
+      companyId: companyId ?? this.companyId,
+    );
+  }
 }
 
 class CompanyModel {

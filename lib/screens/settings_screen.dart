@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,7 +31,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
-    final user = state.currentUser;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -57,7 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   MaterialPageRoute(builder: (context) => const ProfileInfoScreen()),
                 );
               },
-              child: _buildProfileCard(user),
+              child: _buildProfileCard(state),
             ),
             const SizedBox(height: 24),
 
@@ -125,7 +126,7 @@ _buildDivider(),
                 const SizedBox(width: 6),
                 GestureDetector(
                   onTap: () => _showModal(const DataRetentionModal()),
-                  child: const Icon(Icons.info_outline_rounded, size: 16, color: Colors.grey),
+                  child: const Icon(LucideIcons.info, size: 16, color: Colors.grey),
                 ),
               ],
             ),
@@ -138,11 +139,12 @@ _buildDivider(),
                   onTap: () => setState(() => _isPolicyExpanded = !_isPolicyExpanded),
                   child: _buildSettingsTile(
                     icon: LucideIcons.wifiOff,
-                    iconColor: const Color(0xFF6B7280),
+                    iconColor: Colors.white,
+                    iconForegroundColor: Colors.black,
                     title: 'Offline Records Policy',
                     trailingIcon: _isPolicyExpanded 
                         ? Icons.keyboard_arrow_up_rounded 
-                        : Icons.keyboard_arrow_down_rounded,
+                        : LucideIcons.chevronDown,
                   ),
                 ),
                 if (_isPolicyExpanded) ...[
@@ -159,15 +161,15 @@ _buildDivider(),
             _buildSectionHeader('GENERAL'),
             _buildSettingsCard(
               children: [
-                _buildSettingsTile(icon: Icons.language_rounded, iconColor: const Color(0xFF06B6D4), title: 'Website', showTrailing: false),
+                _buildSettingsTile(icon: LucideIcons.globe, iconColor: const Color(0xFF06B6D4), title: 'Website', showTrailing: false),
                 _buildDivider(),
-                _buildSettingsTile(icon: Icons.facebook_rounded, iconColor: const Color(0xFF3B5998), title: 'Facebook', showTrailing: false),
+                _buildSettingsTile(icon: LucideIcons.facebook, iconColor: const Color(0xFF3B5998), title: 'Facebook', showTrailing: false),
                 _buildDivider(),
-                _buildSettingsTile(icon: Icons.flutter_dash_rounded, iconColor: const Color(0xFF111827), title: 'Twitter', showTrailing: false),
+                _buildSettingsTile(icon: LucideIcons.twitter, iconColor: const Color(0xFF111827), title: 'Twitter', showTrailing: false),
                 _buildDivider(),
-                _buildSettingsTile(icon: Icons.lock_outline_rounded, iconColor: const Color(0xFFF43F5E), title: 'Privacy Policy', showTrailing: false),
+                _buildSettingsTile(icon: LucideIcons.lock, iconColor: const Color(0xFFF43F5E), title: 'Privacy Policy', showTrailing: false),
                 _buildDivider(),
-                _buildSettingsTile(icon: Icons.verified_user_outlined, iconColor: const Color(0xFF0EA5E9), title: 'Terms of Use', showTrailing: false),
+                _buildSettingsTile(icon: LucideIcons.shieldCheck, iconColor: const Color(0xFF0EA5E9), title: 'Terms of Use', showTrailing: false),
               ],
             ),
             const SizedBox(height: 24),
@@ -254,9 +256,11 @@ _buildDivider(),
     );
   }
 
-  Widget _buildProfileCard(dynamic user) {
+  Widget _buildProfileCard(AppState state) {
+    final user = state.currentUser;
+    final photoBase64 = state.profilePhotoBase64;
     String initials = "U";
-    String fullName = user.name ?? "Unknown User";
+    String fullName = user.name;
     if (fullName.isNotEmpty) {
       List<String> nameParts = fullName.trim().split(" ");
       initials = nameParts.length > 1 
@@ -277,7 +281,25 @@ _buildDivider(),
               Container(
                 width: 50, height: 50,
                 decoration: const BoxDecoration(color: Color(0xFF3B82F6), shape: BoxShape.circle),
-                child: Center(child: Text(initials, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18))),
+                child: ClipOval(
+                  child: photoBase64 != null && photoBase64.isNotEmpty
+                      ? Image.memory(
+                          base64Decode(photoBase64),
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                        )
+                      : Center(
+                          child: Text(
+                            initials,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                ),
               ),
               Positioned(
                 bottom: 0, right: 0,
@@ -295,7 +317,7 @@ _buildDivider(),
               children: [
                 Text(fullName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87)),
                 const SizedBox(height: 4),
-                Text("Senior Developer", style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+                Text(state.profileJobTitle, style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
               ],
             ),
           ),
@@ -319,7 +341,14 @@ _buildDivider(),
     );
   }
 
-  Widget _buildSettingsTile({required IconData icon, required Color iconColor, required String title, IconData trailingIcon = Icons.chevron_right_rounded, bool showTrailing = true}) {
+  Widget _buildSettingsTile({
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    IconData trailingIcon = Icons.chevron_right_rounded,
+    bool showTrailing = true,
+    Color iconForegroundColor = Colors.white,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -327,7 +356,7 @@ _buildDivider(),
           Container(
             width: 36, height: 36,
             decoration: BoxDecoration(color: iconColor, borderRadius: BorderRadius.circular(10)),
-            child: Icon(icon, color: Colors.white, size: 20),
+            child: Icon(icon, color: iconForegroundColor, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(child: Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87))),

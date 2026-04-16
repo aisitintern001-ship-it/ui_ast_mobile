@@ -41,7 +41,7 @@ class OfflineTabWidget extends StatelessWidget {
                 // Delete Synced Records Section
                 Row(
                   children: [
-                    const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                    const Icon(LucideIcons.trash, color: Colors.redAccent, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text("Delete Synced Records", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 14)),
@@ -69,7 +69,7 @@ class OfflineTabWidget extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
                     onPressed: onDeleteRange ?? () {},
-                    icon: const Icon(Icons.delete_outline, size: 16),
+                    icon: const Icon(LucideIcons.trash, size: 16),
                     label: Text("Delete Synced Range", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 13)),
                   ),
                 ),

@@ -3,6 +3,7 @@ import '../../../widgets/request_form_widgets.dart';
 import '../../../widgets/text_input.dart';
 import '../../../theme/app_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class CustomerRequirementsTab extends StatefulWidget {
   const CustomerRequirementsTab({super.key});
@@ -72,7 +73,7 @@ class CustomerRequirementsTabState extends State<CustomerRequirementsTab>
               color: AppColors.dangerRed.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
-            child: const Icon(Icons.delete_outline, size: 18, color: AppColors.dangerRed),
+            child: const Icon(LucideIcons.trash, size: 18, color: AppColors.dangerRed),
           ),
         ),
       ],

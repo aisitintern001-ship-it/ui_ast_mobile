@@ -373,7 +373,7 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          icon: const Icon(LucideIcons.chevronLeft, size: 18),
           onPressed: () {
             if (_currentStep > 0) {
               if (_currentStep == 1) {
@@ -480,7 +480,7 @@ class _FaceRegistrationScreenState extends State<FaceRegistrationScreen>
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          icon: const Icon(LucideIcons.chevronLeft, size: 18),
           onPressed: () {
             _cameraController?.dispose();
             _cameraController = null;

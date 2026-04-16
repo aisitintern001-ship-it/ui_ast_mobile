@@ -190,7 +190,7 @@ class _TeamMembersScreenState extends State<TeamMembersScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          icon: const Icon(LucideIcons.chevronLeft, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -597,7 +597,7 @@ class _FilterFieldState extends State<_FilterField> {
                     const SizedBox(width: 4),
                     GestureDetector(
                       onTap: () => widget.onChanged('All'),
-                      child: const Icon(Icons.close, size: 14, color: Color(0xFF6B7280)),
+                      child: const Icon(LucideIcons.x, size: 14, color: Color(0xFF6B7280)),
                     ),
                   ],
                 ),
@@ -630,7 +630,7 @@ class _FilterFieldState extends State<_FilterField> {
                     ),
                   ),
                 ),
-                const Icon(Icons.keyboard_arrow_down, size: 18, color: Color(0xFF9CA3AF)),
+                const Icon(LucideIcons.chevronDown, size: 18, color: Color(0xFF9CA3AF)),
               ],
             ),
           ),
@@ -775,7 +775,7 @@ class _MemberCard extends StatelessWidget {
                   Icon(
                     isExpanded
                         ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
+                        : LucideIcons.chevronDown,
                     size: 20,
                     color: AppColors.textMuted,
                   ),

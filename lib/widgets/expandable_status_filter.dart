@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 /// A reusable expandable status filter widget.
 ///
@@ -66,7 +67,7 @@ class _ExpandableStatusFilterState extends State<ExpandableStatusFilter> {
                 AnimatedRotation(
                   turns: _isExpanded ? 0.5 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: Icon(Icons.keyboard_arrow_down,
+                  child: Icon(LucideIcons.chevronDown,
                       color: Colors.grey.shade500),
                 ),
               ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 /// An animated back button with tap scale animation.
 /// Use this as the leading widget in AppBar for consistent back button behavior.
@@ -75,7 +76,7 @@ class _AnimatedBackButtonState extends State<AnimatedBackButton>
           height: 40,
           alignment: Alignment.center,
           child: Icon(
-            Icons.arrow_back_ios_new,
+            LucideIcons.chevronLeft,
             size: widget.size,
             color: widget.color,
           ),

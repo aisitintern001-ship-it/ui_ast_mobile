@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import 'request_form_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class RequestContactsTab extends StatefulWidget {
   final String entityName;
@@ -192,7 +193,7 @@ class RequestContactsTabState extends State<RequestContactsTab>
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Icon(
-                      Icons.delete_outline,
+                      LucideIcons.trash,
                       size: 18,
                       color: Colors.red.shade400,
                     ),
@@ -415,7 +416,7 @@ class RequestContactsTabState extends State<RequestContactsTab>
             ),
           ),
           icon:
-              Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500, size: 20),
+              Icon(LucideIcons.chevronDown, color: Colors.grey.shade500, size: 20),
           style: GoogleFonts.inter(fontSize: 12, color: AppColors.textPrimary),
           items: items.map((i) => DropdownMenuItem(value: i, child: Text(i))).toList(),
           onChanged: onChanged,

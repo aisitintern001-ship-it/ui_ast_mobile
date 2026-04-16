@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../data/address_location_data.dart';
 import '../theme/app_theme.dart';
 import 'request_form_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class RequestAddressTab extends StatefulWidget {
   final String entityName;
@@ -182,7 +183,7 @@ abstract class _BaseAddressTabState<T extends StatefulWidget> extends State<T>
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Icon(
-                      Icons.delete_outline,
+                      LucideIcons.trash,
                       size: 18,
                       color: Colors.red.shade400,
                     ),
@@ -374,7 +375,7 @@ abstract class _BaseAddressTabState<T extends StatefulWidget> extends State<T>
               ),
             ),
             icon:
-                Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500, size: 20),
+                Icon(LucideIcons.chevronDown, color: Colors.grey.shade500, size: 20),
             style: GoogleFonts.inter(fontSize: 12, color: AppColors.textPrimary),
             items: items.map((i) => DropdownMenuItem(value: i, child: Text(i))).toList(),
             onChanged: enabled ? onChanged : null,
@@ -417,7 +418,7 @@ abstract class _BaseAddressTabState<T extends StatefulWidget> extends State<T>
                   style: GoogleFonts.inter(fontSize: 12, color: AppColors.textMuted),
                 ),
               ),
-            Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500, size: 20),
+            Icon(LucideIcons.chevronDown, color: Colors.grey.shade500, size: 20),
           ],
         ),
       ),
@@ -547,7 +548,7 @@ abstract class _BaseAddressTabState<T extends StatefulWidget> extends State<T>
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500, size: 20),
+              Icon(LucideIcons.chevronDown, color: Colors.grey.shade500, size: 20),
             ],
           ),
         ),
@@ -683,7 +684,7 @@ class _CountryPickerModalState extends State<_CountryPickerModal> {
                 const Spacer(),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: Icon(Icons.close, color: Colors.grey.shade500),
+                  child: Icon(LucideIcons.x, color: Colors.grey.shade500),
                 ),
               ],
             ),
@@ -860,7 +861,7 @@ class _LocationPickerModalState extends State<_LocationPickerModal> {
                 const Spacer(),
                 GestureDetector(
                   onTap: () => Navigator.pop(context),
-                  child: Icon(Icons.close, color: Colors.grey.shade500),
+                  child: Icon(LucideIcons.x, color: Colors.grey.shade500),
                 ),
               ],
             ),

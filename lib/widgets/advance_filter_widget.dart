@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 /// Defines a single dropdown field used inside [AdvanceFilterWidget].
 class AdvanceFilterField {
@@ -96,7 +97,7 @@ class _AdvanceFilterWidgetState extends State<AdvanceFilterWidget> {
                 AnimatedRotation(
                   turns: _isExpanded ? 0.5 : 0,
                   duration: const Duration(milliseconds: 200),
-                  child: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+                  child: Icon(LucideIcons.chevronDown, color: Colors.grey.shade500),
                 ),
               ],
             ),
@@ -171,7 +172,7 @@ class _AdvanceFilterWidgetState extends State<AdvanceFilterWidget> {
                   field.hint,
                   style: GoogleFonts.inter(fontSize: 13, color: Colors.grey.shade400),
                 ),
-                icon: Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade500),
+                icon: Icon(LucideIcons.chevronDown, color: Colors.grey.shade500),
                 style: GoogleFonts.inter(fontSize: 13, color: AppColors.textPrimary),
                 items: field.items
                     .map((i) => DropdownMenuItem(value: i, child: Text(i)))

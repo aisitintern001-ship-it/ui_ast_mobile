@@ -128,7 +128,7 @@ class _UserLeaveRequestCardState extends State<UserLeaveRequestCard> {
                             value: 'cancel',
                             child: Row(
                               children: [
-                                const Icon(Icons.close, color: Colors.red, size: 18),
+                                const Icon(LucideIcons.x, color: Colors.red, size: 18),
                                 const SizedBox(width: 8),
                                 Text("Cancel", style: GoogleFonts.inter(fontSize: 13)),
                               ],
@@ -271,7 +271,7 @@ class _UserLeaveRequestCardState extends State<UserLeaveRequestCard> {
                           ),
                         ),
                         Icon(
-                          expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                          expanded ? Icons.keyboard_arrow_up : LucideIcons.chevronDown,
                           color: Colors.grey.shade600,
                         ),
                       ],

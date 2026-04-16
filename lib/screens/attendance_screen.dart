@@ -238,7 +238,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                  icon: const Icon(LucideIcons.chevronLeft, color: Colors.white),
                   onPressed: () {
                     if (widget.fromDataIntegration) {
                       Navigator.pop(context);
@@ -270,28 +270,51 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       const SizedBox(height: 4),
                       _ActiveTimerText(timeInAt: timeInAt, hasCurrentTimeIn: hasCurrentTimeIn),
                       const SizedBox(height: 16),
-                      Row(
+                     Row(
+                        mainAxisAlignment: MainAxisAlignment.center, // <-- Centers the buttons
                         children: [
                           // Show Time In button only when not timed in
                           if (!hasCurrentTimeIn)
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () => _handleFaceAction('Time In'),
-                                icon: const Icon(Icons.access_time_rounded, size: 18),
-                                label: Text('Time In', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                          SizedBox(
+                            height: 38,
+                            width: 140,
+                            // <-- Removed Expanded here
+                            child: ElevatedButton.icon(
+                              onPressed: () => _handleFaceAction('Time In'),
+                              icon: const Icon(LucideIcons.clock, size: 16),
+                              label: Text('Time In', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF10B981), // Matched the vibrant green from your image
+                                foregroundColor: Colors.white, 
+                                elevation: 0, 
+                                // <-- Added horizontal padding here
+                                padding: EdgeInsets.zero, 
+                                // <-- Increased border radius to make it more pill-shaped
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
                               ),
                             ),
+                          ),
+                          
                           // Show Time Out button only when already timed in
-                          if (hasCurrentTimeIn)
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () => _handleFaceAction('Time Out'),
-                                icon: const Icon(Icons.access_time_rounded, size: 18),
-                                label: Text('Time Out', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                          if (hasCurrentTimeIn)SizedBox(
+                            height: 38,
+                            width: 140,
+                            // <-- Removed Expanded here
+                            child: ElevatedButton.icon(
+                              onPressed: () => _handleFaceAction('Time Out'),
+                              icon: const Icon(LucideIcons.clock, size: 16),
+                              label: Text('Time Out', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFEF4444), 
+                                foregroundColor: Colors.white, 
+                                elevation: 0, 
+                                // <-- Added horizontal padding here
+                                padding: EdgeInsets.zero, 
+                                // <-- Increased border radius
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))
                               ),
                             ),
+                          ),
                         ],
                       ),
                       if (_showFailed) ...[
@@ -301,7 +324,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                           decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFFECACA))),
                           child: Column(
                             children: [
-                              Container(width: 48, height: 48, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFEF4444)), child: const Icon(Icons.close_rounded, size: 28, color: Colors.white)),
+                              Container(width: 48, height: 48, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFFEF4444)), child: const Icon(LucideIcons.x, size: 28, color: Colors.white)),
                               const SizedBox(height: 12),
                               Text('${_failedAction ?? "Attendance"} Failed', style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFFEF4444))),
                               const SizedBox(height: 4),
@@ -313,7 +336,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                   onPressed: () {
                                     if (_failedAction != null) _handleFaceAction(_failedAction!);
                                   },
-                                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                                  icon: const Icon(LucideIcons.rotateCw, size: 18),
                                   label: Text('Try Again', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600)),
                                   style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444), foregroundColor: Colors.white, elevation: 0, padding: const EdgeInsets.symmetric(vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                                 ),
@@ -376,7 +399,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                   children: [
                                     Text(s, style: GoogleFonts.inter(fontSize: 11, color: AppColors.textPrimary)),
                                     const SizedBox(width: 4),
-                                    GestureDetector(onTap: () => setState(() => _selectedStatuses.remove(s)), child: const Icon(Icons.close_rounded, size: 14, color: AppColors.textMuted)),
+                                    GestureDetector(onTap: () => setState(() => _selectedStatuses.remove(s)), child: const Icon(LucideIcons.x, size: 14, color: AppColors.textMuted)),
                                   ],
                                 ),
                               );
@@ -398,7 +421,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                                       const Icon(Icons.filter_list_rounded, size: 16, color: AppColors.textMuted),
                                       const SizedBox(width: 8),
                                       Expanded(child: Text('Filter Status', style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary), overflow: TextOverflow.ellipsis)),
-                                      const Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.textMuted),
+                                      const Icon(LucideIcons.chevronDown, size: 18, color: AppColors.textMuted),
                                     ],
                                   ),
                                 ),

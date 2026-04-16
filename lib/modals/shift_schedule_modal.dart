@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ShiftScheduleModal extends StatelessWidget {
   const ShiftScheduleModal({super.key});
@@ -29,7 +30,7 @@ class ShiftScheduleModal extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                  icon: const Icon(LucideIcons.x, color: Colors.grey, size: 20),
                 ),
               ],
             ),

@@ -252,7 +252,7 @@ class _UserExpenseClaimCardState extends State<UserExpenseClaimCard> {
                           ),
                         ),
                         Icon(
-                          expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                          expanded ? Icons.keyboard_arrow_up : LucideIcons.chevronDown,
                           color: Colors.grey.shade600,
                         ),
                       ],

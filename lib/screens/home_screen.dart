@@ -135,7 +135,7 @@ class HomeScreen extends StatelessWidget {
                         child: Row(
                           children: [
                             Icon(
-                              Icons.info_outline_rounded,
+                              LucideIcons.info,
                               color: const Color(0xFF60A5FA),
                               size: 24,
                             ),
@@ -481,15 +481,18 @@ class _MainMenuSectionState extends State<_MainMenuSection>
     Widget? leading,
     bool showChevron = true,
     Widget? trailing,
+    bool disabled = false,
   }) {
     return InkWell(
       onTap: showChevron ? () => _toggle(key) : null,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: disabled ? const Color(0xFFF8FAFC) : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.divider),
+          border: Border.all(
+            color: disabled ? const Color(0xFFE5E7EB) : AppColors.divider,
+          ),
         ),
         child: Row(
           children: [
@@ -500,7 +503,7 @@ class _MainMenuSectionState extends State<_MainMenuSection>
                 style: GoogleFonts.inter(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: disabled ? AppColors.textMuted : AppColors.textPrimary,
                 ),
               ),
             ),
@@ -853,19 +856,19 @@ class _MainMenuSectionState extends State<_MainMenuSection>
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: AppColors.iconTeal.withValues(alpha: 0.06),
+                color: const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 LucideIcons.wrench,
-                color: const Color.fromARGB(255, 109, 121, 119),
+                color: AppColors.textMuted,
                 size: 20,
               ),
             ),
             trailing: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.divider,
+                color: const Color(0xFFE5E7EB),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -878,6 +881,7 @@ class _MainMenuSectionState extends State<_MainMenuSection>
               ),
             ),
             showChevron: false,
+            disabled: true,
           ),
 
           const SizedBox(height: 12),
@@ -890,19 +894,19 @@ class _MainMenuSectionState extends State<_MainMenuSection>
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: headerColor.withValues(alpha: 0.06),
+                color: const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 Icons.checklist_rounded,
-                color: headerColor,
+                color: AppColors.textMuted,
                 size: 20,
               ),
             ),
             trailing: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.divider,
+                color: const Color(0xFFE5E7EB),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -915,6 +919,7 @@ class _MainMenuSectionState extends State<_MainMenuSection>
               ),
             ),
             showChevron: false,
+            disabled: true,
           ),
         ],
       ),

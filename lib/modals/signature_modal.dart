@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 import '../models/app_state.dart';
 
@@ -72,7 +73,7 @@ class _SignatureModalState extends State<SignatureModal> {
         foregroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          icon: const Icon(LucideIcons.chevronLeft, size: 18),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -162,7 +163,7 @@ class _SignatureModalState extends State<SignatureModal> {
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: _clear,
-                    icon: Icon(Icons.delete_outline, size: 18, color: Colors.grey.shade700),
+                    icon: Icon(LucideIcons.trash, size: 18, color: Colors.grey.shade700),
                     label: Text(
                       'Clear',
                       style: GoogleFonts.inter(

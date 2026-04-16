@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/models.dart';
 import '../theme/app_theme.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class NewsDetailModal extends StatelessWidget {
   final NewsItem news;
@@ -57,7 +58,7 @@ class NewsDetailModal extends StatelessWidget {
                         color: Colors.black.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.close_rounded, size: 16, color: Colors.white),
+                      child: const Icon(LucideIcons.x, size: 16, color: Colors.white),
                     ),
                   ),
                 ),

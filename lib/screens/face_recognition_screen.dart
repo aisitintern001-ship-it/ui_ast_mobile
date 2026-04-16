@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import '../models/app_state.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_toast.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class FaceRecognitionScreen extends StatefulWidget {
   final String mode; // 'Time In' or 'Time Out'
@@ -126,7 +127,7 @@ class _FaceRecognitionScreenState extends State<FaceRecognitionScreen>
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.close,
+                    LucideIcons.x,
                     color: Colors.white,
                     size: 32,
                   ),
